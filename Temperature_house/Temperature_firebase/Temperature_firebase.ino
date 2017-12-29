@@ -12,10 +12,10 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 SoftwareSerial TempSerial(13, 0); // D7,  RX, TX for read temp
 
 // Set these to run example.
-#define FIREBASE_HOST "xxx"
-#define FIREBASE_AUTH "xxx"
-#define WIFI_SSID "xxx"
-#define WIFI_PASSWORD "xxx"
+//#define FIREBASE_HOST "xxx"
+//#define FIREBASE_AUTH "xxx"
+//#define WIFI_SSID "xxx"
+//#define WIFI_PASSWORD "xxx"
 
 
 // Epoch time server
@@ -49,7 +49,7 @@ void setup() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("connecting");
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
+    Serial.print(". check the wifi ssid and password");
     delay(500);
   }
   Serial.println();
@@ -70,14 +70,15 @@ void setup() {
 // ========================== Loop ==========================
 
 void loop() {
-  static int new_temperature;
+  static float new_temperature;
   static boolean isTempAvailable = false;
 
   if (read_Temperature()) {
      Serial.print("Serial input:");
      Serial.println(TempInput);
      Serial.println(TempInput.substring(6,TempInput.indexOf('<')));
-     new_temperature = TempInput.substring(6,TempInput.indexOf('<')).toInt();
+     //new_temperature = TempInput.substring(6,TempInput.indexOf('<')).toInt();
+     new_temperature = TempInput.substring(6,TempInput.indexOf('<')).toFloat();
      Firebase_Send_Temperature(new_temperature);
   
 
@@ -147,7 +148,7 @@ long Firebase_getResetTime() {
 
 // ------------------------------------------------
 
-bool Firebase_Send_Temperature(int new_temp) {
+bool Firebase_Send_Temperature(float new_temp) {
   // static float last_resettime;
   long resettime = Firebase_getResetTime();
   unsigned long server_epoch = get_Server_Time();

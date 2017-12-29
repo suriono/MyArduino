@@ -28,9 +28,17 @@ void setup()   {
   // init done
 
   display.clearDisplay();
-  display.drawBitmap(0, 0,  bytearray, 114, 64, 1);
+  //display.drawBitmap(0, 0,  bytearray, 114, 64, 1);
+  display.drawBitmap(80, 24,  Smiley_picture, 32, 32, 1);
   display.display();
   delay(5000);
+
+  message[0] = "Welcome";
+  //message[0] = "My Outlook Calendar:";
+  //message[1] = "Merry X-mas & Happy New Year. Enjoy your day !";
+  //message[1] = "Merry Christmas";
+  message[1] = "to Uz's cube";
+  
 }
 
 // ===================== Loop ========================
@@ -38,10 +46,6 @@ void setup()   {
 void loop() {
   
   // draw scrolling text
-  //message[0] = "Welcome to";
-  message[0] = "My Outlook Calendar:";
-  //message[1] = "Merry X-mas & Happy New Year. Enjoy your day !";
-  message[1] = "Merry Christmas";
   
   DisplayText(message);
 
@@ -50,7 +54,12 @@ void loop() {
   display.drawBitmap(0, 0,  PSLLogo, 128, 64, 1);
   display.startscrollleft(0x00, 0x0F);
   display.display();
-  delay(7000);
+  delay(6700);
+  display.invertDisplay(true);
+  delay(1300); 
+  display.stopscroll();
+  display.invertDisplay(false);
+  delay(1000);
 }
 
 // ======================= End of Loop ============================
@@ -134,17 +143,50 @@ void DisplayText(String str[]) {
   display.setTextSize(2);
   display.clearDisplay();
   display.setCursor(0,0);
+  display.startscrollleft(0x00, 0x01);
 
+  // get up to 6 rows of text
   msg_array_index = 0;
   for (int nn=0 ; nn < 6 ; nn++) {
     msg_array[nn] = ""; // reset
   }
-
-  display.startscrollleft(0x00, 0x01);
-  
   // Break words into six rows
   BreakText(str[1]);
- 
+
+
+  display.println(str[0]);
+  for (int nn=0 ; nn < 3 ; nn++) {
+    display.println(msg_array[nn]);
+  }
+
+  if (str[0].startsWith("Welcome")) {
+    display.drawBitmap(96, 32,  Smiley_picture, 32, 32, 1);
+  }
+  
+  display.display();
+  delay(4000);
+
+  if (msg_array[3].length() > 0) { // simplest text
+    for (int16_t i=display.width()-1; i>=0 ; i-=1) {
+      display.drawLine(i, display.height()/4, i, display.height()-1, BLACK);
+      if ( (i%4) == 0 ) {
+        display.display();
+        delay(1);
+      }
+    }
+
+    display.setCursor(0,17);
+    for (int nn=3 ; nn < 6 ; nn++) {
+      display.println(msg_array[nn]);
+      display.display();
+      delay(100);
+    }
+  }
+  
+  
+  delay(4000);
+  /*
+  
   unsigned long last_scroll;
 
   static int starti = 0;
@@ -205,8 +247,8 @@ void DisplayText(String str[]) {
     
     starti++;
   }
-  display.stopscroll();
-  delay(1000);
+  */
   
+  display.stopscroll();
 }
 
