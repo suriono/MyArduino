@@ -48,6 +48,7 @@ void loop() {
   
   DisplayText(message);
 
+/*
   display.clearDisplay();
   display.drawBitmap(0, 0,  PSLLogo, 128, 64, 1);
   display.startscrollleft(0x00, 0x0F);
@@ -58,6 +59,10 @@ void loop() {
   display.stopscroll();
   display.invertDisplay(false);
   delay(1000);
+  */
+
+  Serial.println("testing uz");
+  Serial.flush();
 }
 
 // ======================= End of Loop ============================
