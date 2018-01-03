@@ -165,6 +165,8 @@ void DisplayText(String str[]) {
 
   if (msg_array[1].length()<9 && msg_array[2].length()<9) {
     display.drawBitmap(96, 32,  Smiley_picture, 32, 32, 1);
+  } else if ( msg_array[1].length()<9 && msg_array[0].length()<9) {
+    display.drawBitmap(96, 16,  Smiley_picture, 32, 32, 1);
   }
   
   display.display();
@@ -187,6 +189,8 @@ void DisplayText(String str[]) {
 
     if (msg_array[4].length()<9 && msg_array[5].length()<9) {
       display.drawBitmap(96, 32,  Smiley_picture, 32, 32, 1);
+    } else if ( msg_array[4].length()<9 && msg_array[3].length()<9) {
+      display.drawBitmap(96, 16,  Smiley_picture, 32, 32, 1);
     }
     
     display.display();
