@@ -13,7 +13,7 @@ Adafruit_SSD1306 display(OLED_RESET);
 //#define YPOS 1
 //#define DELTAY 2
 
-String message[2];      // messages received from PC
+String header, calendar;      // messages received from PC
 
 #if (SSD1306_LCDHEIGHT != 64)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
@@ -32,11 +32,11 @@ void setup()   {
   display.display();
   delay(2000);
 
-  message[0] = "Welcome";
+  header = "Waiting";
   //message[0] = "My Outlook Calendar:";
-  message[1] = "Merry X-mas & Happy New Year. Enjoying your day";
+  //message[1] = "Merry X-mas & Happy New Year. Enjoying your day";
   //message[1] = "Merry Christmas";
-  //message[1] = "to Uz'sss cube";
+  calendar = "for calender";
   
 }
 
@@ -45,24 +45,46 @@ void setup()   {
 void loop() {
   
   // draw scrolling text
+
+  static String st0, st1;
   
-  DisplayText(message);
+//  newmsg[0] = message[0];
+//  newmsg[1] = message[1];
 
+ 
+
+  //if (newmsg2.length() < 1) {
+    //newmsg[0] = "notsure";
+    //newmsg2 = "why";
+  //}
+
+  if (header.length() > 1 && calendar.length() > 1) {
+    st0 = header;
+    st1 = calendar;
+  }
+
+  DisplayText(st0, st1);
+  //DisplayText();
+
+  //display.clearDisplay();
+  //display.drawBitmap(0, 0,  PSLLogo, 128, 64, 1);
+  //display.startscrollleft(0x00, 0x0F);
+  //display.display();
+  //delay(6700);
+  //display.invertDisplay(true);
+  //delay(1300); 
+  //display.stopscroll();
+  //display.invertDisplay(false);
+  //delay(1000);
+  
 /*
-  display.clearDisplay();
-  display.drawBitmap(0, 0,  PSLLogo, 128, 64, 1);
-  display.startscrollleft(0x00, 0x0F);
-  display.display();
-  delay(6700);
-  display.invertDisplay(true);
-  delay(1300); 
-  display.stopscroll();
-  display.invertDisplay(false);
-  delay(1000);
-  */
-
-  Serial.println("testing uz");
+  static int nn=0;
+  Serial.println(String(nn++) + " testing uz");
   Serial.flush();
+  delay(5000);
+  */
+  Serial.println("Request"); // request a new one
+  delay(1000);
 }
 
 // ======================= End of Loop ============================
@@ -70,10 +92,26 @@ void loop() {
 // ********** incoming Serial ***********
 
 void serialEvent() {
-  static String TweetStr;
   byte startind, stopind0, stopind1;
 
   String serialstr = Serial.readStringUntil('<');
+
+  //Serial.print(serialstr);
+
+   stopind0 = serialstr.indexOf("(1)");
+   stopind1 = serialstr.indexOf("(2)");
+
+   if (stopind0 > 0 && stopind1 > 0) {
+      Serial.println(serialstr);  // send back for verification
+      
+      header = serialstr.substring(0,stopind0);
+      calendar = serialstr.substring(stopind0+3,stopind1);
+     
+   } else {
+      Serial.println("ERROR");
+   }
+   //Serial.flush();
+/*
       
   if (serialstr.indexOf("/") > 0) { //receive time verification
      stopind0 = TweetStr.indexOf("(1)");
@@ -91,10 +129,11 @@ void serialEvent() {
      TweetStr = serialstr;
   }
   Serial.flush();
+  */
   while (Serial.available()) {
     Serial.read();  // read the remaining unread
   }
-
+ 
   
 }
 
@@ -139,7 +178,12 @@ void BreakText(String inpstr) {
 
 // ==================== DisplayText ========================
 
-void DisplayText(String str[]) {
+void DisplayText(String str0, String str1) {
+//void DisplayText() {
+  //String str0, str1;
+
+  //str0 = header;
+  //str1 = calendar;
   
   display.setTextSize(2);
   display.clearDisplay();
@@ -152,7 +196,7 @@ void DisplayText(String str[]) {
     msg_array[nn] = ""; // reset
   }
   // Break words into six rows
-  BreakText(str[1]);
+  BreakText(str1);
 
   //Serial.println("messages: ");
   //for (byte nn=0 ; nn < 6 ; nn++) {
@@ -161,7 +205,7 @@ void DisplayText(String str[]) {
   //Serial.println("-------------------------");
 
 
-  display.println(str[0]);
+  display.println(str0);
   //Serial.println("First 3 rows:");
   for (byte nn=0 ; nn < 3 ; nn++) {
     display.println(msg_array[nn]);
