@@ -9,11 +9,9 @@
 Adafruit_SSD1306 display(OLED_RESET);
 
 #define NUMFLAKES 10
-//#define XPOS 0
-//#define YPOS 1
-//#define DELTAY 2
 
 String header, calendar;      // messages received from PC
+unsigned long Last_time_received_data;
 
 #if (SSD1306_LCDHEIGHT != 64)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!");
@@ -32,49 +30,37 @@ void setup()   {
   display.display();
   delay(2000);
 
-  header = "Waiting";
-  //message[0] = "My Outlook Calendar:";
-  //message[1] = "Merry X-mas & Happy New Year. Enjoying your day";
-  //message[1] = "Merry Christmas";
-  calendar = "for calender";
+  //header = "Waiting";
+  //calendar = "for calender";
   
 }
 
 // ===================== Loop ========================
 
 void loop() {
-  
-  // draw scrolling text
 
   static String st0, st1;
-  
-//  newmsg[0] = message[0];
-//  newmsg[1] = message[1];
 
- 
-
-  //if (newmsg2.length() < 1) {
-    //newmsg[0] = "notsure";
-    //newmsg2 = "why";
-  //}
-
-  if (header.length() > 1 && calendar.length() > 1) {
+  if ( (millis() - Last_time_received_data) > 30000) { // not getting any input
+    st0 = "Welcome";
+    st1 = "to Uz's cube";
+  } else if (header.length() > 1 && calendar.length() > 1) {
     st0 = header;
     st1 = calendar;
   }
 
   DisplayText(st0, st1);
-  //DisplayText();
+  
 
-  //display.clearDisplay();
-  //display.drawBitmap(0, 0,  PSLLogo, 128, 64, 1);
-  //display.startscrollleft(0x00, 0x0F);
-  //display.display();
-  //delay(6700);
-  //display.invertDisplay(true);
-  //delay(1300); 
-  //display.stopscroll();
-  //display.invertDisplay(false);
+  display.clearDisplay();
+  display.drawBitmap(0, 0,  PSLLogo, 128, 64, 1);
+  display.startscrollleft(0x00, 0x0F);
+  display.display();
+  delay(6700);
+  display.invertDisplay(true);
+  delay(1300); 
+  display.stopscroll();
+  display.invertDisplay(false);
   //delay(1000);
   
 /*
@@ -106,30 +92,14 @@ void serialEvent() {
       
       header = serialstr.substring(0,stopind0);
       calendar = serialstr.substring(stopind0+3,stopind1);
+
+      Last_time_received_data = millis();
      
    } else {
       Serial.println("ERROR");
    }
    //Serial.flush();
-/*
-      
-  if (serialstr.indexOf("/") > 0) { //receive time verification
-     stopind0 = TweetStr.indexOf("(1)");
-     stopind1 = TweetStr.indexOf("(2)");
-        
-     message[0] = TweetStr.substring(0,stopind0);
-        
-     if (stopind1 > 0) {
-        message[1] = TweetStr.substring(stopind0+3,stopind1);
-     } else {
-        message[1] = "";
-     }
-  } else {
-     Serial.print(serialstr);  // send back for verification
-     TweetStr = serialstr;
-  }
-  Serial.flush();
-  */
+
   while (Serial.available()) {
     Serial.read();  // read the remaining unread
   }
