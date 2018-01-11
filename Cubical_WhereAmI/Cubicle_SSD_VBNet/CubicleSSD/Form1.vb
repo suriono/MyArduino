@@ -45,7 +45,7 @@ Public Class Form1
             Dim seconds_elapsed As Integer
             seconds_elapsed = Now.Subtract(Last_in_office).TotalSeconds
 
-            Label_debug.Text = "Hour: " + Now.Hour().ToString()
+            'Label_debug.Text = "elapse: " + seconds_elapsed.ToString() + "," + Last_in_office.ToString
 
             If seconds_elapsed < 30 Then                    ' 30 seconds since last sensed by ultrasonic
                 Send_to_SSD = "Welcome(1)to Uz's Cubicle(2)"
@@ -81,11 +81,14 @@ Public Class Form1
 
         Label_received_ultrasonic.Text = readstr
 
-        If StrComp(readstr, "in_office") > -1 Then
+        If StrComp(readstr, "in_office") = 0 Then
             Last_in_office = Now()
+            'Label_debug.Text = "true" + Last_in_office.ToString() + StrComp(readstr, "in_office").ToString
+            'Else
+            'Label_debug.Text = "false" + Last_in_office.ToString()
         End If
-
-        Label_debug.Text = "Received from Ultrasonic: " + readstr
+        'Label_debug.Text = Last_in_office.ToString()
+        'Label_debug.Text = "Received from Ultrasonic: " + readstr
     End Sub
 
     Private Sub Button_debug_Click(sender As Object, e As EventArgs) Handles Button_debug.Click

@@ -18,8 +18,6 @@ void loop() {
     Serial.println("Uz is in office (within the last 5 sec)");
     #endif
     Serial.println("in_office");
-  //} else {
-   // Serial.println("out_office");
   } else {
     Serial.println("not_office");
   }
@@ -34,18 +32,21 @@ boolean is_Uz_in_office() {
   
   int dist_cm = sonar.ping_median(11)*0.034/2.0;
 
+  #ifdef DEBUG
+    Serial.print("======Last seen: "); 
+    Serial.print((millis()-last_seen)/1000); Serial.print(" sec ago, ");
+    Serial.print(dist_cm); Serial.println("cm");
+  #endif
+
   if (dist_cm < 125 && dist_cm > 0) {              // appear in the office
     last_seen = millis();
+    return true;
   } else if (dist_cm < 1) {
     Serial.println("ultrasonic_error");
   }
 
-  #ifdef DEBUG
-  Serial.print("======Last seen: "); 
-  Serial.print((millis()-last_seen)/1000); Serial.print(" sec ago, ");
-  Serial.print(dist_cm); Serial.println("cm");
-  #endif
-
-  return ((millis()-last_seen)/1000) < 4;   // seen within the last 60 sec 
+  return false;
+  
+  //return ((millis()-last_seen)/1000) < 4;   // seen within the last 60 sec 
 }
 
