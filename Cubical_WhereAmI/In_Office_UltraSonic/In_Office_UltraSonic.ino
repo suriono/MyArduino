@@ -17,7 +17,7 @@ void loop() {
     #ifdef DEBUG
     Serial.println("Uz is in office (within the last 5 sec)");
     #endif
-    Serial.print("in_office");
+    Serial.println("in_office");
   //} else {
    // Serial.println("out_office");
   }
