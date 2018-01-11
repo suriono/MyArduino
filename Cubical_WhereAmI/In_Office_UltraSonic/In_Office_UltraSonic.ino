@@ -20,6 +20,8 @@ void loop() {
     Serial.println("in_office");
   //} else {
    // Serial.println("out_office");
+  } else {
+    Serial.println("not_office");
   }
   delay(5000);                     // Wait 50ms between pings (about 20 pings/sec). 29ms should be the shortest delay between pings.
 }
@@ -32,8 +34,10 @@ boolean is_Uz_in_office() {
   
   int dist_cm = sonar.ping_median(11)*0.034/2.0;
 
-  if (dist_cm < 125) {              // appear in the office
+  if (dist_cm < 125 && dist_cm > 0) {              // appear in the office
     last_seen = millis();
+  } else if (dist_cm < 1) {
+    Serial.println("ultrasonic_error");
   }
 
   #ifdef DEBUG
