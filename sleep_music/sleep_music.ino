@@ -54,7 +54,8 @@ void loop() {
 
   //Serial.print(sig[sig_index]); Serial.print(",");
   //Serial.print(deriv2); Serial.print(",");
-  Serial.print(heartbeat);
+  Serial.print(sig[sig_index]);
+  //Serial.print(heartbeat);
   Serial.println();
 
 
