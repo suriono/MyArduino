@@ -7,8 +7,8 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>       
 
-#define WIFI_SSID "siantar"
-#define WIFI_PASSWORD "aza5077266123"
+#define WIFI_SSID "xxxx"
+#define WIFI_PASSWORD "xxxx"
 #define localUDPPort  2391      // local port to listen for UDP packets
 #define REMOTE_IP "192.168.254.79"
 #define REMOTE_PORT 2390
@@ -16,7 +16,7 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 WiFiUDP Udp;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
    // connect to wifi.
   WiFi.enableAP(false);
@@ -40,35 +40,16 @@ void setup() {
 
 }
 
-const int NTP_PACKET_SIZE = 48; // NTP time stamp is in the first 48 bytes of the message
-char packetBuffer[ NTP_PACKET_SIZE] = "hello"; //buffer to hold incoming and outgoing packets
-char  ReplyBuffer[] = "acknowledged";       // a string to send back
+//const int NTP_PACKET_SIZE = 48; // NTP time stamp is in the first 48 bytes of the message
+const int NTP_PACKET_SIZE = 24; // NTP time stamp is in the first 48 bytes of the message
+char packetBuffer[ NTP_PACKET_SIZE]; // = "hello"; //buffer to hold incoming and outgoing packets
+//char  ReplyBuffer[] = "acknowledged";       // a string to send back
 
 void loop() {
-  //Serial.println("left device dude");
-  //memset(packetBuffer, 0, NTP_PACKET_SIZE); // reset the buffer to empty characters
-  // Initialize values needed to form NTP request
-  // (see URL above for details on the packets)
-  /*
-  packetBuffer[0] = 0b11100011;   // LI, Version, Mode
-  packetBuffer[1] = 0;     // Stratum, or type of clock
-  packetBuffer[2] = 6;     // Polling Interval
-  packetBuffer[3] = 0xEC;  // Peer Clock Precision
-  // 8 bytes of zero for Root Delay & Root Dispersion
-  packetBuffer[12]  = 49;
-  packetBuffer[13]  = 0x4E;
-  packetBuffer[14]  = 49;
-  packetBuffer[15]  = 52;
-  */
-
-  //packetBuffer[]0 = 'h';
-
   static unsigned long last_time;
- 
- 
 
   int packetSize = Udp.parsePacket();
-  if (packetSize) {
+  if (packetSize) {                     // incoming packet data
     Serial.print("Received packet of size ");
     Serial.println(packetSize);
     Serial.print("From ");
@@ -92,8 +73,13 @@ void loop() {
     //Udp.write(ReplyBuffer);
     //Udp.endPacket();
   
-  } else if ( (millis() - last_time) > 2000) {
+  } else if ( (millis() - last_time) > 10) {  // send packet
     last_time = millis();
+
+    String tmpstr =String ( analogRead(A0)); 
+    tmpstr.toCharArray(packetBuffer, NTP_PACKET_SIZE);
+    //Serial.print("Sending: "); 
+    Serial.println(packetBuffer);
 
     Udp.beginPacket(REMOTE_IP, REMOTE_PORT);
     Udp.write(packetBuffer, NTP_PACKET_SIZE);
