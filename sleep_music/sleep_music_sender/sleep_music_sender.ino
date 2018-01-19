@@ -7,10 +7,11 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>       
 
-#define WIFI_SSID "xxxx"
-#define WIFI_PASSWORD "xxxx"
+#define WIFI_SSID "sleep_AP"
+#define WIFI_PASSWORD "sleep1234"
 #define localUDPPort  2391      // local port to listen for UDP packets
-#define REMOTE_IP "192.168.254.79"
+//#define REMOTE_IP "192.168.254.79"
+#define REMOTE_IP "192.168.4.1"
 #define REMOTE_PORT 2390
 
 WiFiUDP Udp;
@@ -79,7 +80,7 @@ void loop() {
     String tmpstr =String ( analogRead(A0)); 
     tmpstr.toCharArray(packetBuffer, NTP_PACKET_SIZE);
     //Serial.print("Sending: "); 
-    Serial.println(packetBuffer);
+    //Serial.println(packetBuffer);
 
     Udp.beginPacket(REMOTE_IP, REMOTE_PORT);
     Udp.write(packetBuffer, NTP_PACKET_SIZE);
