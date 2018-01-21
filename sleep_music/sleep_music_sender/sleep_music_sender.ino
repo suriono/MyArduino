@@ -77,10 +77,10 @@ void loop() {
   } else if ( (millis() - last_time) > 10) {  // send packet
     last_time = millis();
 
-    String tmpstr =String ( analogRead(A0)); 
+    String tmpstr =String (signal_Processing()); 
     tmpstr.toCharArray(packetBuffer, NTP_PACKET_SIZE);
-    //Serial.print("Sending: "); 
-    //Serial.println(packetBuffer);
+    
+    Serial.println(packetBuffer);
 
     Udp.beginPacket(REMOTE_IP, REMOTE_PORT);
     Udp.write(packetBuffer, NTP_PACKET_SIZE);
@@ -90,6 +90,30 @@ void loop() {
 
   delay(10);
   
+}
+
+// ===========================================
+
+int signal_Processing() {
+
+   static int sig[5], sig_index;
+
+   sig_index = (sig_index + 1)%5;
+
+   byte i0 = (sig_index + 1)%5;
+   byte i1 = (sig_index + 2)%5;
+   byte i2 = (sig_index + 3)%5;
+   byte i3 = (sig_index + 4)%5;
+
+   double deriv1 = -sig[sig_index] +  8.0*sig[i3] - 8.0*sig[i1] + sig[i0];
+   //double deriv2 = -sig[sig_index] + 16.0*sig[i3] -30.0*sig[i2] + 16.0*sig[i1] - sig[i0];
+   
+   
+   Serial.print(deriv1); Serial.print(",");
+   //Serial.print(deriv2); Serial.print(",");
+   sig[sig_index] = analogRead(A0);
+
+   return sig[sig_index];
 }
 
 /*
