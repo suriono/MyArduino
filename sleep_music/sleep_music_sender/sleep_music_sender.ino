@@ -46,52 +46,6 @@ const int NTP_PACKET_SIZE = 24; // NTP time stamp is in the first 48 bytes of th
 char packetBuffer[ NTP_PACKET_SIZE]; // = "hello"; //buffer to hold incoming and outgoing packets
 //char  ReplyBuffer[] = "acknowledged";       // a string to send back
 
-void loop() {
-  static unsigned long last_time;
-
-  int packetSize = Udp.parsePacket();
-  if (packetSize) {                     // incoming packet data
-    Serial.print("Received packet of size ");
-    Serial.println(packetSize);
-    Serial.print("From ");
-    IPAddress remote = Udp.remoteIP();
-    for (int i = 0; i < 4; i++) {
-      Serial.print(remote[i], DEC);
-      if (i < 3) {
-        Serial.print(".");
-      }
-    }
-    Serial.print(", port ");
-    Serial.println(Udp.remotePort());
-
-    // read the packet into packetBufffer
-    Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-    Serial.println("Contents:");
-    Serial.println(packetBuffer);
-
-    // send a reply to the IP address and port that sent us the packet we received
-    //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    //Udp.write(ReplyBuffer);
-    //Udp.endPacket();
-  
-  } else if ( (millis() - last_time) > 10) {  // send packet
-    last_time = millis();
-
-    String tmpstr =String (signal_Processing()); 
-    tmpstr.toCharArray(packetBuffer, NTP_PACKET_SIZE);
-    
-    Serial.println(packetBuffer);
-
-    Udp.beginPacket(REMOTE_IP, REMOTE_PORT);
-    Udp.write(packetBuffer, NTP_PACKET_SIZE);
-    Udp.endPacket();
-  
-  }
-
-  delay(10);
-  
-}
-
 // ===========================================
 
 int signal_Processing() {
@@ -115,6 +69,62 @@ int signal_Processing() {
 
    return sig[sig_index];
 }
+
+
+void loop() {
+  static unsigned long last_time;
+
+  if ( (millis() - last_time) > 10) {  // send packet
+    last_time = millis();
+
+    String tmpstr =String (signal_Processing()); 
+    tmpstr.toCharArray(packetBuffer, NTP_PACKET_SIZE);
+
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println(packetBuffer);
+
+      Udp.beginPacket(REMOTE_IP, REMOTE_PORT);
+      Udp.write(packetBuffer, NTP_PACKET_SIZE);
+      Udp.endPacket();
+    } else {
+      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+      Serial.print("connecting");
+      while (WiFi.status() != WL_CONNECTED) {
+        Serial.print(".");
+        delay(500);
+      }
+    }
+  
+  }
+
+  delay(10);
+  /*
+  int packetSize = Udp.parsePacket();
+  if (packetSize) {                     // incoming packet data
+    Serial.print("Received packet of size ");
+    Serial.println(packetSize);
+    Serial.print("From ");
+    IPAddress remote = Udp.remoteIP();
+    for (int i = 0; i < 4; i++) {
+      Serial.print(remote[i], DEC);
+      if (i < 3) {
+        Serial.print(".");
+      }
+    }
+    Serial.print(", port ");
+    Serial.println(Udp.remotePort());
+
+    // read the packet into packetBufffer
+    Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
+    Serial.println("Contents:");
+    Serial.println(packetBuffer);
+  
+  } 
+  */
+  
+  
+}
+
 
 /*
 void receive( byte[] data ) {          // <-- default handler
