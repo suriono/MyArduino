@@ -7,6 +7,12 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>       
 
+#define AMPLITUDE_RANGE_THRESHOLD 200
+#define MAX_SLOPE_THRESHOLD 700
+#define SAMPLING_FREQ 50    // in Hz 20
+#define SAMPLING_MAX  151    // 51sampling to find the last max, typically 2x freq
+
+
 #define WIFI_SSID "sleep_AP"
 #define WIFI_PASSWORD "sleep1234"
 #define localUDPPort  2391      // local port to listen for UDP packets
@@ -46,9 +52,9 @@ const int NTP_PACKET_SIZE = 24; // NTP time stamp is in the first 48 bytes of th
 char packetBuffer[ NTP_PACKET_SIZE]; // = "hello"; //buffer to hold incoming and outgoing packets
 //char  ReplyBuffer[] = "acknowledged";       // a string to send back
 
-// ===========================================
+// ================ get signal slope =============================
 
-int signal_Processing() {
+int get_Slope(int analogsignal) {
 
    static int sig[5], sig_index;
 
@@ -59,25 +65,75 @@ int signal_Processing() {
    byte i2 = (sig_index + 3)%5;
    byte i3 = (sig_index + 4)%5;
 
-   double deriv1 = -sig[sig_index] +  8.0*sig[i3] - 8.0*sig[i1] + sig[i0];
+   int deriv1 = -sig[sig_index] +  8*sig[i3] - 8*sig[i1] + sig[i0];
    //double deriv2 = -sig[sig_index] + 16.0*sig[i3] -30.0*sig[i2] + 16.0*sig[i1] - sig[i0];
    
    
-   Serial.print(deriv1); Serial.print(",");
+   
    //Serial.print(deriv2); Serial.print(",");
-   sig[sig_index] = analogRead(A0);
-
-   return sig[sig_index];
+   sig[sig_index] = analogsignal;
+   Serial.print(sig[sig_index]); Serial.print(",");
+   
+   //return sig[sig_index];
+   return deriv1;
 }
+
+
+// ============= get max values to detect pulse peak ======
+
+int Get_Max_Derivative(int newval) {
+  static byte index;
+  static int arr[SAMPLING_MAX];
+  arr[index] = newval;
+  int tmpmax = -10000;
+  for (byte nn = 0 ; nn < SAMPLING_MAX ; nn++) {
+    if (arr[nn] > tmpmax) {
+      tmpmax = arr[nn];
+    }
+  }
+  index = (index + 1) % (SAMPLING_MAX);
+  return tmpmax;
+}
+
+
+// ============= get max values to detect pulse peak ======
+
+int Get_Amplitude_Range(int newval) {
+  static byte index;
+  static int arr[SAMPLING_MAX];
+  arr[index] = newval;
+  int tmpmax = -10000;
+  int tmpmin = 10000;
+  for (byte nn = 0 ; nn < SAMPLING_MAX ; nn++) {
+    if (arr[nn] > tmpmax) {
+      tmpmax = arr[nn];
+    }
+    if (arr[nn] < tmpmin) {
+      tmpmin = arr[nn];
+    }
+  }
+  index = (index + 1) % (SAMPLING_MAX);
+  return tmpmax - tmpmin;
+}
+
+
+
+
+// ===========================================
+
 
 
 void loop() {
   static unsigned long last_time;
 
-  if ( (millis() - last_time) > 10) {  // send packet
-    last_time = millis();
+  if ( (micros() - last_time) > 20000) {  // send packet
+    last_time = micros();
 
-    String tmpstr =String (signal_Processing()); 
+    int analogsignal = analogRead(A0);
+    
+    int max_slope = Get_Max_Derivative(get_Slope(analogsignal));
+    int amplitude_range = Get_Amplitude_Range(analogsignal);
+    String tmpstr = String (amplitude_range); 
     tmpstr.toCharArray(packetBuffer, NTP_PACKET_SIZE);
 
     if (WiFi.status() == WL_CONNECTED) {
@@ -97,7 +153,7 @@ void loop() {
   
   }
 
-  delay(10);
+  delay(1);
   /*
   int packetSize = Udp.parsePacket();
   if (packetSize) {                     // incoming packet data
@@ -126,12 +182,7 @@ void loop() {
 }
 
 
-/*
-void receive( byte[] data ) {          // <-- default handler
-//void receive( byte[] data, String ip, int port ) {   // <-- extended handler
 
-  for(int i=0; i < data.length; i++)  print(char(data[i]));
-    
-  println();
-}
-*/
+
+
+
