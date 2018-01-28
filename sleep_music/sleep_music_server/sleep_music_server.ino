@@ -17,10 +17,9 @@ WiFiClient client;
 WiFiUDP Udp;
 // buffers for receiving and sending data
 #define NTP_PACKET_SIZE   24
-//char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
-char packetBuffer[NTP_PACKET_SIZE];  //buffer to hold incoming packet,
-//char  ReplyBuffer[] = "acknowledged";       // a string to send back
-
+char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
+//char packetBuffer[NTP_PACKET_SIZE];  //buffer to hold incoming packet,
+char replyBuffer[NTP_PACKET_SIZE];
 //#define DEBUG
 
 void setup() {
@@ -38,20 +37,6 @@ void setup() {
   server.begin();
   Serial.println("Server started");
 
-
-/*
-   // connect to wifi.
-  WiFi.enableAP(false);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.print("connecting");
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.println(".");
-    delay(500);
-  }
-  Serial.println();
-  Serial.print("connected: ");
-  Serial.println(WiFi.localIP());
-  */
   // Start UDP
   Serial.println("Starting UDP");
   Udp.begin(localUDPPort);
@@ -63,6 +48,7 @@ void setup() {
 
 unsigned long last_time, last_time1;
 void loop() {
+  static String OutStr;
   
   #ifdef DEBUG
     static long count_station_connected;
@@ -75,54 +61,40 @@ void loop() {
     }
   #endif
 
-  /*
-  // Check if a client has connected
-  client = server.available();
-  if (!client) {
-    delay(1);
-    return;
-  }
-
-  #ifdef DEBUG
-    Serial.print("Incoming client: "); Serial.print(client.remoteIP());
-    Serial.print(":"); Serial.println(client.remotePort());
-  #endif
-
-  unsigned long tmp_time = millis(); // for timeout below
-  while(!client.available()){
-    delay(1);
-    if ( (millis() - tmp_time) > 1000) return; // timeout after 1 sec
-  }
- */
-
-  
   int packetSize = Udp.parsePacket();
   if (packetSize) {
 
-    IPAddress remote = Udp.remoteIP();
     // read the packet into packetBufffer
-    //Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-    Udp.read(packetBuffer,NTP_PACKET_SIZE);
+    // Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
+    //Serial.print(String(packetSize) + ",");
+    //Udp.read(packetBuffer,NTP_PACKET_SIZE);
+    Udp.read(packetBuffer,packetSize);
     
-    #ifdef DEBUG
-      Serial.print("Received packet of size ");
-      Serial.println(packetSize);
-      Serial.print("From ");
-      
-      for (int i = 0; i < 4; i++) {
-        Serial.print(remote[i], DEC);
-        if (i < 3) {
-          Serial.print(".");
-        }
-      }
-      Serial.print(", port ");
-      Serial.println(Udp.remotePort());
-      Serial.println("Contents:");
-    #endif
-    Serial.println(packetBuffer);
+    
 
-  
+    String readstr = String(packetBuffer);
+    if (readstr.startsWith("data=")) {
+      Serial.println(readstr.substring(5).toInt());
+    }
+
+
+
+    if (OutStr.length() > 0) { // sending data type request
+      //char replyBuffer[NTP_PACKET_SIZE];
+      OutStr.toCharArray(replyBuffer, NTP_PACKET_SIZE);
+      Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+      Udp.write(replyBuffer);
+      Udp.endPacket();
+      OutStr = "";   // reset string
+    }
+    
+  } else if (Serial.available()) {  // manual setting incoming type
+    while (Serial.available()) {
+      OutStr += char(Serial.read());
+    }
   }
+
+  //delayMicroseconds(100);
   delay(1);
  
 }

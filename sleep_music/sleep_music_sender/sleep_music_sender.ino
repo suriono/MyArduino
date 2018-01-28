@@ -22,6 +22,18 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 
 WiFiUDP Udp;
 
+// data type to send to server
+#define ANALOG_OUT 0
+#define SLOPE_OUT  1
+byte Out_Type;
+
+
+//const int NTP_PACKET_SIZE = 48; // NTP time stamp is in the first 48 bytes of the message
+const int NTP_PACKET_SIZE = 24; // NTP time stamp is in the first 48 bytes of the message
+//char packetBuffer[ NTP_PACKET_SIZE]; // = "hello"; //buffer to hold incoming and outgoing packets
+char packetBuffer[UDP_TX_PACKET_MAX_SIZE];
+char readBuffer[UDP_TX_PACKET_MAX_SIZE];
+
 void setup() {
   Serial.begin(115200);
 
@@ -31,7 +43,7 @@ void setup() {
   Serial.print("connecting");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
-    delay(500);
+    delay(1000);
   }
   Serial.println();
   Serial.print("connected: ");
@@ -47,10 +59,6 @@ void setup() {
 
 }
 
-//const int NTP_PACKET_SIZE = 48; // NTP time stamp is in the first 48 bytes of the message
-const int NTP_PACKET_SIZE = 24; // NTP time stamp is in the first 48 bytes of the message
-char packetBuffer[ NTP_PACKET_SIZE]; // = "hello"; //buffer to hold incoming and outgoing packets
-//char  ReplyBuffer[] = "acknowledged";       // a string to send back
 
 // ================ get signal slope =============================
 
@@ -72,7 +80,7 @@ int get_Slope(int analogsignal) {
    
    //Serial.print(deriv2); Serial.print(",");
    sig[sig_index] = analogsignal;
-   Serial.print(sig[sig_index]); Serial.print(",");
+   //Serial.print(sig[sig_index]); Serial.print(",");
    
    //return sig[sig_index];
    return deriv1;
@@ -117,69 +125,63 @@ int Get_Amplitude_Range(int newval) {
 }
 
 
+// ============ smoothing data =====================
 
+int smoothData(int indata, float coef) {
+  static float last_smooth;
+
+  last_smooth = coef * float(indata) + (1.0-coef)*last_smooth;
+  return round(last_smooth);
+}
 
 // ===========================================
-
-
 
 void loop() {
   static unsigned long last_time;
 
-  if ( (micros() - last_time) > 20000) {  // send packet
+  int packetSize = Udp.parsePacket();
+  if (packetSize) {    
+    //char readBuffer[packetSize]; // NTP_PACKET_SIZE];
+    Udp.read(readBuffer, packetSize); // NTP_PACKET_SIZE);
+    String tmpstr = String(readBuffer);
+    if (tmpstr.startsWith("analog")) {
+      Out_Type = ANALOG_OUT;
+    } else if (tmpstr.startsWith("slope")) {
+      Out_Type = SLOPE_OUT;
+    }
+   
+  } else if ( (micros() - last_time) > 20000) {  // send packet
     last_time = micros();
 
     int analogsignal = analogRead(A0);
     
     int max_slope = Get_Max_Derivative(get_Slope(analogsignal));
     int amplitude_range = Get_Amplitude_Range(analogsignal);
-    String tmpstr = String (amplitude_range); 
+
+    String tmpstr;
+    switch(Out_Type) {
+      case SLOPE_OUT:
+        tmpstr = "data=" + String(smoothData(get_Slope(analogsignal),0.1));
+        break;
+      default:
+        tmpstr = "data=" + String(smoothData(analogsignal, 0.1));
+    }
+    
+    //String tmpstr = String (amplitude_range); 
     tmpstr.toCharArray(packetBuffer, NTP_PACKET_SIZE);
 
     if (WiFi.status() == WL_CONNECTED) {
       Serial.println(packetBuffer);
-
-      Udp.beginPacket(REMOTE_IP, REMOTE_PORT);
-      Udp.write(packetBuffer, NTP_PACKET_SIZE);
-      Udp.endPacket();
-    } else {
-      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-      Serial.print("connecting");
-      while (WiFi.status() != WL_CONNECTED) {
-        Serial.print(".");
-        delay(500);
-      }
     }
-  
+    Udp.beginPacket(REMOTE_IP, REMOTE_PORT);
+    Udp.write(packetBuffer, NTP_PACKET_SIZE);
+    Udp.endPacket();
+    
   }
 
   delay(1);
-  /*
-  int packetSize = Udp.parsePacket();
-  if (packetSize) {                     // incoming packet data
-    Serial.print("Received packet of size ");
-    Serial.println(packetSize);
-    Serial.print("From ");
-    IPAddress remote = Udp.remoteIP();
-    for (int i = 0; i < 4; i++) {
-      Serial.print(remote[i], DEC);
-      if (i < 3) {
-        Serial.print(".");
-      }
-    }
-    Serial.print(", port ");
-    Serial.println(Udp.remotePort());
-
-    // read the packet into packetBufffer
-    Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-    Serial.println("Contents:");
-    Serial.println(packetBuffer);
-  
-  } 
-  */
-  
-  
 }
+
 
 
 
