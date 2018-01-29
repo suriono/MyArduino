@@ -23,8 +23,9 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 WiFiUDP Udp;
 
 // data type to send to server
-#define ANALOG_OUT 0
-#define SLOPE_OUT  1
+#define HEARTBEAT_OUT 0
+#define ANALOG_OUT 1
+#define SLOPE_OUT  2
 byte Out_Type;
 
 
@@ -137,7 +138,8 @@ int smoothData(int indata, float coef) {
 // ===========================================
 
 void loop() {
-  static unsigned long last_time;
+  static unsigned long last_time, last_beat_sent;
+  static int last_slope;
 
   int packetSize = Udp.parsePacket();
   if (packetSize) {    
@@ -148,38 +150,68 @@ void loop() {
       Out_Type = ANALOG_OUT;
     } else if (tmpstr.startsWith("slope")) {
       Out_Type = SLOPE_OUT;
+    } else if (tmpstr.startsWith("heartbeat")) {
+      Out_Type = HEARTBEAT_OUT;
     }
    
-  } else if ( (micros() - last_time) > 20000) {  // send packet
+  } else if ( (micros() - last_time) > 50000) {  // send packet
     last_time = micros();
 
     int analogsignal = analogRead(A0);
+    int smoothanalog = smoothData(analogsignal, 0.5);
+    int analogslope = get_Slope(smoothanalog);
     
-    int max_slope = Get_Max_Derivative(get_Slope(analogsignal));
-    int amplitude_range = Get_Amplitude_Range(analogsignal);
+    int max_slope = Get_Max_Derivative(analogslope);
+    //int amplitude_range = Get_Amplitude_Range(analogsignal);
+
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.print(analogsignal); Serial.print(",");
+      Serial.print(smoothanalog); Serial.print(",");
+      
+      Serial.print(analogslope) ; Serial.print(",");
+      Serial.print(max_slope) ; Serial.print(",");
+
+    }
+    
 
     String tmpstr;
     switch(Out_Type) {
+      case ANALOG_OUT:
+        tmpstr = "data=" + String(analogsignal);
+        Send_Data(tmpstr);
+        break;
       case SLOPE_OUT:
-        tmpstr = "data=" + String(smoothData(get_Slope(analogsignal),0.1));
+        tmpstr = "data=" + String(analogslope);
+        Send_Data(tmpstr);
         break;
       default:
-        tmpstr = "data=" + String(smoothData(analogsignal, 0.1));
+        if ((last_slope > 0.5 * max_slope) && analogslope < last_slope && (millis()-last_beat_sent) > 500) {
+          Send_Data("HeartBeat");
+          last_beat_sent = millis();
+          if (WiFi.status() == WL_CONNECTED) {
+            Serial.println(1000);
+          }
+        } else if (WiFi.status() == WL_CONNECTED) {
+          Serial.println(200);
+        
+        }
     }
-    
-    //String tmpstr = String (amplitude_range); 
-    tmpstr.toCharArray(packetBuffer, NTP_PACKET_SIZE);
 
-    if (WiFi.status() == WL_CONNECTED) {
-      Serial.println(packetBuffer);
-    }
-    Udp.beginPacket(REMOTE_IP, REMOTE_PORT);
-    Udp.write(packetBuffer, NTP_PACKET_SIZE);
-    Udp.endPacket();
+    last_slope = analogslope;
     
   }
 
   delay(1);
+}
+
+// ================= Send Data ===================
+
+void Send_Data(String indata) {
+  
+  indata.toCharArray(packetBuffer, NTP_PACKET_SIZE);
+  Udp.beginPacket(REMOTE_IP, REMOTE_PORT);
+  Udp.write(packetBuffer, NTP_PACKET_SIZE);
+  Udp.endPacket();
 }
 
 

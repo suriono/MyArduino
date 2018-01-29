@@ -15,6 +15,8 @@ WiFiClient client;
 #define localUDPPort  2390      // local port to listen for UDP packets
 
 WiFiUDP Udp;
+#define LED D0
+
 // buffers for receiving and sending data
 #define NTP_PACKET_SIZE   24
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
@@ -24,6 +26,8 @@ char replyBuffer[NTP_PACKET_SIZE];
 
 void setup() {
   Serial.begin(115200);
+  pinMode(LED, OUTPUT);   // LED pin as output. 
+  digitalWrite(LED, HIGH); 
 
   // Starting WiFi AP server
   Serial.print("Setting soft-AP ... ");
@@ -49,6 +53,7 @@ void setup() {
 unsigned long last_time, last_time1;
 void loop() {
   static String OutStr;
+  static unsigned long last_LED_on;
   
   #ifdef DEBUG
     static long count_station_connected;
@@ -68,16 +73,22 @@ void loop() {
     // Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
     //Serial.print(String(packetSize) + ",");
     //Udp.read(packetBuffer,NTP_PACKET_SIZE);
-    Udp.read(packetBuffer,packetSize);
+    Udp.read(packetBuffer, packetSize);// UDP_TX_PACKET_MAX_SIZE); // packetSize);
     
     
 
     String readstr = String(packetBuffer);
+    //Serial.println(readstr);
     if (readstr.startsWith("data=")) {
       Serial.println(readstr.substring(5).toInt());
-    }
-
-
+    } else if (readstr.startsWith("HeartBeat")) {
+      digitalWrite(LED, LOW);
+      Serial.println(readstr);
+      last_LED_on = millis();
+      delay(10);
+      digitalWrite(LED, HIGH);
+    } 
+    
 
     if (OutStr.length() > 0) { // sending data type request
       //char replyBuffer[NTP_PACKET_SIZE];
@@ -88,6 +99,7 @@ void loop() {
       OutStr = "";   // reset string
     }
     
+    
   } else if (Serial.available()) {  // manual setting incoming type
     while (Serial.available()) {
       OutStr += char(Serial.read());
@@ -95,6 +107,6 @@ void loop() {
   }
 
   //delayMicroseconds(100);
-  delay(1);
+  delay(10);
  
 }
