@@ -7,12 +7,11 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>       
 
-WiFiServer server(8000);
-WiFiClient client;
 
-//#define WIFI_SSID "xxxx"
-//#define WIFI_PASSWORD "xxxx"
+#define WIFI_SSID "sleep_AP"
+#define WIFI_PASSWORD "sleep1234"
 #define localUDPPort  2390      // local port to listen for UDP packets
+
 
 WiFiUDP Udp;
 #define LED D0
@@ -29,6 +28,7 @@ void setup() {
   pinMode(LED, OUTPUT);   // LED pin as output. 
   digitalWrite(LED, HIGH); 
 
+  /*
   // Starting WiFi AP server
   Serial.print("Setting soft-AP ... ");
   boolean isAP_ready = WiFi.softAP("sleep_AP", "sleep1234");
@@ -38,8 +38,19 @@ void setup() {
   } else {
     Serial.println("Access PointFailed!");
   }
-  server.begin();
-  Serial.println("Server started");
+  */
+  // connect to wifi.
+  WiFi.enableAP(false);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("connecting");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println();
+  Serial.print("connected: ");
+  Serial.println(WiFi.localIP());
+ 
 
   // Start UDP
   Serial.println("Starting UDP");
@@ -49,11 +60,13 @@ void setup() {
   
 }
 
+// ========================= LOOP ==========================
 
 unsigned long last_time, last_time1;
 void loop() {
   static String OutStr;
   static unsigned long last_LED_on;
+  static byte counter;
   
   #ifdef DEBUG
     static long count_station_connected;
@@ -69,26 +82,29 @@ void loop() {
   int packetSize = Udp.parsePacket();
   if (packetSize) {
 
-    // read the packet into packetBufffer
-    // Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-    //Serial.print(String(packetSize) + ",");
-    //Udp.read(packetBuffer,NTP_PACKET_SIZE);
     Udp.read(packetBuffer, packetSize);// UDP_TX_PACKET_MAX_SIZE); // packetSize);
     
-    
-
     String readstr = String(packetBuffer);
+    
     //Serial.println(readstr);
+    //digitalWrite(LED, LOW);
+    //delay(100);
+    //digitalWrite(LED, HIGH);
+
+      
     if (readstr.startsWith("data=")) {
       Serial.println(readstr.substring(5).toInt());
     } else if (readstr.startsWith("HeartBeat")) {
       digitalWrite(LED, LOW);
-      Serial.println(readstr);
+      Serial.print(readstr); Serial.print(" "); Serial.println(counter++);
       last_LED_on = millis();
       delay(10);
       digitalWrite(LED, HIGH);
     } 
-    
+
+    //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+    //Udp.write("OK");
+    //Udp.endPacket();
 
     if (OutStr.length() > 0) { // sending data type request
       //char replyBuffer[NTP_PACKET_SIZE];

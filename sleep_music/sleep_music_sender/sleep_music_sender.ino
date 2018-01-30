@@ -17,7 +17,7 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 #define WIFI_PASSWORD "sleep1234"
 #define localUDPPort  2391      // local port to listen for UDP packets
 //#define REMOTE_IP "192.168.254.79"
-#define REMOTE_IP "192.168.4.1"
+#define REMOTE_IP "192.168.4.2"
 #define REMOTE_PORT 2390
 
 WiFiUDP Udp;
@@ -38,17 +38,29 @@ char readBuffer[UDP_TX_PACKET_MAX_SIZE];
 void setup() {
   Serial.begin(115200);
 
+  // Starting WiFi AP server
+  Serial.print("Setting soft-AP ... ");
+  boolean isAP_ready = WiFi.softAP(WIFI_SSID, WIFI_PASSWORD);
+  Serial.println(WiFi.softAPIP());
+  if(isAP_ready) {
+    Serial.println("Access Point Ready");
+  } else {
+    Serial.println("Access PointFailed!");
+  }
+
+  /*
    // connect to wifi.
   WiFi.enableAP(false);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("connecting");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
-    delay(1000);
+    delay(500);
   }
   Serial.println();
   Serial.print("connected: ");
   Serial.println(WiFi.localIP());
+  */
 
   // Start UDP
   Serial.println("Starting UDP");
