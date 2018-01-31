@@ -7,7 +7,6 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>       
 
-
 #define WIFI_SSID "sleep_AP"
 #define WIFI_PASSWORD "sleep1234"
 #define localUDPPort  2390      // local port to listen for UDP packets
@@ -27,7 +26,6 @@ void setup() {
   Serial.begin(115200);
   pinMode(LED, OUTPUT);   // LED pin as output. 
   digitalWrite(LED, HIGH); 
-
   /*
   // Starting WiFi AP server
   Serial.print("Setting soft-AP ... ");
@@ -92,14 +90,23 @@ void loop() {
     //digitalWrite(LED, HIGH);
 
       
-    if (readstr.startsWith("data=")) {
+    if (readstr.startsWith("data=")) { // raw data, e.g. analog, slope
       Serial.println(readstr.substring(5).toInt());
-    } else if (readstr.startsWith("HeartBeat")) {
-      digitalWrite(LED, LOW);
+      
+    } else if (readstr.startsWith("HeartBeat")) { // trigger heart pulse
       Serial.print(readstr); Serial.print(" "); Serial.println(counter++);
       last_LED_on = millis();
-      delay(10);
-      digitalWrite(LED, HIGH);
+      LED_Blink();
+      //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+      //Udp.write("OK");
+      //Udp.endPacket();
+      
+    } else if (readstr.startsWith("interval=")) { // information
+      Serial.println(readstr);
+      LED_Blink();
+      //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+      //Udp.write("OK");
+      //Udp.endPacket();
     } 
 
     //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
@@ -115,14 +122,32 @@ void loop() {
       OutStr = "";   // reset string
     }
     
-    
   } else if (Serial.available()) {  // manual setting incoming type
     while (Serial.available()) {
       OutStr += char(Serial.read());
     }
+    /*
+  } else if (WiFi.status() != WL_CONNECTED) {
+     //while (WiFi.status() != WL_CONNECTED) {
+     Serial.println("Reconnecting ...");
+     WiFi.connect();
+     delay(5000);
+     //}
+     Serial.print("connected: ");
+     Serial.println(WiFi.localIP());
+     delay(500);
+     */
   }
 
-  //delayMicroseconds(100);
-  delay(10);
+  //delayMicroseconds(200);
+  delay(1);
  
 }
+
+// ================ Blink LED =============
+void LED_Blink() {
+  digitalWrite(LED, LOW);
+  delay(10);
+  digitalWrite(LED, HIGH);
+}
+
