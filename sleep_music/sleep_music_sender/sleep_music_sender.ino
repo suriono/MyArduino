@@ -5,7 +5,8 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 */
 
 #include <ESP8266WiFi.h>
-#include <WiFiUdp.h>       
+#include <WiFiUdp.h>  
+
 
 #define AMPLITUDE_RANGE_THRESHOLD 200
 #define MAX_SLOPE_THRESHOLD 700
@@ -19,12 +20,13 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 #define REMOTE_PORT 2390
 
 WiFiUDP Udp;
+#define LED D0
 
 // data type to send to server
-#define HEARTBEAT_OUT 0   // send heart beat trigger
+#define HEARTBEAT_OUT 3   // send heart beat trigger
 #define ANALOG_OUT 1      // send raw pulse signal
 #define SLOPE_OUT  2      // send pulse slope data
-#define INFO_OUT   3      // send pulse information such as pulse rate, max slope, etc
+#define INFO_OUT   0      // send pulse information such as pulse rate, max slope, etc
 byte Out_Type;
 
 
@@ -36,15 +38,18 @@ char readBuffer[UDP_TX_PACKET_MAX_SIZE];
 
 void setup() {
   Serial.begin(115200);
-
+  pinMode(LED, OUTPUT);   // LED pin as output. 
+  digitalWrite(LED, HIGH); 
   // Starting WiFi AP server
   
   Serial.print("Setting soft-AP ... ");
+  WiFi.disconnect();
   WiFi.enableAP(true);
+  WiFi.setOutputPower(0.5);          // Output WiFi power
+  //WiFi.enableSTA(true);
   WiFi.mode(WIFI_AP_STA);
   boolean isAP_ready = WiFi.softAP("sleep_AP", "sleep1234");
   Serial.println(WiFi.softAPIP());
-  //WiFi.mode(WIFI_STA);
   if(isAP_ready) {
     Serial.println("Access Point Ready");
   } else {
@@ -55,7 +60,8 @@ void setup() {
   /*
    // connect to wifi.
   WiFi.enableAP(false);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin("sleep_AP", "sleep1234");
   Serial.print("connecting");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
@@ -180,14 +186,11 @@ void loop() {
     int max_slope = Get_Max_Derivative(analogslope);
     //int amplitude_range = Get_Amplitude_Range(analogsignal);
 
-    if (WiFi.status() == WL_CONNECTED || WiFi.softAPgetStationNum()) {
-    //if (WiFi.softAPgetStationNum()) {
+    if (Out_Type ==  ANALOG_OUT && (WiFi.status() == WL_CONNECTED || WiFi.softAPgetStationNum())) {
       Serial.print(analogsignal); Serial.print(",");
-      Serial.print(smoothanalog); Serial.print(",");
-      
+      Serial.print(smoothanalog); Serial.print(",");   
       Serial.print(analogslope/2) ; Serial.print(",");
       Serial.print(max_slope/2) ; Serial.print(",");
-
     }
 
 
@@ -198,20 +201,21 @@ void loop() {
         pulse_interval = millis() - last_beat_sent;
       }
       last_beat_sent = millis();
-      if (WiFi.status() == WL_CONNECTED || WiFi.softAPgetStationNum()) {
-      //if (WiFi.softAPgetStationNum()) {
+      
+      if (Out_Type ==  ANALOG_OUT && (WiFi.status() == WL_CONNECTED || WiFi.softAPgetStationNum())) {
         Serial.println(1000); // Serial.print(",");
       }
       detect_beat = true;
     //} else {
     //} else if (WiFi.softAPgetStationNum()) {
-    } else if (WiFi.status() == WL_CONNECTED || WiFi.softAPgetStationNum()) {
+    } else if (Out_Type ==  ANALOG_OUT && (WiFi.status() == WL_CONNECTED || WiFi.softAPgetStationNum())) {
       Serial.println(100);// Serial.print(",");
     }
-    //Serial.println(WiFi.softAPgetStationNum());
+    
     
 
     String tmpstr;
+    static boolean isInfoNotSent = true;
     switch(Out_Type) {
       case ANALOG_OUT:
         tmpstr = "data=" + String(analogsignal);
@@ -221,18 +225,24 @@ void loop() {
         tmpstr = "data=" + String(analogslope);
         Send_Data(tmpstr);
         break;
-      case INFO_OUT:
-        if ( (millis()-last_info_sent) > 1000) {  // send info every second
-          tmpstr = "interval=" + String(pulse_interval) + "&maxSlope=" + String(max_slope);
-          Send_Data(tmpstr);
-          last_info_sent = millis();
-        }
-        
-        break;
-      default:
+      case HEARTBEAT_OUT:
         if (detect_beat) {
           Send_Data("HeartBeat");
         }
+        break;
+      //case INFO_OUT:
+      default:
+      if ( (millis()-last_info_sent) > 530) {
+          digitalWrite(LED, HIGH);
+          last_info_sent = millis();
+          isInfoNotSent = true;
+      } else if ( (millis()-last_info_sent) > 500 && isInfoNotSent) {  // send info every second
+          tmpstr = "interval=" + String(pulse_interval) + "&maxSlope=" + String(max_slope);
+          Send_Data(tmpstr);
+          digitalWrite(LED, LOW);
+          isInfoNotSent = false;
+          Serial.println("Send: " + tmpstr);
+        }             
     }
 
     last_slope = analogslope;

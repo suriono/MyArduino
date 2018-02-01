@@ -1,11 +1,12 @@
 /* NodeMCU pins mapping to Arduino
 D0   = 16;    D1   = 5;     D2   = 4;
-D3   = 0;     D4   = 2;     D5   = 14;    D6   = 12;
+D3   = 0;     D4   = 2/TX1;     D5   = 14;    D6   = 12;
 D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 */
 
 #include <ESP8266WiFi.h>
-#include <WiFiUdp.h>       
+#include <WiFiUdp.h>    
+#include "pitches.h"   
 
 #define WIFI_SSID "sleep_AP"
 #define WIFI_PASSWORD "sleep1234"
@@ -16,20 +17,26 @@ WiFiUDP Udp;
 #define LED D0
 
 // buffers for receiving and sending data
-#define NTP_PACKET_SIZE   24
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
-//char packetBuffer[NTP_PACKET_SIZE];  //buffer to hold incoming packet,
-char replyBuffer[NTP_PACKET_SIZE];
+char replyBuffer[UDP_TX_PACKET_MAX_SIZE];
 //#define DEBUG
 
 void setup() {
   Serial.begin(115200);
-  pinMode(LED, OUTPUT);   // LED pin as output. 
+  Serial1.begin(31250);       // for MIDI pin D4 NodeMCU
+  pinMode(LED, OUTPUT);       // LED pin as output. 
   digitalWrite(LED, HIGH); 
-  /*
+
+  WiFi.setOutputPower(0.5);          // Output WiFi power
+  
   // Starting WiFi AP server
+  /*
   Serial.print("Setting soft-AP ... ");
+  WiFi.enableAP(true);
+  //WiFi.enableSTA(true);
+  WiFi.mode(WIFI_AP_STA);
   boolean isAP_ready = WiFi.softAP("sleep_AP", "sleep1234");
+  //WiFi.mode(WIFI_AP_STA);
   Serial.println(WiFi.softAPIP());
   if(isAP_ready) {
     Serial.println("Access Point Ready");
@@ -37,8 +44,10 @@ void setup() {
     Serial.println("Access PointFailed!");
   }
   */
+  
   // connect to wifi.
   WiFi.enableAP(false);
+  WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("connecting");
   while (WiFi.status() != WL_CONNECTED) {
@@ -48,7 +57,6 @@ void setup() {
   Serial.println();
   Serial.print("connected: ");
   Serial.println(WiFi.localIP());
- 
 
   // Start UDP
   Serial.println("Starting UDP");
@@ -84,11 +92,6 @@ void loop() {
     
     String readstr = String(packetBuffer);
     
-    //Serial.println(readstr);
-    //digitalWrite(LED, LOW);
-    //delay(100);
-    //digitalWrite(LED, HIGH);
-
       
     if (readstr.startsWith("data=")) { // raw data, e.g. analog, slope
       Serial.println(readstr.substring(5).toInt());
@@ -97,25 +100,23 @@ void loop() {
       Serial.print(readstr); Serial.print(" "); Serial.println(counter++);
       last_LED_on = millis();
       LED_Blink();
-      //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-      //Udp.write("OK");
-      //Udp.endPacket();
+      
+      Play_Music();
       
     } else if (readstr.startsWith("interval=")) { // information
       Serial.println(readstr);
       LED_Blink();
-      //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-      //Udp.write("OK");
-      //Udp.endPacket();
+
+      Play_Music();
+      
+    } else if ( (millis()-last_time_Play_Music) > 300 && isPlay_Music ) { // stop playing
+      noNote();
     } 
 
-    //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    //Udp.write("OK");
-    //Udp.endPacket();
 
     if (OutStr.length() > 0) { // sending data type request
-      //char replyBuffer[NTP_PACKET_SIZE];
-      OutStr.toCharArray(replyBuffer, NTP_PACKET_SIZE);
+      
+      OutStr.toCharArray(replyBuffer, OutStr.length()+2);
       Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
       Udp.write(replyBuffer);
       Udp.endPacket();
@@ -126,17 +127,6 @@ void loop() {
     while (Serial.available()) {
       OutStr += char(Serial.read());
     }
-    /*
-  } else if (WiFi.status() != WL_CONNECTED) {
-     //while (WiFi.status() != WL_CONNECTED) {
-     Serial.println("Reconnecting ...");
-     WiFi.connect();
-     delay(5000);
-     //}
-     Serial.print("connected: ");
-     Serial.println(WiFi.localIP());
-     delay(500);
-     */
   }
 
   //delayMicroseconds(200);
