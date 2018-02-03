@@ -5,20 +5,24 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 */
 
 #include <ESP8266WiFi.h>
-#include <WiFiUdp.h>    
+#include <WiFiUdp.h>  
+#include "fauxmoESP.h"
 #include "pitches.h"   
 
-#define WIFI_SSID "sleep_AP"
-#define WIFI_PASSWORD "sleep1234"
+#define WIFI_SSID "philip"
+#define WIFI_PASSWORD "xxxx"
+//#define WIFI_SSID "sleep_AP"
+//#define WIFI_PASSWORD "sleep1234"
 #define localUDPPort  2390      // local port to listen for UDP packets
 
 
 WiFiUDP Udp;
+fauxmoESP fauxmo;               // Alexa ESP
 #define LED D0
 
 // buffers for receiving and sending data
-char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
-char replyBuffer[UDP_TX_PACKET_MAX_SIZE];
+char packetBuffer[UDP_TX_PACKET_MAX_SIZE/128];  //buffer to hold incoming packet,
+char replyBuffer[UDP_TX_PACKET_MAX_SIZE/128];
 //#define DEBUG
 
 void setup() {
@@ -27,25 +31,9 @@ void setup() {
   pinMode(LED, OUTPUT);       // LED pin as output. 
   digitalWrite(LED, HIGH); 
 
-  WiFi.setOutputPower(0.5);          // Output WiFi power
-  
-  // Starting WiFi AP server
-  /*
-  Serial.print("Setting soft-AP ... ");
-  WiFi.enableAP(true);
-  //WiFi.enableSTA(true);
-  WiFi.mode(WIFI_AP_STA);
-  boolean isAP_ready = WiFi.softAP("sleep_AP", "sleep1234");
-  //WiFi.mode(WIFI_AP_STA);
-  Serial.println(WiFi.softAPIP());
-  if(isAP_ready) {
-    Serial.println("Access Point Ready");
-  } else {
-    Serial.println("Access PointFailed!");
-  }
-  */
   
   // connect to wifi.
+  WiFi.setOutputPower(20.0);          // 0.5 to 20 Output WiFi power
   WiFi.enableAP(false);
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -63,7 +51,9 @@ void setup() {
   Udp.begin(localUDPPort);
   Serial.print("Local port: ");
   Serial.println(Udp.localPort());
-  
+
+  fauxmo.addDevice("Sleeper Machine");
+  fauxmo.onMessage(Alexa_callback);
 }
 
 // ========================= LOOP ==========================
@@ -73,6 +63,11 @@ void loop() {
   static String OutStr;
   static unsigned long last_LED_on;
   static byte counter;
+
+
+  // Alexa =========
+  fauxmo.handle();
+  
   
   #ifdef DEBUG
     static long count_station_connected;
@@ -97,7 +92,7 @@ void loop() {
       Serial.println(readstr.substring(5).toInt());
       
     } else if (readstr.startsWith("HeartBeat")) { // trigger heart pulse
-      Serial.print(readstr); Serial.print(" "); Serial.println(counter++);
+      //Serial.print(readstr); Serial.print(" "); Serial.println(counter++);
       last_LED_on = millis();
       LED_Blink();
       
@@ -141,3 +136,23 @@ void LED_Blink() {
   digitalWrite(LED, HIGH);
 }
 
+
+// -----------------------------------------------------------------------------
+// Alexa Device Callback
+// -----------------------------------------------------------------------------
+void Alexa_callback(uint8_t device_id, const char * device_name, bool state) {
+  Serial.print("Device "); Serial.print(device_name); 
+  
+  //Switching action on detection of device name
+  if ( (strcmp(device_name, "Sleeper Machine") == 0) ) {
+
+    Serial.print(" state: ");
+    if (state) {
+      Serial.println("ON");
+    } else {
+      Serial.println("OFF");
+    }
+    Play_Sound_OnOf = state;
+    
+  }
+}
