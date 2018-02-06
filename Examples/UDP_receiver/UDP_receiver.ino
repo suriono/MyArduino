@@ -7,8 +7,8 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>       
 
-#define WIFI_SSID "siantar"
-#define WIFI_PASSWORD "aza5077266123"
+#define WIFI_SSID "xxxx"
+#define WIFI_PASSWORD "xxxx"
 #define localUDPPort  2390      // local port to listen for UDP packets
 
 WiFiUDP Udp;
