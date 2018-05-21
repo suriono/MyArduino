@@ -56,14 +56,21 @@ void loop() {
   display.drawBitmap(0, 0,  PSLLogo, 128, 64, 1);
   display.startscrollleft(0x00, 0x0F);
   display.display();
+  delay(1000);
+  display.invertDisplay(true);
+  delay(1000);
+  display.invertDisplay(false);
+  delay(1000);
+  display.invertDisplay(true);
+  delay(1000);
+  display.invertDisplay(false);
+  /*
   delay(6700);
   display.invertDisplay(true);
   delay(1300); 
   display.stopscroll();
   display.invertDisplay(false);
-  //delay(1000);
   
-/*
   static int nn=0;
   Serial.println(String(nn++) + " testing uz");
   Serial.flush();
