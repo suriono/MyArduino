@@ -24,7 +24,7 @@ void setup() {
 
 
   Serial.print("Setting soft-AP ... ");
-  boolean isAP_ready = WiFi.softAP("Robot_AP", "skunk4u2");
+  boolean isAP_ready = WiFi.softAP("Robot_AP", "xxxxxx");
   Serial.println(WiFi.softAPIP());
   if(isAP_ready) {
     Serial.println("Access Point Ready");
