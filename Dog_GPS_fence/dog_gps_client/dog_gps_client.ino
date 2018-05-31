@@ -8,6 +8,7 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 #include <math.h>
 #include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
+#include <WiFiClient.h>
 
 //#define HOME_ROUTER             // during development using home router
 
@@ -24,26 +25,27 @@ unsigned long total_distance;
 
 // routines declarations .......
 void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon);
-double get_distance(float flat1, float flon1, float flat2, float flon2);
+//double get_distance(float flat1, float flon1, float flat2, float flon2);
 void write_client(); // String outstr);
-// void write_client_float(float outf);
-// String convertFloatToString(float ff);
-
 
 // ************* Setup *************************             
 void setup() { 
   
-  Serial.begin(9600);
+  Serial.begin(57600);
   mySerial.begin(9600);
   
   while(mySerial.available())  // until receive GPS serial
     if (mySerial.read() == '\r') 
        break;
-       
-  #ifdef HOME_ROUTER
+
+  //ESP.reset(); delay(5000);   // if necessary
+  ESP.eraseConfig(); delay(1000); // needed if it keeps old setup
+  Serial.print("Auto Connect: "); Serial.println(WiFi.getAutoConnect());
+ 
+  WiFi.setOutputPower(1.0);  // 0.5 to 20 Output WiFi power, it's near AP
   WiFi.enableAP(false);
   WiFi.mode(WIFI_STA);
-  WiFi.begin("philip","xxxx");
+  WiFi.begin("Dog_AP","hellopuppy");
   Serial.print("connecting");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
@@ -52,31 +54,17 @@ void setup() {
   Serial.println();
   Serial.print("connected: ");
   Serial.println(WiFi.localIP());
-
-  #else
-  WiFi.enableAP(true);
-  WiFi.mode(WIFI_AP_STA);
-  boolean isAP_ready = WiFi.softAP("Dog_AP", "1234"); delay(100);
-  Serial.println(WiFi.softAPIP());
-  if(isAP_ready) {
-    Serial.println("Access Point Ready");
-  } else {
-    Serial.println("Access PointFailed!");
-  }
-
-  #endif
-  
+    
   // Start the server
   server.begin();
   Serial.println("Server started");
-  
 }
-
 
 
 // ************** Loop *************************
 
-void loop() { 
+void loop() {
+
   bool newData1 = false;
   float lat1, lon1;
   static int numConnectedClient = 0;
@@ -89,55 +77,29 @@ void loop() {
   
   if(newData1) {
      get_gps(newData1, gps1, &lat1, &lon1);
-     /*
-     if (last_lat == 0.0) {  // initial lattitude and longitude
-        last_lat = lat1;
-        last_lon = lon1;
-     }
-     
-     int dist = 0;
-     if(gps1.f_speed_kmph() > 3.0) { // faster than walking 
-        dist = int(get_distance(lat1, lon1, last_lat, last_lon));
-        //if(gps1.f_speed_kmph() > 2.0) { // faster than walking
-        total_distance += dist;
-        last_lat = lat1;
-        last_lon = lon1;
-     }
-     */
-     //Serial.println("D=" + String(dist) + ",TD=" + String(total_distance));
-     //Serial.println("Speed=" + String(int(gps1.f_speed_kmph())));
-     /*
-     client = server.available();
-     if (client.connected()) {
-       write_client("Lat=" + String(lat1));
-     } else {
-       Serial.println("Client not connected");
-     }
-     */
   }
-     //Serial.print("WiFi status: "); Serial.println(WiFi.status());
-
-  //if(numConnectedClient != WiFi.softAPgetStationNum()) {
-  //   Serial.println("Connected to AP: " + String(numConnectedClient));
-  //}
-  //numConnectedClient = WiFi.softAPgetStationNum();
-  //if ( WiFi.softAPgetStationNum() < 1 )     // if a client is connected to this AP
-    // Serial.println("No client connected");
-   
 
   client = server.available();
   if (client) {
      //if (client.connected()) {
+
+     //unsigned long tmp_time = millis(); // for timeout below
+    // while(!client.available() && (millis()-tmp_time) < 1000){
+     //  delay(1);
+    // }
+     
      char readchar;
-     String readstr;
+     String readstr, datastr;
      while(client.available()) {
               //if (inchar > 31) {
               //  instring += inchar;
               //}
         readchar = client.read();
         readstr += readchar;
-           //serial_write(c);
-           //if (readchar == '\n') {
+   
+        //if (readchar == '\n') {
+        //  readstr = "";
+        //}
               //serial_println(readstr);  // print other inputs
            //   readstr = "";
            //} else if (readstr.compareTo("tempo=") == 0) {
@@ -151,12 +113,10 @@ void loop() {
      //Serial.println("Lat=" + convertFloatToString(last_lat) + "====");
      //Serial.println(last_lat, 8);
      Serial.println("client read: " + readstr);
+     //client.flush();
      //client.stop();
-   }
-
-     
+  }
 }  // ************* end of Loop ***********************
-
 
 
 // ***************** get gps **********************************
@@ -209,6 +169,7 @@ void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon) {
     Serial.println("** No characters received from GPS: check wiring **");
 }  // *********** end of get_gps *********************
 
+/*
 
 // ************** Get distance *************************
 double get_distance(float flat1, float flon1, float flat2, float flon2) {
@@ -241,7 +202,7 @@ double get_distance(float flat1, float flon1, float flat2, float flon2) {
    return distance;
 
 } // *********** end of get_distance **********************
-
+*/
 // ============= Write to Client =================
 void write_client() {
   // send a standard http response header
@@ -265,36 +226,3 @@ void write_client() {
   //client.println("<br/></html>");
 }
 
-/*
-void write_client_float(float outfloat) {
-  // send a standard http response header
-  client.println("HTTP/1.1 200 OK");
-  client.println("Content-Type: text/html");
-  client.println("Connection: close");  // the connection will be closed after completion of the response
-  //client.println("Refresh: 10");  // refresh the page automatically every 5 sec
-  client.println();
-  //client.println("<!DOCTYPE HTML>");
-  //client.println("<html>");
-
-  client.print(outfloat,7);
-
-  //client.println("<br/></html>");
-}
-
-String convertFloatToString(float temperature)
-{ // begin function
-
-  char temp[10];
-  String tempAsString;
-    
-    // perform conversion
-    dtostrf(temperature,1,2,temp);
-    
-    // create string object
-  tempAsString = String(temp);
-  
-  return tempAsString;
-  
-} // end function
-*/
- 
