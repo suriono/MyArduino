@@ -10,7 +10,7 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 
-//#define HOME_ROUTER             // during development using home router
+#define BUZZER_PIN      14   // D5
 
 TinyGPS gps1;
 SoftwareSerial mySerial(4, 5); // RX, TX
@@ -58,6 +58,8 @@ void setup() {
   // Start the server
   server.begin();
   Serial.println("Server started");
+
+  pinMode(BUZZER_PIN, OUTPUT);
 }
 
 
