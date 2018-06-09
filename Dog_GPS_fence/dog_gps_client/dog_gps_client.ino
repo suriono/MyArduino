@@ -5,12 +5,16 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 */
 
 #include <TinyGPS.h>
-#include <math.h>
+//#include <math.h>
 #include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h>
+//#include <WiFiClient.h>
+
+#define DEBUG_GPS
 
 #define BUZZER_PIN      14   // D5
+IPAddress ip(192, 168, 4, 5); 
+
 
 TinyGPS gps1;
 SoftwareSerial mySerial(4, 5); // RX, TX
@@ -22,11 +26,13 @@ WiFiClient client;
 float last_lat, last_lon;
 unsigned long last_time;
 unsigned long total_distance;
+unsigned long last_buzz;        // last time buzz
 
 // routines declarations .......
 void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon);
 //double get_distance(float flat1, float flon1, float flat2, float flon2);
 void write_client(); // String outstr);
+unsigned long Buzz(int,int);
 
 // ************* Setup *************************             
 void setup() { 
@@ -34,9 +40,7 @@ void setup() {
   Serial.begin(57600);
   mySerial.begin(9600);
   
-  while(mySerial.available())  // until receive GPS serial
-    if (mySerial.read() == '\r') 
-       break;
+  while(mySerial.available()) mySerial.read();  // read leftover data
 
   //ESP.reset(); delay(5000);   // if necessary
   ESP.eraseConfig(); delay(1000); // needed if it keeps old setup
@@ -60,6 +64,10 @@ void setup() {
   Serial.println("Server started");
 
   pinMode(BUZZER_PIN, OUTPUT);
+  last_buzz = Buzz(100, 300); // freq, amplitude (0-1023)
+  delay(1000);
+  Buzz(200, 0);  // stop buzz
+     
 }
 
 
@@ -70,25 +78,30 @@ void loop() {
   bool newData1 = false;
   float lat1, lon1;
   static int numConnectedClient = 0;
+  static bool isBuzz;
+  static bool isDataSent = false;
   
   while (mySerial.available()) {      //char c=mySerial.read();
      if (gps1.encode(mySerial.read())) {// Did a new valid sentence come in?
         newData1 = true;
      }
   }
-  
+
   if(newData1) {
      get_gps(newData1, gps1, &lat1, &lon1);
+  } else if (isDataSent) {
+     isDataSent = false;
+     last_buzz = Buzz(100, 1); // freq, amplitude (0-1023)
+     isBuzz = true;
+  } else if ( ((millis() - last_buzz) > 100) && isBuzz ) { // stop buzz
+    Buzz(100, 0);  // stop buzzing
+    isBuzz = false; 
   }
+
+  // if (isBuzz) Serial.println("Buzzing");
 
   client = server.available();
   if (client) {
-     //if (client.connected()) {
-
-     //unsigned long tmp_time = millis(); // for timeout below
-    // while(!client.available() && (millis()-tmp_time) < 1000){
-     //  delay(1);
-    // }
      
      char readchar;
      String readstr, datastr;
@@ -110,10 +123,12 @@ void loop() {
            //   readstr = "";
            //}
      }
-     write_client(); //"Lat=");
-     //write_client_float(last_lat);
-     //Serial.println("Lat=" + convertFloatToString(last_lat) + "====");
-     //Serial.println(last_lat, 8);
+     write_client();
+     isDataSent = true;
+     //if (readstr.indexOf("senddata")> 0) {
+     //   write_client(); //"Lat=");   
+     //}
+     
      Serial.println("client read: " + readstr);
      //client.flush();
      //client.stop();
@@ -149,10 +164,12 @@ void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon) {
     if(gps.hdop() < 100) Serial.print(" ");
     Serial.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
     if (flat != TinyGPS::GPS_INVALID_F_ANGLE && flon != TinyGPS::GPS_INVALID_F_ANGLE) {
+       #ifdef DEBUG_GPS
        Serial.print(" LAT=");
        Serial.print(flat,7);
        Serial.print(" LON=");
        Serial.print(flon,7);
+       #endif
        last_time = millis();
        last_lat = flat;
        last_lon = flon;
@@ -164,9 +181,11 @@ void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon) {
   //Serial.print(chars);
   //Serial.print(" SENTENCES=");
   //Serial.print(sentences);
+  #ifdef DEBUG_GPS
   Serial.print(" CSUM ERR=");
   Serial.print(failed);
   Serial.println("");
+  #endif
   if (chars == 0)
     Serial.println("** No characters received from GPS: check wiring **");
 }  // *********** end of get_gps *********************
@@ -228,3 +247,9 @@ void write_client() {
   //client.println("<br/></html>");
 }
 
+// ====================== Buzz ======================
+unsigned long Buzz(int freq, int amplitude) {
+  analogWriteFreq(freq);
+  analogWrite(BUZZER_PIN, amplitude); // 0 to 1023 for PWM duty cycle
+  return millis();
+}
