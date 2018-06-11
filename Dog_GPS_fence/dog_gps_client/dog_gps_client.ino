@@ -105,12 +105,13 @@ void loop() {
      
      char readchar;
      String readstr, datastr;
-     while(client.available()) {
+     while(client.connected()) {
+        if(client.available()) {
               //if (inchar > 31) {
               //  instring += inchar;
               //}
-        readchar = client.read();
-        readstr += readchar;
+           readchar = client.read();
+           readstr += readchar;
    
         //if (readchar == '\n') {
         //  readstr = "";
@@ -122,6 +123,7 @@ void loop() {
               //serial_println(readstr);
            //   readstr = "";
            //}
+        }
      }
      write_client();
      isDataSent = true;
@@ -131,7 +133,7 @@ void loop() {
      
      Serial.println("client read: " + readstr);
      //client.flush();
-     //client.stop();
+     client.stop();
   }
 }  // ************* end of Loop ***********************
 
