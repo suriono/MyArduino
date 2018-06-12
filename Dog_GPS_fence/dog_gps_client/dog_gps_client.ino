@@ -9,11 +9,11 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 #include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
 //#include <WiFiClient.h>
+//#include<IPAddress.h>
 
-#define DEBUG_GPS
+//#define DEBUG_GPS
 
 #define BUZZER_PIN      14   // D5
-IPAddress ip(192, 168, 4, 5); 
 
 
 TinyGPS gps1;
@@ -49,12 +49,18 @@ void setup() {
   WiFi.setOutputPower(1.0);  // 0.5 to 20 Output WiFi power, it's near AP
   WiFi.enableAP(false);
   WiFi.mode(WIFI_STA);
+  IPAddress ip(192, 168, 4, 100); 
+  IPAddress gateway(192, 168, 4, 1); // set gateway to match your network
+  IPAddress subnet(255, 255, 255, 0); // set subnet mask to match your
+  WiFi.config(ip, gateway, subnet);
   WiFi.begin("Dog_AP","hellopuppy");
   Serial.print("connecting");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(500);
   }
+  
+  
   Serial.println();
   Serial.print("connected: ");
   Serial.println(WiFi.localIP());
@@ -105,11 +111,14 @@ void loop() {
      
      char readchar;
      String readstr, datastr;
+     int count = 0;
+     /*
      while(client.connected()) {
         if(client.available()) {
               //if (inchar > 31) {
               //  instring += inchar;
               //}
+           count++;
            readchar = client.read();
            readstr += readchar;
    
@@ -123,15 +132,33 @@ void loop() {
               //serial_println(readstr);
            //   readstr = "";
            //}
+        } else {
+          break;
         }
      }
+     */
+     while(count < 200) {
+        while(client.available()) {
+           count++;
+           readchar = client.read();
+           readstr += readchar;
+           if (readstr.indexOf("Accept-Encoding: gzip") > 100) {
+              datastr += readchar;
+           }
+        }
+        delay(1);
+        count++;
+     }
      write_client();
+     client.flush();
      isDataSent = true;
      //if (readstr.indexOf("senddata")> 0) {
      //   write_client(); //"Lat=");   
      //}
      
-     Serial.println("client read: " + readstr);
+     Serial.println(readstr);
+     Serial.println("===============================================\n");
+     Serial.println("client read: " + String(count) + " characters " + datastr);
      //client.flush();
      client.stop();
   }
@@ -159,12 +186,14 @@ void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon) {
     //Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
     //Serial.print(" LON=");
     //Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
+    #ifdef DEBUG_GPS
     Serial.print("SAT=");
     //if (gps.satellites() < 10) Serial.print(" ");
     Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
     Serial.print(" PREC=");
     if(gps.hdop() < 100) Serial.print(" ");
     Serial.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
+    #endif
     if (flat != TinyGPS::GPS_INVALID_F_ANGLE && flon != TinyGPS::GPS_INVALID_F_ANGLE) {
        #ifdef DEBUG_GPS
        Serial.print(" LAT=");
