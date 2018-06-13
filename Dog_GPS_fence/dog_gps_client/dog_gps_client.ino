@@ -95,72 +95,68 @@ void loop() {
 
   if(newData1) {
      get_gps(newData1, gps1, &lat1, &lon1);
-  } else if (isDataSent) {
-     isDataSent = false;
-     last_buzz = Buzz(100, 1); // freq, amplitude (0-1023)
-     isBuzz = true;
+  //} else if (isDataSent) {
+   //  isDataSent = false;
+     
   } else if ( ((millis() - last_buzz) > 100) && isBuzz ) { // stop buzz
-    Buzz(100, 0);  // stop buzzing
-    isBuzz = false; 
+     Buzz(100, 0);  // stop buzzing
+     isBuzz = false; 
   }
 
   // if (isBuzz) Serial.println("Buzzing");
 
   client = server.available();
   if (client) {
+
+     //write_client();
+     //isDataSent = true;
      
      char readchar;
      String readstr, datastr;
      int count = 0;
-     /*
-     while(client.connected()) {
-        if(client.available()) {
-              //if (inchar > 31) {
-              //  instring += inchar;
-              //}
-           count++;
-           readchar = client.read();
-           readstr += readchar;
-   
-        //if (readchar == '\n') {
-        //  readstr = "";
-        //}
-              //serial_println(readstr);  // print other inputs
-           //   readstr = "";
-           //} else if (readstr.compareTo("tempo=") == 0) {
-              //serial_println("found tempo");
-              //serial_println(readstr);
-           //   readstr = "";
-           //}
-        } else {
-          break;
-        }
-     }
-     */
-     while(count < 200) {
+     bool isStartData = false;
+     while(count < 100) {
         while(client.available()) {
            count++;
            readchar = client.read();
-           readstr += readchar;
-           if (readstr.indexOf("Accept-Encoding: gzip") > 100) {
+           //readstr += readchar;
+           if (isStartData) {
               datastr += readchar;
+           } else {
+              readstr += readchar;
+              if (readstr.indexOf("Accept-Encoding: gzip") > 100) {
+                 isStartData = true;
+                 //datastr += readchar;
+              }
            }
         }
-        delay(1);
+        if (count < 100) delay(1);
         count++;
      }
-     write_client();
-     client.flush();
-     isDataSent = true;
+        
+     if (datastr.indexOf("buzz") > 1) {  // sound buzz
+        last_buzz = Buzz(100, 1); // freq, amplitude (0-1023)
+        isBuzz = true;
+     }
+     //} else {
+        write_client();
+        client.flush();
+     //}
+     
+     //write_client();
+     //client.flush();
+     
      //if (readstr.indexOf("senddata")> 0) {
      //   write_client(); //"Lat=");   
      //}
-     
+     datastr.trim();
      Serial.println(readstr);
      Serial.println("===============================================\n");
      Serial.println("client read: " + String(count) + " characters " + datastr);
      //client.flush();
      client.stop();
+
+    
   }
 }  // ************* end of Loop ***********************
 
