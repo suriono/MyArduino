@@ -134,12 +134,17 @@ void loop() {
         count++;
      }
         
+     
+     //} else {
+     write_client();
+        
      if (datastr.indexOf("buzz") > 1) {  // sound buzz
         last_buzz = Buzz(100, 1); // freq, amplitude (0-1023)
         isBuzz = true;
+        client.print(",RP BUZZ");
+     } else if (datastr.indexOf("[[") > 1) {   // receive the fence coordinates
+        client.print(",RP OK_FENCE");
      }
-     //} else {
-        write_client();
         client.flush();
      //}
      
