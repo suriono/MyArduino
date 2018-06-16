@@ -5,11 +5,9 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 */
 
 #include <TinyGPS.h>
-//#include <math.h>
+#include <EEPROM.h>
 #include <SoftwareSerial.h>
 #include <ESP8266WiFi.h>
-//#include <WiFiClient.h>
-//#include<IPAddress.h>
 
 //#define DEBUG_GPS
 
@@ -115,7 +113,7 @@ void loop() {
      String readstr, datastr;
      int count = 0;
      bool isStartData = false;
-     while(count < 100) {
+     while(count < 100) {    // to account for delay in data streaming in
         while(client.available()) {
            count++;
            readchar = client.read();
@@ -137,13 +135,38 @@ void loop() {
      
      //} else {
      write_client();
-        
-     if (datastr.indexOf("buzz") > 1) {  // sound buzz
+
+     datastr.trim();
+     if (datastr.indexOf("buzz") > -1) {  // sound buzz
         last_buzz = Buzz(100, 1); // freq, amplitude (0-1023)
         isBuzz = true;
         client.print(",RP BUZZ");
-     } else if (datastr.indexOf("[[") > 1) {   // receive the fence coordinates
+     } else if (datastr.indexOf("get_fence_points") > -1) {   // receive the fence coordinates
+        EEPROM.begin(128);
+        client.print(",RP ");
+        byte nn = 0;
+        byte foundtwice = 0;
+        while (nn < 128 && foundtwice < 2) {
+           char readee = EEPROM.read(nn);
+           client.print(readee);
+           if (readee == ']') {
+             foundtwice++;
+           } else {
+             foundtwice = 0;
+           }
+           nn++;
+        }
+        //EEPROM.end();
+     } else if (datastr.indexOf("[[") > -1) {   // receive the fence coordinates
         client.print(",RP OK_FENCE");
+        Serial.println(datastr.length());
+        
+        EEPROM.begin(128);
+        for (byte nn=0; nn < datastr.length(); nn++) {
+          EEPROM.write(nn, datastr.charAt(nn));
+        }
+        EEPROM.end();
+        
      }
         client.flush();
      //}
@@ -154,10 +177,11 @@ void loop() {
      //if (readstr.indexOf("senddata")> 0) {
      //   write_client(); //"Lat=");   
      //}
-     datastr.trim();
-     Serial.println(readstr);
+     
+     //Serial.println(readstr);
+     
      Serial.println("===============================================\n");
-     Serial.println("client read: " + String(count) + " characters " + datastr);
+     Serial.println("client read: " + String(count) + " characters:" + datastr + "===");
      //client.flush();
      client.stop();
 
