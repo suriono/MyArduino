@@ -25,12 +25,16 @@ float last_lat, last_lon;
 unsigned long last_time;
 unsigned long total_distance;
 unsigned long last_buzz;        // last time buzz
+bool isFenceOK = false;
+float Fx[4], Fy[4];             // Fence coordinates
+
 
 // routines declarations .......
 void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon);
 //double get_distance(float flat1, float flon1, float flat2, float flon2);
 void write_client(); // String outstr);
 unsigned long Buzz(int,int);
+bool get_Fence();
 
 // ************* Setup *************************             
 void setup() { 
@@ -71,6 +75,8 @@ void setup() {
   last_buzz = Buzz(100, 300); // freq, amplitude (0-1023)
   delay(1000);
   Buzz(200, 0);  // stop buzz
+
+  isFenceOK = get_Fence();
      
 }
 
@@ -93,22 +99,17 @@ void loop() {
 
   if(newData1) {
      get_gps(newData1, gps1, &lat1, &lon1);
-  //} else if (isDataSent) {
-   //  isDataSent = false;
+
+     
      
   } else if ( ((millis() - last_buzz) > 100) && isBuzz ) { // stop buzz
      Buzz(100, 0);  // stop buzzing
      isBuzz = false; 
   }
 
-  // if (isBuzz) Serial.println("Buzzing");
-
   client = server.available();
   if (client) {
 
-     //write_client();
-     //isDataSent = true;
-     
      char readchar;
      String readstr, datastr;
      int count = 0;
@@ -136,6 +137,10 @@ void loop() {
      //} else {
      write_client();
 
+     if (isFenceOK) {
+        //Serial.print("x0: "); Serial.println(Fx[0],5);
+     }
+
      datastr.trim();
      if (datastr.indexOf("buzz") > -1) {  // sound buzz
         last_buzz = Buzz(100, 1); // freq, amplitude (0-1023)
@@ -156,36 +161,25 @@ void loop() {
            }
            nn++;
         }
-        //EEPROM.end();
      } else if (datastr.indexOf("[[") > -1) {   // receive the fence coordinates
         client.print(",RP OK_FENCE");
-        Serial.println(datastr.length());
         
         EEPROM.begin(128);
         for (byte nn=0; nn < datastr.length(); nn++) {
-          EEPROM.write(nn, datastr.charAt(nn));
+          EEPROM.put(nn, datastr.charAt(nn));
         }
         EEPROM.end();
+
+        isFenceOK = get_Fence();
         
      }
         client.flush();
-     //}
-     
-     //write_client();
-     //client.flush();
-     
-     //if (readstr.indexOf("senddata")> 0) {
-     //   write_client(); //"Lat=");   
-     //}
-     
-     //Serial.println(readstr);
      
      Serial.println("===============================================\n");
      Serial.println("client read: " + String(count) + " characters:" + datastr + "===");
      //client.flush();
      client.stop();
 
-    
   }
 }  // ************* end of Loop ***********************
 
@@ -309,3 +303,44 @@ unsigned long Buzz(int freq, int amplitude) {
   analogWrite(BUZZER_PIN, amplitude); // 0 to 1023 for PWM duty cycle
   return millis();
 }
+
+// ===================== Fence =========================
+bool get_Fence() {
+   EEPROM.begin(128);
+   byte nn = 0;
+   byte foundtwice = 0;
+   String ptstr;
+   while (nn < 128 && foundtwice < 2) {
+      char readee = EEPROM.read(nn);
+      ptstr += readee;
+      if (readee == ']') {
+         foundtwice++;
+      } else {
+         foundtwice = 0;
+      }
+      nn++;
+   }
+
+   if (foundtwice < 2) return false;
+
+   int lastind1;
+   int lastind2 = -1;
+
+   Serial.println("Fence coordinates:");
+   for (nn=0 ; nn<4 ; nn++) {
+      lastind1 = lastind2+2;
+      lastind2 = ptstr.indexOf(',', lastind1);
+      Fx[nn] = ptstr.substring(lastind1+1, lastind2).toFloat();
+
+      lastind1 = lastind2;
+      lastind2 = ptstr.indexOf(']', lastind1);
+      Fy[nn] = ptstr.substring(lastind1+1, lastind2).toFloat();
+
+      Serial.print(Fx[nn],5); Serial.println(Fy[nn],5);
+   }
+
+   // Serial.println(ptstr);
+
+   return true;
+}
+
