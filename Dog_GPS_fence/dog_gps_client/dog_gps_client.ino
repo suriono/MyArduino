@@ -27,6 +27,8 @@ unsigned long total_distance;
 unsigned long last_buzz;        // last time buzz
 bool isFenceOK = false;
 float Fx[4], Fy[4];             // Fence coordinates
+float Fvx[4], Fvy[4];            // Fence wall vectors
+double NormFv[4];                   // magnitude of Fv vectors
 
 
 // routines declarations .......
@@ -173,7 +175,7 @@ void loop() {
         isFenceOK = get_Fence();
         
      }
-        client.flush();
+     client.flush();
      
      Serial.println("===============================================\n");
      Serial.println("client read: " + String(count) + " characters:" + datastr + "===");
@@ -307,7 +309,7 @@ unsigned long Buzz(int freq, int amplitude) {
 // ===================== Fence =========================
 bool get_Fence() {
    EEPROM.begin(128);
-   byte nn = 0;
+   int nn = 0;
    byte foundtwice = 0;
    String ptstr;
    while (nn < 128 && foundtwice < 2) {
@@ -339,8 +341,32 @@ bool get_Fence() {
       Serial.print(Fx[nn],5); Serial.println(Fy[nn],5);
    }
 
+   for (nn=0 ; nn<4 ; nn++) {
+      int mm = (nn+1) % 4;
+      Fvx[nn] = Fx[mm] - Fx[nn];
+      Fvy[nn] = Fy[mm] - Fy[nn];
+      NormFv[nn] = sqrt(Fvx[nn]*Fvx[nn] + Fvy[nn]*Fvy[nn]);
+   }
+
    // Serial.println(ptstr);
 
    return true;
+}
+
+// ================== Distance to the closest fence =================
+
+float Distance_to_Fence() {
+   float dist[4];    // distance to each wall, positive=outside the fence
+
+   float px, py;
+   double crossproduct, norm;
+
+  
+   for (byte nn=0; nn<4 ; nn++) {
+      px = last_lat - Fx[nn];
+      py = last_lon - Fy[nn];
+      crossproduct = px * Fvy[nn] - py * Fvx[nn];  // cross product
+      dist[nn] = float(crossproduct / NormFv[nn]);
+   }
 }
 
