@@ -3,29 +3,39 @@
 
 #define DEBUG
 
-#define LBREAKPIN    10      // Left  break
-#define RBREAKPIN    4       // Right break 
+//#define LBREAKPIN    10      // Left  break
+//#define RBREAKPIN    4       // Right break 
 #define STIRPIN      A0      // potentiometer pin to read stirring
 #define SPEEDPIN     A1      // potentiometer pin to read speed
 
 #define MAX_SPEED    30
-#define SPEED_SMOOTH 0.1
-#define BREAK_M      1.0     // Break multiplier
-#define BREAK_SMOOTH 0.001     // Break smooth parameter, lower for smoother
+//#define SPEED_SMOOTH 0.1
+//#define BREAK_M      1.0     // Break multiplier
+//#define BREAK_SMOOTH 0.001     // Break smooth parameter, lower for smoother
 
 SoftwareSerial SWSerial(NOT_A_PIN, 9); // RX on no pin (unused), TX on pin 11 (to S1).
 SabertoothSimplified ST(SWSerial);     // Use SWSerial as the serial port.
 
 int Stir_Ref;                 // Reference reading of the stirring potentiomenter
 int Speed_Ref;                 // Reference reading of the stirring potentiomenter
+volatile unsigned int right_speed_counter = 0;   // right motor speed encoder counter
+
+// ========================== Encoder counter ===============================
+void right_motor_encoder() {
+   right_speed_counter++;
+}
+
+// ========================== SETUP ==============================================
 
 void setup() {
   Serial.begin(57600);
   SWSerial.begin(9600);  // Sabertooth software serial
   SWSerial.flush();
+  
+  attachInterrupt(0, right_motor_encoder, RISING);   // pin 2 for interrupt 0
 
-  pinMode(LBREAKPIN, OUTPUT); 
-  pinMode(RBREAKPIN, OUTPUT);
+  // pinMode(LBREAKPIN, OUTPUT); 
+  // pinMode(RBREAKPIN, OUTPUT);
   pinMode(STIRPIN, INPUT);
   pinMode(SPEEDPIN, INPUT);
 
@@ -46,29 +56,50 @@ void setup() {
 }
 
 void loop() {
-  int stir_read  = (analogRead(STIRPIN) - Stir_Ref)/4;
-  int speed_read = map(analogRead(SPEEDPIN) - Speed_Ref, -512, 512, -MAX_SPEED,MAX_SPEED);
-
-  //Serial.print(speed_read); Serial.print(" , ");
-  //Serial.println(stir_read);
+  static unsigned long last_loop_time = millis();
+  static int stir_read;
+  static int speed_read
+  static unsigned long last_right_enc_time = millis();
   
-  Motor_Break_Run(speed_read + stir_read, speed_read - stir_read);
+  if ( (millis() - last_loop_time) > 200 ) {    // only read the potentiometers periodically
+    last_loop_time = millis();                // reset the timer loop
   
-  delay(1);
+    stir_read  = (analogRead(STIRPIN) - Stir_Ref)/2;
+    speed_read = map(analogRead(SPEEDPIN) - Speed_Ref, -512, 512, -MAX_SPEED,MAX_SPEED);
+     
+    Motor_Break_Run(speed_read + stir_read, speed_read - stir_read);  // move down later
+  
+  } else {
+    noInterrupts();
+      unsigned int right_enc = right_speed_counter;
+      right_speed_counter = 0;                        // reset to zero after reading
+		interrupts();
+    
+    
+    if ( right_enc > 0 ) {    // sense a movement
+      float right_enc_speed = right_enc * 1000.0 / (millis() - last_right_enc_time);
+      last_right_enc_time = millis();
+      #ifdef DEBUG
+        Serial.print("right speed: "); Serial.println(right_enc_speed);
+      #endif
+    }
+  
+    // Motor_Break_Run(speed_read + stir_read, speed_read - stir_read);
+  }
 
 }
 
 // ========================= Motor & Break ===========================
 void Motor_Break_Run(int leftmot, int rightmot) {
-   static float lastleftbreak;
-   static float lastrightbreak;
-   static float lastleftmot;
-   static float lastrightmot;
-   static unsigned long laststoptime;
-   float leftbreak = abs(leftmot*BREAK_M);
-   float rightbreak = abs(rightmot*BREAK_M);
+   //static float lastleftbreak;
+   //static float lastrightbreak;
+   //static float lastleftmot;
+   //static float lastrightmot;
+   //static unsigned long laststoptime;
+   //float leftbreak = abs(leftmot*BREAK_M);
+   //float rightbreak = abs(rightmot*BREAK_M);
 
-   // motor part
+   // half the speed for reverse
    if (leftmot < 0) {
       leftmot = leftmot / 2;
    }
@@ -104,8 +135,8 @@ void Motor_Break_Run(int leftmot, int rightmot) {
    */
    Motor_Run_Speed(leftmot, rightmot);
    //Break_Run(abs(leftmot) , abs(rightmot));
-   Break_Run(250,250);
-   Serial.print(leftmot); Serial.print(" , "); Serial.println(rightmot); 
+   //Break_Run(250,250);
+   //Serial.print(leftmot); Serial.print(" , "); Serial.println(rightmot); 
 }  
 
 // ========================= Motor run general ========================
