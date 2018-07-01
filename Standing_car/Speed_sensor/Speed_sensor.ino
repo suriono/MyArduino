@@ -13,7 +13,7 @@ void setup() {
   Serial.begin(57600);
   //Serial.setTimeout(10000);
   
-  pinMode(13, OUTPUT);
+//  pinMode(13, OUTPUT);
 //  pinMode(M1_SENS, INPUT);
   attachInterrupt(digitalPinToInterrupt(2), motorStep1, RISING);
   Serial.println("Start");
