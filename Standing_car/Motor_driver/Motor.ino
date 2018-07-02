@@ -1,9 +1,9 @@
-#define PID_KP 0.1
+#define PID_KP 0.5
 #define PID_KI 0.000
 #define PID_KD 0.01
+#define SPEED_SMOOTH 0.03
 
 float rightspeedsensor;
-
 
 // ========================= Motor run general ========================
 void Motor_Run_Speed(int pow_mot1, int pow_mot2) { // (-127 to 127)
@@ -29,17 +29,26 @@ void Motor_Run(int leftmot, int rightmot) {
 // ========================= Motor run uses sensor and PID =============
 
 void Motor_PID(int leftPot, int rightPot) { 
-  static float sumRight_pid = 0.0; 
-  static float lastspeed = 0.0;
+  //static float sumRight_pid = 0.0; 
+  static float lastRightSpeed = 0.0;
+  static float lastLeftSpeed = 0.0;
   int totalRightDiff = 0;
-  static unsigned long lastFullPower = millis();
+  static unsigned long lastStopTime = millis();
 
-  // if in reverse
-  if (leftPot < 0) {
-     leftPot = leftPot / 2;
+  if ( (abs(leftPot) + abs(rightPot)) < 4 ) { // when it stops
+     lastStopTime = millis();
   }
-  if (rightPot < 0) {
+
+  if ( (millis() - lastStopTime) < 2000) { // first 2 sec after stop, go easy
+     leftPot = leftPot / 2;
      rightPot = rightPot / 2;
+  } else { // if in reverse
+     if (leftPot < 0) {
+        leftPot = leftPot / 2;
+     }
+     if (rightPot < 0) {
+        rightPot = rightPot / 2;
+     }
   }
 
    
@@ -67,8 +76,14 @@ void Motor_PID(int leftPot, int rightPot) {
       //  }
       //}
    }
+
+   float totalRight = (rightPot + totalRightDiff)* SPEED_SMOOTH + (1.0-SPEED_SMOOTH)* lastRightSpeed;
+   float totalLeft  = (leftPot  + totalRightDiff)* SPEED_SMOOTH + (1.0-SPEED_SMOOTH)* lastLeftSpeed;
+   lastRightSpeed = totalRight;
+   lastLeftSpeed  = totalLeft;
+   
    Serial.print(rightspeedsensor); Serial.print(","); Serial.println(rightPot);
-   Motor_Run_Speed(leftPot + totalRightDiff, rightPot + totalRightDiff);
+   Motor_Run_Speed(int(totalLeft), int(totalRight));
 
    
   

@@ -7,16 +7,14 @@
 #define SPEEDPIN     A1      // potentiometer pin to read speed
 
 #define MAX_SPEED    40
-//#define SPEED_SMOOTH 0.1
 
 SoftwareSerial SaberSerial(NOT_A_PIN, 9); // RX on no pin (unused), TX on pin 11 (to S1).
 SabertoothSimplified ST(SaberSerial);     // Use SaberSerial as the serial port.
 SoftwareSerial SpeedSensorSerial(4, NOT_A_PIN); // RX on no pin
 
-
 int Stir_Ref;                 // Reference reading of the stirring potentiomenter
 int Speed_Ref;                 // Reference reading of the stirring potentiomenter
-volatile unsigned int right_speed_counter = 0;   // right motor speed encoder counter
+//volatile unsigned int right_speed_counter = 0;   // right motor speed encoder counter
 
 // ========================== SETUP ==============================================
 
