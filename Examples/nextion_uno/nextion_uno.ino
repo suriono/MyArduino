@@ -41,18 +41,17 @@ char buffer_maxpower[4] = {0};
 
 RTCLib rtc;
 
-uint8_t number = 0;
-uint16_t sensor_pin = A0;    // select the input pin for the potentiometer
-uint16_t sensor_value = 0;  // variable to store the value coming from the sensor
-uint16_t temperature = 0;
-uint16_t temp = 0;
+//uint8_t number = 0;
+//uint16_t sensor_pin = A0;    // select the input pin for the potentiometer
+//uint16_t sensor_value = 0;  // variable to store the value coming from the sensor
+//uint16_t temperature = 0;
+//uint16_t temp = 0;
 byte     Last_Power = 30;
 
 NexTouch *nexListenList[] = 
 {
     &b0,
     &b1,
-    //&n0,
     &t0,
     NULL
 };
