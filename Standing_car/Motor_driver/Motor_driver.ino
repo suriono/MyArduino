@@ -6,7 +6,7 @@
 #define STIRPIN      A0      // potentiometer pin to read stirring
 #define SPEEDPIN     A1      // potentiometer pin to read speed
 
-#define MAX_SPEED    40
+#define MAX_SPEED    60
 
 SoftwareSerial SaberSerial(NOT_A_PIN, 9); // RX on no pin (unused), TX on pin 11 (to S1).
 SabertoothSimplified ST(SaberSerial);     // Use SaberSerial as the serial port.

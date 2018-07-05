@@ -1,4 +1,4 @@
-#define PID_KP 0.5
+#define PID_KP 0.2
 #define PID_KI 0.000
 #define PID_KD 0.01
 #define SPEED_SMOOTH 0.03
@@ -10,21 +10,6 @@ void Motor_Run_Speed(int pow_mot1, int pow_mot2) { // (-127 to 127)
    ST.motor(1, -constrain(pow_mot1,-127,127)); delay(1);
    ST.motor(2, -constrain(pow_mot2,-127,127));
 }
-
-// ========================= Motor & Break ===========================
-void Motor_Run(int leftmot, int rightmot) {
-  
-   if (leftmot < 0) {
-      leftmot = leftmot / 2;
-   }
-   if (rightmot < 0) {
-      rightmot = rightmot / 2;
-   }
-
-   Motor_Run_Speed(leftmot, rightmot);
-   
-   Serial.print(leftmot); Serial.print(" , "); Serial.println(rightmot); 
-}  
 
 // ========================= Motor run uses sensor and PID =============
 
