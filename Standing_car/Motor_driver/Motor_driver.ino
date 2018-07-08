@@ -48,17 +48,17 @@ void loop() {
     speed_read = map(analogRead(SPEEDPIN) - Speed_Ref, -512, 512, -MAX_SPEED,MAX_SPEED);
 
   }
-  
+
+  //boolean isEncoderAvailable = false;
   if (SpeedSensorSerial.available() > 0) { // read encoder speed sensor
+     getSpeedSensor(speed_read+stir_read, speed_read-stir_read);    // read speed sensor
+      
   
-      getSpeedSensor(speed_read-stir_read);    // read speed sensor
 
-      if ( (millis() - last_encoder_time) < 100 ) { // make sure encoder is read
-        Motor_PID(speed_read + stir_read, speed_read - stir_read);
-        //Motor_Run(speed_read + stir_read, speed_read - stir_read);  // move down later
-      }
-
-      last_encoder_time = millis();   // last reading encoder
+    if ( (millis() - last_encoder_time) < 100 ) { // make sure encoder is read
+       Motor_PID(speed_read + stir_read, speed_read - stir_read);
+    }
+    last_encoder_time = millis();   // last reading encoder
   }
 }
 
