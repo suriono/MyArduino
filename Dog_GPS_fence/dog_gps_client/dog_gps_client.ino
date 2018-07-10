@@ -356,17 +356,19 @@ bool get_Fence() {
 // ================== Distance to the closest fence =================
 
 float Distance_to_Fence() {
-   float dist[4];    // distance to each wall, positive=outside the fence
+   float dist[4];
+   double dlat, acord;  
 
    float px, py;
    double crossproduct, norm;
 
-  
-   for (byte nn=0; nn<4 ; nn++) {
+   for (byte nn=0; nn<4 ; nn++) {    // from four walls
       px = last_lat - Fx[nn];
       py = last_lon - Fy[nn];
       crossproduct = px * Fvy[nn] - py * Fvx[nn];  // cross product
-      dist[nn] = float(crossproduct / NormFv[nn]);
+      dlat = float(crossproduct / NormFv[nn]) *PI/360.0; // but need direction and divided by 2; // convert to radian / 2
+      //acord = sin(dlat)*sin(dlat)+cos(last_lat*PI/180.0)*cos(flat2*PI/180.0)*sin(dlon)*sin(dlon);
+      dist[nn] = dlat; // temporary
    }
 }
 
