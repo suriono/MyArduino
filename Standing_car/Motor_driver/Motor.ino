@@ -1,7 +1,7 @@
 #define PID_KP 0.2
 #define PID_KI 0.000
 #define PID_KD 0.01
-#define SPEED_SMOOTH 0.1  // was 0.03
+#define SPEED_SMOOTH 0.5  // was 0.03
 
 float leftspeedsensor;
 float rightspeedsensor;
@@ -39,18 +39,21 @@ void Motor_PID(int leftPot, int rightPot) {
   }
 
    
-   //if ( abs(leftPot-rightPot) < 10) { // when it's not turning
+   
       float diffLeft  = (leftPot  - leftspeedsensor *signInt(leftPot));
       float diffRight = (rightPot - rightspeedsensor*signInt(rightPot)); 
 
       totalLeftDiff  = int(diffLeft  * PID_KP);
       totalRightDiff = int(diffRight * PID_KP);
 
+   float Speed_Smooth = SPEED_SMOOTH;  // smoothing factor
+   //if ( abs(leftPot-rightPot) > 10) {  // when it's turning
+   //   Speed_Smooth *= 2.0;              
    //}
 
    // Smoothing
-   float totalLeft  = (leftPot  + totalLeftDiff) * SPEED_SMOOTH + (1.0-SPEED_SMOOTH)* lastLeftSpeed;
-   float totalRight = (rightPot + totalRightDiff)* SPEED_SMOOTH + (1.0-SPEED_SMOOTH)* lastRightSpeed;
+   float totalLeft  = (leftPot  + totalLeftDiff) * Speed_Smooth + (1.0-Speed_Smooth)* lastLeftSpeed;
+   float totalRight = (rightPot + totalRightDiff)* Speed_Smooth + (1.0-Speed_Smooth)* lastRightSpeed;
    
    lastRightSpeed = totalRight;
    lastLeftSpeed  = totalLeft;
