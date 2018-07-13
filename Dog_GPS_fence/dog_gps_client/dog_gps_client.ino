@@ -16,7 +16,7 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 
 TinyGPS gps1;
 SoftwareSerial mySerial(4, 5); // RX, TX
-#define R_earth 6373000.0    // radius of earth
+#define R_EARTH  6373000.0    // radius of earth in meters
 
 WiFiServer server(80);
 WiFiClient client;
@@ -27,16 +27,16 @@ unsigned long total_distance;
 unsigned long last_buzz;        // last time buzz
 bool isFenceOK = false;
 float Fx[4], Fy[4];             // Fence coordinates
-float Fvx[4], Fvy[4];            // Fence wall vectors
-double NormFv[4];                   // magnitude of Fv vectors
+float FvxN[4], FvyN[4];         // Fence normalized wall vectors
+//double NormFv[4];                   // magnitude of Fv vectors
 
 
 // routines declarations .......
-void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon);
+//void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon);
 //double get_distance(float flat1, float flon1, float flat2, float flon2);
-void write_client(); // String outstr);
+//void write_client(); // String outstr);
 unsigned long Buzz(int,int);
-bool get_Fence();
+//bool get_Fence();
 
 // ************* Setup *************************             
 void setup() { 
@@ -149,155 +149,24 @@ void loop() {
         isBuzz = true;
         client.print(",RP BUZZ");
      } else if (datastr.indexOf("get_fence_points") > -1) {   // receive the fence coordinates
-        EEPROM.begin(128);
-        client.print(",RP ");
-        byte nn = 0;
-        byte foundtwice = 0;
-        while (nn < 128 && foundtwice < 2) {
-           char readee = EEPROM.read(nn);
-           client.print(readee);
-           if (readee == ']') {
-             foundtwice++;
-           } else {
-             foundtwice = 0;
-           }
-           nn++;
-        }
-     } else if (datastr.indexOf("[[") > -1) {   // receive the fence coordinates
-        client.print(",RP OK_FENCE");
         
-        EEPROM.begin(128);
-        for (byte nn=0; nn < datastr.length(); nn++) {
-          EEPROM.put(nn, datastr.charAt(nn));
-        }
-        EEPROM.end();
-
-        isFenceOK = get_Fence();
+        send_Fence();
+        
+     } else if (datastr.indexOf("[[") > -1) {   // receive the fence coordinates and write
+        
+        write_Fence(datastr);
         
      }
      client.flush();
      
      Serial.println("===============================================\n");
-     Serial.println("client read: " + String(count) + " characters:" + datastr + "===");
+     Serial.println("client read: " + String(count) + " characters:" + datastr + "======");
      //client.flush();
      client.stop();
 
   }
 }  // ************* end of Loop ***********************
 
-
-// ***************** get gps **********************************
-void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon) {
-  unsigned long chars;
-  unsigned short sentences, failed;
-  float flat, flon;      // fix lattitue and longitude
-  unsigned long fix_age; // returns +- latitude/longitude in degrees
-  gps.f_get_position(&flat, &flon, &fix_age);
-  *fixlat = flat;
-  *fixlon = flon;
-  if (fix_age == TinyGPS::GPS_INVALID_AGE)
-     Serial.println("No fix detected");
-  else if (fix_age > 5000)
-     Serial.println("Warning: possible stale data!");
-     
-  if (newData) {
-    unsigned long age;
-    gps.f_get_position(&flat, &flon, &age);
-    //Serial.print("LAT=");
-    //Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
-    //Serial.print(" LON=");
-    //Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
-    #ifdef DEBUG_GPS
-    Serial.print("SAT=");
-    //if (gps.satellites() < 10) Serial.print(" ");
-    Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
-    Serial.print(" PREC=");
-    if(gps.hdop() < 100) Serial.print(" ");
-    Serial.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
-    #endif
-    if (flat != TinyGPS::GPS_INVALID_F_ANGLE && flon != TinyGPS::GPS_INVALID_F_ANGLE) {
-       #ifdef DEBUG_GPS
-       Serial.print(" LAT=");
-       Serial.print(flat,7);
-       Serial.print(" LON=");
-       Serial.print(flon,7);
-       #endif
-       last_time = millis();
-       last_lat = flat;
-       last_lon = flon;
-    }
-  }
-  
-  gps.stats(&chars, &sentences, &failed);
-  //Serial.print(" CHARS=");
-  //Serial.print(chars);
-  //Serial.print(" SENTENCES=");
-  //Serial.print(sentences);
-  #ifdef DEBUG_GPS
-  Serial.print(" CSUM ERR=");
-  Serial.print(failed);
-  Serial.println("");
-  #endif
-  if (chars == 0)
-    Serial.println("** No characters received from GPS: check wiring **");
-}  // *********** end of get_gps *********************
-
-/*
-
-// ************** Get distance *************************
-double get_distance(float flat1, float flon1, float flat2, float flon2) {
-   double dlat = (flat1 - flat2)*PI/360.0; // and divided by 2
-   double dlon = (flon1 - flon2)*PI/360.0; // and divided by 2
-   
-   Serial.print(" dlat="); Serial.print(dlat,8);
-   Serial.print(" dlon="); Serial.print(dlon,8);
-   
-   double acord = sin(dlat)*sin(dlat)+cos(flat1*PI/180.0)*cos(flat2*PI/180.0)*sin(dlon)*sin(dlon);
-          //double alat = sin(dlat)*sin(dlat);   // lattitue a
-          //double alon = cos(flat*PI/180.0)*cos(firstflat*PI/180.0)*sin(dlon)*sin(dlon); // longitude a
-          //double clat = 2.0*atan2(sqrt(alat),sqrt(1.0-alat));
-          //double clon = 2.0*atan2(sqrt(alon),sqrt(1.0-alon));
-   double ccord = 2.0*atan2(sqrt(acord),sqrt(1.0-acord));
-   double distance = R_earth * ccord;
-          //double distlat = R_earth * clat;
-          //double distlon = R_earth * clon;
-          
-   Serial.print(" distance=");
-   Serial.print(distance);
-          //Serial.print(" d_lat=");
-          //Serial.print(distlat,6);
-          //Serial.print(" d_lat_avg=");
-          //Serial.print(Avg_Lat(distlat),6);
-          //Serial.print(" d_lon=");
-          //Serial.print(distlon,6);
-          
-       //}
-   return distance;
-
-} // *********** end of get_distance **********************
-*/
-// ============= Write to Client =================
-void write_client() {
-  // send a standard http response header
-  client.println("HTTP/1.1 200 OK");
-  client.println("Content-Type: text/html");
-  client.println("Connection: close");  // the connection will be closed after completion of the response
-  //client.println("Refresh: 10");  // refresh the page automatically every 5 sec
-  client.println();
-  //client.println("<!DOCTYPE HTML>");
-  //client.println("<html>");
-
-  //unsigned long sendtime = millis();
-
-  client.print("LT ");
-  client.print(last_lat,8);
-  client.print(",LN ");
-  client.print(last_lon,8);
-  client.print(",TM ");
-  client.print(last_time);
-
-  //client.println("<br/></html>");
-}
 
 // ====================== Buzz ======================
 unsigned long Buzz(int freq, int amplitude) {
@@ -306,69 +175,4 @@ unsigned long Buzz(int freq, int amplitude) {
   return millis();
 }
 
-// ===================== Fence =========================
-bool get_Fence() {
-   EEPROM.begin(128);
-   int nn = 0;
-   byte foundtwice = 0;
-   String ptstr;
-   while (nn < 128 && foundtwice < 2) {
-      char readee = EEPROM.read(nn);
-      ptstr += readee;
-      if (readee == ']') {
-         foundtwice++;
-      } else {
-         foundtwice = 0;
-      }
-      nn++;
-   }
-
-   if (foundtwice < 2) return false;
-
-   int lastind1;
-   int lastind2 = -1;
-
-   Serial.println("Fence coordinates:");
-   for (nn=0 ; nn<4 ; nn++) {
-      lastind1 = lastind2+2;
-      lastind2 = ptstr.indexOf(',', lastind1);
-      Fx[nn] = ptstr.substring(lastind1+1, lastind2).toFloat();
-
-      lastind1 = lastind2;
-      lastind2 = ptstr.indexOf(']', lastind1);
-      Fy[nn] = ptstr.substring(lastind1+1, lastind2).toFloat();
-
-      Serial.print(Fx[nn],5); Serial.println(Fy[nn],5);
-   }
-
-   for (nn=0 ; nn<4 ; nn++) {
-      int mm = (nn+1) % 4;
-      Fvx[nn] = Fx[mm] - Fx[nn];
-      Fvy[nn] = Fy[mm] - Fy[nn];
-      NormFv[nn] = sqrt(Fvx[nn]*Fvx[nn] + Fvy[nn]*Fvy[nn]);
-   }
-
-   // Serial.println(ptstr);
-
-   return true;
-}
-
-// ================== Distance to the closest fence =================
-
-float Distance_to_Fence() {
-   float dist[4];
-   double dlat, acord;  
-
-   float px, py;
-   double crossproduct, norm;
-
-   for (byte nn=0; nn<4 ; nn++) {    // from four walls
-      px = last_lat - Fx[nn];
-      py = last_lon - Fy[nn];
-      crossproduct = px * Fvy[nn] - py * Fvx[nn];  // cross product
-      dlat = float(crossproduct / NormFv[nn]) *PI/360.0; // but need direction and divided by 2; // convert to radian / 2
-      //acord = sin(dlat)*sin(dlat)+cos(last_lat*PI/180.0)*cos(flat2*PI/180.0)*sin(dlon)*sin(dlon);
-      dist[nn] = dlat; // temporary
-   }
-}
 
