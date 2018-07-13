@@ -57,7 +57,7 @@ void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon) {
 
 
 
-/*
+
 // ************** Get distance *************************
 double get_distance(float flat1, float flon1, float flat2, float flon2) {
    double dlat = (flat1 - flat2)*PI/360.0; // and divided by 2
@@ -89,4 +89,4 @@ double get_distance(float flat1, float flon1, float flat2, float flon2) {
    return distance;
 
 } // *********** end of get_distance **********************
-*/
+

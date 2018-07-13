@@ -91,7 +91,7 @@ float Distance_to_Fence() {
    double dlat, acord;  
 
    double px, py;
-   double crossproduct;
+   double crossproduct, orthogonal_lat, orthogonal_lon;
 
    for (byte nn=0; nn<4 ; nn++) {    // from four walls
       px = last_lat - Fx[nn];        // vector from a fence coordinate
@@ -99,7 +99,13 @@ float Distance_to_Fence() {
       Serial.print(last_lat,5); Serial.print(","); Serial.println(last_lon,5);
       Serial.print(Fx[nn],5); Serial.print(","); Serial.println(Fy[nn],5);
       Serial.print(px,7); Serial.print(","); Serial.println(py,7);
-      crossproduct = px * FvyN[nn] - py * FvxN[nn];  // cross product, sign indicates in or outside
+
+      // (+) outside the fence and (-) inside the fence
+      crossproduct = px * FvyN[nn] - py * FvxN[nn];
+
+      orthogonal_lat = crossproduct * FvyN[nn];
+      orthogonal_lon = -crossproduct * FvxN[nn];
+      
       Serial.print("cross product: "); Serial.println(crossproduct,9);
       dlat = crossproduct *PI/360.0; // but need direction and divided by 2; // convert to radian / 2
       //acord = sin(dlat)*sin(dlat)+cos(last_lat*PI/180.0)*cos(flat2*PI/180.0)*sin(dlon)*sin(dlon);
