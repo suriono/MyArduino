@@ -57,9 +57,11 @@ void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon) {
 
 
 
+#define R_EARTH  6373000.0    // radius of earth in meters
 
 // ************** Get distance *************************
-double get_distance(float flat1, float flon1, float flat2, float flon2) {
+
+double get_gps_distance(float flat1, float flon1, float flat2, float flon2) {
    double dlat = (flat1 - flat2)*PI/360.0; // and divided by 2
    double dlon = (flon1 - flon2)*PI/360.0; // and divided by 2
    
@@ -72,7 +74,7 @@ double get_distance(float flat1, float flon1, float flat2, float flon2) {
           //double clat = 2.0*atan2(sqrt(alat),sqrt(1.0-alat));
           //double clon = 2.0*atan2(sqrt(alon),sqrt(1.0-alon));
    double ccord = 2.0*atan2(sqrt(acord),sqrt(1.0-acord));
-   double distance = R_earth * ccord;
+   double distance = R_EARTH * ccord;
           //double distlat = R_earth * clat;
           //double distlon = R_earth * clon;
           

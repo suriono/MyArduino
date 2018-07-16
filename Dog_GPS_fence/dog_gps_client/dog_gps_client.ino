@@ -16,7 +16,6 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 
 TinyGPS gps1;
 SoftwareSerial mySerial(4, 5); // RX, TX
-#define R_EARTH  6373000.0    // radius of earth in meters
 
 WiFiServer server(80);
 WiFiClient client;

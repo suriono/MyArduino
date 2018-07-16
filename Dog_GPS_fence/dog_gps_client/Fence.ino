@@ -96,20 +96,28 @@ float Distance_to_Fence() {
    for (byte nn=0; nn<4 ; nn++) {    // from four walls
       px = last_lat - Fx[nn];        // vector from a fence coordinate
       py = last_lon - Fy[nn];
-      Serial.print(last_lat,5); Serial.print(","); Serial.println(last_lon,5);
-      Serial.print(Fx[nn],5); Serial.print(","); Serial.println(Fy[nn],5);
-      Serial.print(px,7); Serial.print(","); Serial.println(py,7);
+      //Serial.print(last_lat,5); Serial.print(","); Serial.println(last_lon,5);
+      //Serial.print(Fx[nn],5); Serial.print(","); Serial.println(Fy[nn],5);
+      //Serial.print(px,7); Serial.print(","); Serial.println(py,7);
 
       // (+) outside the fence and (-) inside the fence
       crossproduct = px * FvyN[nn] - py * FvxN[nn];
 
       orthogonal_lat = crossproduct * FvyN[nn];
       orthogonal_lon = -crossproduct * FvxN[nn];
+
+      dist[nn] = get_gps_distance(last_lat, last_lon, last_lat+orthogonal_lat, last_lon+orthogonal_lon);
       
-      Serial.print("cross product: "); Serial.println(crossproduct,9);
-      dlat = crossproduct *PI/360.0; // but need direction and divided by 2; // convert to radian / 2
+      Serial.print("cross product: "); Serial.print(crossproduct,9);
+      //Serial.print(", dist: "); Serial.print(dist[nn]);
+      if (crossproduct > 0) {
+        Serial.println(", the dog is inside the fence");
+      } else {
+        Serial.println(", the dog is OUTSIDE the fence");
+      }
+      //dlat = crossproduct *PI/360.0; // but need direction and divided by 2; // convert to radian / 2
       //acord = sin(dlat)*sin(dlat)+cos(last_lat*PI/180.0)*cos(flat2*PI/180.0)*sin(dlon)*sin(dlon);
-      dist[nn] = dlat; // temporary
+      
    }
 }
 
