@@ -65,8 +65,8 @@ double get_gps_distance(float flat1, float flon1, float flat2, float flon2) {
    double dlat = (flat1 - flat2)*PI/360.0; // and divided by 2
    double dlon = (flon1 - flon2)*PI/360.0; // and divided by 2
    
-   Serial.print(" dlat="); Serial.print(dlat,8);
-   Serial.print(" dlon="); Serial.print(dlon,8);
+   //Serial.print(" dlat="); Serial.print(dlat,8);
+   //Serial.print(" dlon="); Serial.print(dlon,8);
    
    double acord = sin(dlat)*sin(dlat)+cos(flat1*PI/180.0)*cos(flat2*PI/180.0)*sin(dlon)*sin(dlon);
           //double alat = sin(dlat)*sin(dlat);   // lattitue a
@@ -78,8 +78,8 @@ double get_gps_distance(float flat1, float flon1, float flat2, float flon2) {
           //double distlat = R_earth * clat;
           //double distlon = R_earth * clon;
           
-   Serial.print(" distance=");
-   Serial.print(distance);
+   //Serial.print(" distance=");
+   //Serial.print(distance);
           //Serial.print(" d_lat=");
           //Serial.print(distlat,6);
           //Serial.print(" d_lat_avg=");

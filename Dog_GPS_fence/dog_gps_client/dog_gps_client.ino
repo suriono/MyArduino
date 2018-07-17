@@ -28,6 +28,7 @@ bool isFenceOK = false;
 float Fx[4], Fy[4];             // Fence coordinates
 float FvxN[4], FvyN[4];         // Fence normalized wall vectors
 //double NormFv[4];                   // magnitude of Fv vectors
+double Dist_to_Fence[4];  // distance fences, negative = outside the fence
 
 
 // routines declarations .......
@@ -136,9 +137,15 @@ void loop() {
         
      
      //} else {
-     write_client();
+     write_client(); // send lattitude, longitude, and time
 
      if (isFenceOK) {
+        Distance_to_Fence(); // for testing
+        client.print(",RP DISTFENCE");
+        for (byte nn=0; nn<4 ; nn++) {    // from four walls
+           client.print(" ");
+           client.print(Dist_to_Fence[nn]);
+        }
         //Serial.print("x0: "); Serial.println(Fx[0],5);
      }
 

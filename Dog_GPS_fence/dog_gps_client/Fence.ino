@@ -1,3 +1,4 @@
+
 // ===================== Fence =========================
 bool get_Fence() {   // read stored fence coordinates save into memory
    EEPROM.begin(128);
@@ -67,7 +68,7 @@ void send_Fence() {
       nn++;
   }
 
-  Distance_to_Fence(); // for testing
+  //Distance_to_Fence(); // for testing
 }
 
 // =================== Write EEPROM Fence coordinates ==============
@@ -87,8 +88,6 @@ void write_Fence(String datastr) {
 // ================== Distance to the closest fence =================
 
 float Distance_to_Fence() {
-   float dist[4];
-   double dlat, acord;  
 
    double px, py;
    double crossproduct, orthogonal_lat, orthogonal_lon;
@@ -100,24 +99,23 @@ float Distance_to_Fence() {
       //Serial.print(Fx[nn],5); Serial.print(","); Serial.println(Fy[nn],5);
       //Serial.print(px,7); Serial.print(","); Serial.println(py,7);
 
-      // (+) outside the fence and (-) inside the fence
+      // (+) inside the fence and (-) outside the fence
       crossproduct = px * FvyN[nn] - py * FvxN[nn];
 
       orthogonal_lat = crossproduct * FvyN[nn];
       orthogonal_lon = -crossproduct * FvxN[nn];
 
-      dist[nn] = get_gps_distance(last_lat, last_lon, last_lat+orthogonal_lat, last_lon+orthogonal_lon);
+      Dist_to_Fence[nn] =((crossproduct>0)-(crossproduct<0))*get_gps_distance(last_lat, last_lon, last_lat+orthogonal_lat, last_lon+orthogonal_lon);
       
       Serial.print("cross product: "); Serial.print(crossproduct,9);
-      //Serial.print(", dist: "); Serial.print(dist[nn]);
+      Serial.print(", dist: "); Serial.println(Dist_to_Fence[nn]);
+      /*
       if (crossproduct > 0) {
         Serial.println(", the dog is inside the fence");
       } else {
         Serial.println(", the dog is OUTSIDE the fence");
       }
-      //dlat = crossproduct *PI/360.0; // but need direction and divided by 2; // convert to radian / 2
-      //acord = sin(dlat)*sin(dlat)+cos(last_lat*PI/180.0)*cos(flat2*PI/180.0)*sin(dlon)*sin(dlon);
-      
+      */
    }
 }
 
