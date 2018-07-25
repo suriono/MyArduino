@@ -10,33 +10,25 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 #include <ESP8266WiFi.h>
 
 //#define DEBUG_GPS
+#define BUZZ_MIN_DISTANCE_METER 3.0
 
 #define BUZZER_PIN      14   // D5
-
-
-TinyGPS gps1;
 SoftwareSerial mySerial(4, 5); // RX, TX
 
+TinyGPS gps1;
 WiFiServer server(80);
 WiFiClient client;
 
 float last_lat, last_lon;
-unsigned long last_time;
+unsigned long last_time_gps;
 unsigned long total_distance;
 unsigned long last_buzz;        // last time buzz
 bool isFenceOK = false;
+bool isBuzzerEnable = false;    // if the buzzer is enabled
 float Fx[4], Fy[4];             // Fence coordinates
 float FvxN[4], FvyN[4];         // Fence normalized wall vectors
-//double NormFv[4];                   // magnitude of Fv vectors
 double Dist_to_Fence[4];  // distance fences, negative = outside the fence
 
-
-// routines declarations .......
-//void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon);
-//double get_distance(float flat1, float flon1, float flat2, float flon2);
-//void write_client(); // String outstr);
-unsigned long Buzz(int,int);
-//bool get_Fence();
 
 // ************* Setup *************************             
 void setup() { 
@@ -76,7 +68,7 @@ void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
   last_buzz = Buzz(100, 300); // freq, amplitude (0-1023)
   delay(1000);
-  Buzz(200, 0);  // stop buzz
+  Buzz_Stop();
 
   isFenceOK = get_Fence();
      
@@ -87,7 +79,7 @@ void setup() {
 
 void loop() {
 
-  bool newData1 = false;
+  bool newGPSdata = false;
   float lat1, lon1;
   static int numConnectedClient = 0;
   static bool isBuzz;
@@ -95,15 +87,12 @@ void loop() {
   
   while (mySerial.available()) {      //char c=mySerial.read();
      if (gps1.encode(mySerial.read())) {// Did a new valid sentence come in?
-        newData1 = true;
+        newGPSdata = true;
      }
   }
 
-  if(newData1) {
-     get_gps(newData1, gps1, &lat1, &lon1);
-
-     
-     
+  if(newGPSdata) {
+     get_gps(newGPSdata, gps1, &lat1, &lon1);
   } else if ( ((millis() - last_buzz) > 100) && isBuzz ) { // stop buzz
      Buzz(100, 0);  // stop buzzing
      isBuzz = false; 
@@ -120,14 +109,12 @@ void loop() {
         while(client.available()) {
            count++;
            readchar = client.read();
-           //readstr += readchar;
            if (isStartData) {
               datastr += readchar;
            } else {
               readstr += readchar;
               if (readstr.indexOf("Accept-Encoding: gzip") > 100) {
                  isStartData = true;
-                 //datastr += readchar;
               }
            }
         }
@@ -140,13 +127,12 @@ void loop() {
      write_client(); // send lattitude, longitude, and time
 
      if (isFenceOK) {
-        Distance_to_Fence(); // for testing
+        //Distance_to_Fence();  // invoked in GPS_coordinate
         client.print(",RP DISTFENCE");
         for (byte nn=0; nn<4 ; nn++) {    // from four walls
            client.print(" ");
            client.print(Dist_to_Fence[nn]);
         }
-        //Serial.print("x0: "); Serial.println(Fx[0],5);
      }
 
      datastr.trim();
@@ -172,13 +158,5 @@ void loop() {
 
   }
 }  // ************* end of Loop ***********************
-
-
-// ====================== Buzz ======================
-unsigned long Buzz(int freq, int amplitude) {
-  analogWriteFreq(freq);
-  analogWrite(BUZZER_PIN, amplitude); // 0 to 1023 for PWM duty cycle
-  return millis();
-}
 
 

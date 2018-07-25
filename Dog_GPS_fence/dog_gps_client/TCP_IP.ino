@@ -18,7 +18,7 @@ void write_client() {
   client.print(",LN ");
   client.print(last_lon,8);
   client.print(",TM ");
-  client.print(last_time);
+  client.print(last_time_gps);
 
   //client.println("<br/></html>");
 }

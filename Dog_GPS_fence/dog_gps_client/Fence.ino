@@ -87,10 +87,12 @@ void write_Fence(String datastr) {
 
 // ================== Distance to the closest fence =================
 
-float Distance_to_Fence() {
+void Distance_to_Fence() {
 
    double px, py;
    double crossproduct, orthogonal_lat, orthogonal_lon;
+
+   double min_dist = 999999.0;
 
    for (byte nn=0; nn<4 ; nn++) {    // from four walls
       px = last_lat - Fx[nn];        // vector from a fence coordinate
@@ -106,16 +108,27 @@ float Distance_to_Fence() {
       orthogonal_lon = -crossproduct * FvxN[nn];
 
       Dist_to_Fence[nn] =((crossproduct>0)-(crossproduct<0))*get_gps_distance(last_lat, last_lon, last_lat+orthogonal_lat, last_lon+orthogonal_lon);
+
+      if (Dist_to_Fence[nn] < min_dist) min_dist = Dist_to_Fence[nn];
       
-      Serial.print("cross product: "); Serial.print(crossproduct,9);
+      Serial.print("cross product: "); Serial.print(crossproduct,9); // + = inside the fence
       Serial.print(", dist: "); Serial.println(Dist_to_Fence[nn]);
-      /*
-      if (crossproduct > 0) {
-        Serial.println(", the dog is inside the fence");
-      } else {
-        Serial.println(", the dog is OUTSIDE the fence");
+
+      if (isBuzzerEnable) {
+         if ( crossproduct ) {   // outside the fence
+            Buzz_Max();
+         }
       }
-      */
+   }
+   if (isBuzzerEnable) {
+      if (min_dist < 0.0) {
+          Buzz_Max();
+          Serial.println("Max Buzz");
+      } else if (min_dist < BUZZ_MIN_DISTANCE_METER) {
+          int buzz_amp = map(int(min_dist*1000.0),0, int(BUZZ_MIN_DISTANCE_METER*1000.0), 1000, 0 );
+          //Buzz(300, buzz_amp);
+          Serial.print("Buzz: "); Serial.println(buzz_amp);
+      }
    }
 }
 
