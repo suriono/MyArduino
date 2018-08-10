@@ -48,10 +48,10 @@ void setup()
 
 // ================ LOOP =======================
 #define POTENTIO_read_interval 10  // Reading the potentiometer interval in msec
-#define BOOSTER_LIMIT 170           // potentio/pedal reading before enabling speed booster
+#define BOOSTER_LIMIT 240           // potentio/pedal reading before enabling speed booster
 
 void loop() {
-  static unsigned long last_time_loop;
+  static unsigned long last_time_loop, last_non_booster, last_booster;
   static int last_PWMValue;
   static int last_breakValue;
   
@@ -65,18 +65,21 @@ void loop() {
     digitalWrite(SpeedBoosterPin_L, outPWM_motor < BOOSTER_LIMIT); // LOW=enable boost speed when potentioValue is high enough
     
     if (outPWM_motor > BOOSTER_LIMIT && !digitalRead(SpeedBoosterPin_Input)) { // booster is pressed
-       outPWM_motor = 255;
-       analogWrite(enA,  outPWM_motor);    // motor
-       analogWrite(LPWM, outPWM_motor);    // brake
-
-    } else if (outPWM_motor > 9 && outPWM_motor < last_PWMValue && outPWM_motor < 100) {
-       analogWrite(enA,  outPWM_motor);    // motor
+       last_booster = millis();
+       analogWrite(LPWM, 240);    // brake off
+       outPWM_motor = 150 + constrain(int((millis()-last_non_booster)/20), 0, 90);
+    //} else if (outPWM_motor > BOOSTER_LIMIT && (millis()-last_booster) < 1000) { // shortly after stop boosting
+    //   analogWrite(LPWM, 240);    // brake off
+    //   outPWM_motor = 50 + constrain(int((millis()-last_non_booster)/40), 0, 150);
+    } else if (outPWM_motor > 9 && outPWM_motor < last_PWMValue && outPWM_motor < 100) { //  slow down
+       last_non_booster = millis();
        analogWrite(LPWM, outPWM_motor + 20 + round(100/outPWM_motor));   // brake
     } else {    // normal reading
-       analogWrite(enA,  outPWM_motor);    // motor
+       last_non_booster = millis();
        analogWrite(LPWM, outPWM_motor);    // brake       
     }
-    Serial.println(last_PWMValue);
+    analogWrite(enA,  outPWM_motor);    // motor
+    Serial.println(outPWM_motor);
     last_PWMValue = outPWM_motor;   
   }
   
@@ -85,7 +88,7 @@ void loop() {
 // ======================================================
 int Potentio_to_PWM (int potValue) {  // convert input potentio value to PWM
   int constrainvalue = constrain(potValue, Speed_Init_Read, 620);  // constraint the input value
-  return map(constrainvalue, Speed_Init_Read, 620 , 0, 210); // 200 instead of 255 to limit speed;
+  return map(constrainvalue, Speed_Init_Read, 620 , 0, 255); // 200 instead of 255 to limit speed;
 }
 
 
