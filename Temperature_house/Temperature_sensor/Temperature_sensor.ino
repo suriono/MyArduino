@@ -9,7 +9,7 @@ OneWire  ds(10);  // on pin 10 of temperature sensor (a 4.7K resistor if necessa
 #define PIN_RELAY_FAN 5
 
 TM1637Display display(CLK, DIO);
-SoftwareSerial TempSerial(0, 7); // RX, TX for read temp
+SoftwareSerial TempSerial(0, 9); // RX, TX for read temp
 #define INTERVAL_TO_NODEMCU 3600000   // interval (ms) sending to NodeMCU
 //#define INTERVAL_TO_NODEMCU 10000   // for testing interval (ms) sending to NodeMCU
 
@@ -140,6 +140,7 @@ void loop(void) {
   Serial.print("  Temperature = ");
   Serial.print(celsius);
   Serial.print(" Celsius, ");
+  //TempSerial.print("temp");
 
   if ( (millis() - last_time_serial_send) > INTERVAL_TO_NODEMCU) {
     //TempSerial.print(">temp=" + String(int(celsius)) + "<");
