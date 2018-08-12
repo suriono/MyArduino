@@ -140,7 +140,6 @@ void loop(void) {
   Serial.print("  Temperature = ");
   Serial.print(celsius);
   Serial.print(" Celsius, ");
-  //TempSerial.print("temp");
 
   if ( (millis() - last_time_serial_send) > INTERVAL_TO_NODEMCU) {
     //TempSerial.print(">temp=" + String(int(celsius)) + "<");

@@ -12,10 +12,17 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 SoftwareSerial TempSerial(13, 0); // D7,  RX, TX for read temp
 
 // Set these to run example.
+<<<<<<< HEAD
 #define FIREBASE_HOST "xxx"
 #define FIREBASE_AUTH ""
 #define WIFI_SSID "philip"
 #define WIFI_PASSWORD "xxx"
+=======
+//#define FIREBASE_HOST "xxx"
+//#define FIREBASE_AUTH "xxx"
+//#define WIFI_SSID "xxx"
+//#define WIFI_PASSWORD "xxx"
+>>>>>>> parent of 13c1541... change the software serial 7->9
 
 
 // Epoch time server
@@ -44,14 +51,19 @@ void setup() {
   Serial.begin(9600);
   TempSerial.begin(9600);    // Temperature serial
 
+<<<<<<< HEAD
   // connect to wifi.
-  //ESP.eraseConfig(); delay(1000);
+  ESP.eraseConfig(); delay(1000);
   WiFi.enableAP(false);
-  //WiFi.mode(WIFI_STA);
+  WiFi.mode(WIFI_STA);
+=======
+   // connect to wifi.
+  WiFi.enableAP(false);
+>>>>>>> parent of 13c1541... change the software serial 7->9
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("connecting");
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.println(". check the wifi ssid and password");
+    Serial.print(". check the wifi ssid and password");
     delay(500);
   }
   Serial.println();
@@ -121,7 +133,7 @@ boolean read_Temperature() {
   
   while (TempSerial.available()) {
      sread = TempSerial.read();
-     Serial.print(sread);
+     //Serial.print(sread);
      if (ismySerialData) {
         TempInput += sread;
      } else if (sread == '>') {
@@ -188,7 +200,7 @@ void Firebase_debug(String debug_msg) {
 
 // -------------------------------------------------------
 void Firebase_fail() {
-   Serial.print("==== Firebase failed: ");
+   Serial.print("==== failed: ");
    Serial.println(Firebase.error());  
 
    // resetFunc(); //call reset 
