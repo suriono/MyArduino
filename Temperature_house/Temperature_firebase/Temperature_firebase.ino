@@ -12,11 +12,10 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 SoftwareSerial TempSerial(13, 0); // D7,  RX, TX for read temp
 
 // Set these to run example.
-#define FIREBASE_HOST "home0-90616.firebaseio.com"
-//#define FIREBASE_AUTH "AIzaSyCU4j2s5SPFQS8PcKKswuiYncTQDl8gK6k"
+#define FIREBASE_HOST "xxx"
 #define FIREBASE_AUTH ""
 #define WIFI_SSID "philip"
-#define WIFI_PASSWORD "fern5077266123"
+#define WIFI_PASSWORD "xxx"
 
 
 // Epoch time server
@@ -28,7 +27,7 @@ byte packetBuffer[ NTP_PACKET_SIZE]; //buffer to hold incoming and outgoing pack
 WiFiUDP udp;
 
 //#define CLOUD_SEND_INTERVAL 15000  // in milliseconds should be around 120000 (2 minutes)
-#define DEBUG_INTERVAL 30000          // Firebase debug update
+#define DEBUG_INTERVAL 60000          // Firebase debug update
 
 unsigned long time_program_start = millis();
 long last_resettime;
@@ -46,9 +45,9 @@ void setup() {
   TempSerial.begin(9600);    // Temperature serial
 
   // connect to wifi.
-  ESP.eraseConfig(); delay(1000);
+  //ESP.eraseConfig(); delay(1000);
   WiFi.enableAP(false);
-  WiFi.mode(WIFI_STA);
+  //WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("connecting");
   while (WiFi.status() != WL_CONNECTED) {
