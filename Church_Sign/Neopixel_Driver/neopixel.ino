@@ -9,9 +9,34 @@ void Neopixel_Initial() {
   Neopixel_Colorful_Text("All welcome to", "River Hills");
 }
 
+// ==============================================
+
+void Neopixel_Process_Input_Serial(String inputstr) {
+  Neopixel_Colorful_Text(inputstr,"River Hills");
+}
+
+// ============================================
+
+void Neopixel_Display_Normal_Text(String inputstr1, String inputstr2) {
+  matrix1.fillScreen(0);  matrix2.fillScreen(0);// erase everything
+  Neopixel_Set_Colors(Neopixel_Red, Neopixel_Red) ; // both red
+  matrix1.setCursor(0, 0); matrix2.setCursor(0, 0);
+  matrix1.print(inputstr1); matrix2.print(inputstr2);
+  matrix1.show(); matrix2.show();
+}
+
+// =============================================
+
+void Neopixel_Set_Colors(uint16_t color1, uint16_t color2) {
+  matrix1.setTextColor(color1);
+  matrix2.setTextColor(color2);
+}
+
 // ===============================================
 
 void Neopixel_Colorful_Text(String inputstr1, String inputstr2) {
+  uint16_t colors[] = {
+  matrix1.Color(255, 0, 0), matrix1.Color(0, 255, 0), matrix1.Color(255, 255, 0),matrix1.Color(0, 0, 255), matrix1.Color(255, 0, 255), matrix1.Color(0, 255, 255), matrix1.Color(255, 255, 255)};
   
   matrix1.fillScreen(0);  matrix2.fillScreen(0);// blank the screen
   
