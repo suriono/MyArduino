@@ -1,3 +1,5 @@
+String Text1, Text2; // text for each row
+
 // ===================================================
 
 void Neopixel_Initial() {
@@ -13,6 +15,11 @@ void Neopixel_Initial() {
 
 void Neopixel_Process_Input_Serial(String inputstr) {
   Neopixel_Colorful_Text(inputstr,"River Hills");
+  deserializeJson(jsonFromText, inputstr);
+  JsonObject JsonObj = jsonFromText.as<JsonObject>();
+  String row1 = JsonObj["text1"];
+  Serial.print("row1: "); Serial.println(row1);
+  //char json[] = inputstr;
 }
 
 // ============================================

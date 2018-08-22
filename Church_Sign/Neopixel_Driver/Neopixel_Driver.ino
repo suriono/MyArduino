@@ -1,6 +1,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_NeoMatrix.h>
 #include <Adafruit_NeoPixel.h>
+#include <ArduinoJson.h>
  
 #define PIN_TOP_SIGN 2
 #define PIN_BOTTOM_SIGN 3
@@ -23,6 +24,8 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, 2, 1, PIN,
    NEO_GRB + NEO_KHZ800);
 */
 
+DynamicJsonDocument jsonFromText;
+
 String inputString = "";         // a String to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
 
@@ -33,6 +36,7 @@ void setup() {
   Neopixel_Initial();
   
   Serial.print("width:"); Serial.println(matrix1.width());  
+
 }
 
 void loop() {
