@@ -52,14 +52,19 @@ void loop() {
       if (isSignText) {  // actual sign text
         SignText += c;
       }
-      if(c == '>') {
+      if(c == '{') {
         isSignText = true;
-        SignText = "";
-      } else if ( c == '<') {
-        isSignText = false;
-        Serial.print("Sign:"); Serial.println(SignText.substring(0, SignText.length()-2));
+        SignText = "{";
+      } else if ( c == '}') {
         
-        Neopixel_Process_Input_Serial(SignText.substring(0, SignText.length()-1) );
+        Serial.print("Incoming command:"); Serial.println(SignText); // Serial.println(SignText.substring(0, SignText.length()-2));
+
+        if (isSignText) {
+          //Neopixel_Process_Input_Serial(SignText.substring(0, SignText.length()-1) );
+          Neopixel_Process_Input_Serial(SignText);
+        }
+        
+        isSignText = false;
         SignText = "";
       }
     }

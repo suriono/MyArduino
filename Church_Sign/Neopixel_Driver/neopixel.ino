@@ -17,9 +17,19 @@ void Neopixel_Process_Input_Serial(String inputstr) {
   Neopixel_Colorful_Text(inputstr,"River Hills");
   deserializeJson(jsonFromText, inputstr);
   JsonObject JsonObj = jsonFromText.as<JsonObject>();
-  String row1 = JsonObj["text1"];
-  Serial.print("row1: "); Serial.println(row1);
-  //char json[] = inputstr;
+
+  if (inputstr.indexOf("text1") > 0) {
+    String row1 = JsonObj["text1"];
+    String row2 = JsonObj["text2"];
+    Serial.print("row1: "); Serial.println(row1);
+    Serial.print("row2: "); Serial.println(row2);
+    Neopixel_Display_Normal_Text(row1,row2);
+  } else if (inputstr.indexOf("color1") > 0) {
+    int color1[3];
+    for (byte nn=0 ; nn<3 ; nn++)  color1[nn] = JsonObj["color1"][nn];
+    Serial.print("Color: "); Serial.print(color1[0]); Serial.print(",");
+    Serial.print(color1[1]); Serial.print(","); Serial.println(color1[2]); 
+  }
 }
 
 // ============================================
