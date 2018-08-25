@@ -26,18 +26,18 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, 2, 1, PIN,
 
 DynamicJsonDocument jsonFromText;
 
-//String inputString = "";         // a String to hold incoming data
-//boolean stringComplete = false;  // whether the string is complete
+//void Neopixel_Initial();
+//void Neopixel_Process_Input_Serial(String tmp);
+//void Neopixel_Adjust_Brightness();
 
 void setup() {
   Serial.begin(9600);
   Serial1.begin(9600);
-  //inputString.reserve(200);  // reserve 200 bytes for the inputString:
   Neopixel_Initial();
-  
   Serial.print("width:"); Serial.println(matrix1.width());  
-
 }
+
+// =========================================================
 
 void loop() {
   static unsigned long last_time_brigthness;
@@ -57,11 +57,7 @@ void loop() {
         isSignText = true;
         SignText = "{";
       } else if ( c == '}') {
-        
-        //Serial.print("Incoming command:"); Serial.println(SignText); // Serial.println(SignText.substring(0, SignText.length()-2));
-
         if (isSignText) {
-          //Neopixel_Process_Input_Serial(SignText.substring(0, SignText.length()-1) );
           Neopixel_Process_Input_Serial(SignText);
         }
         
@@ -72,11 +68,9 @@ void loop() {
     //Serial.print("Incoming Serial:"); Serial.println(incoming_serial);
     
   } else if ( (millis() - last_time_brigthness) > 10000) { // check brightness
+    
     last_time_brigthness = millis();
-    int brightness = map(analogRead(A0), 0, 1023, 255, 20);
-    Serial.print("Brightness : "); Serial.println(brightness);
-    matrix1.setBrightness(brightness);  matrix2.setBrightness(brightness);
-    matrix1.show(); matrix2.show();
+    Neopixel_Adjust_Brightness();
   }
 }
 

@@ -1,6 +1,8 @@
-String Text1, Text2; // text for each row
+String Text1, Text2;                      // text for each row
 uint16_t Color1 = Neopixel_Red;
 uint16_t Color2 = Neopixel_Red;
+byte Colors1[3] = {200,0,0};                       // = [200, 0, 0];
+byte Colors2[3] = {100,0,200};                      //= [150, 0, 200];
 int Spacing = 8;
 
 // ===================================================
@@ -8,13 +10,13 @@ int Spacing = 8;
 void Neopixel_Initial() {
   matrix1.begin(); matrix2.begin();
   matrix1.setTextWrap(false); matrix2.setTextWrap(false);
-  matrix1.setBrightness(60);  // from 0 to 255
-  matrix2.setBrightness(60);
+  matrix1.setBrightness(200);  // from 0 to 255
+  matrix2.setBrightness(200);
   // matrix2.setTextSize(2);  // font size
-  Text1 = "Welcome to";
-  Text2 = "River Hills";
+  Text1 = "L  O  V  E";
+  Text2 = "Never Fails";
   //Neopixel_Display_Normal_Text();
-  Neopixel_Colorful_Text("Love Never Fails", "River Hills");
+  Neopixel_Colorful_Text(Text1, Text2);
 }
 
 // ==============================================
@@ -36,20 +38,13 @@ void Neopixel_Process_Input_Serial(String inputstr) {
     Serial.print("spacing: "); Serial.println(Spacing);
     Neopixel_Display_Normal_Text();
   } else if (inputstr.indexOf("color") > 0) {
-    byte color[3];
-
     if (inputstr.indexOf("color1") > 0) {
-      for (byte nn=0 ; nn<3 ; nn++) color[nn] = JsonObj["color1"][nn];
-      Color1 = matrix1.Color(color[0], color[1], color[2]);
+      for (byte nn=0 ; nn<3 ; nn++) Colors1[nn] = JsonObj["color1"][nn];
+      Color1 = matrix1.Color(Colors1[0], Colors1[1], Colors1[2]);
     } else {
-      for (byte nn=0 ; nn<3 ; nn++) color[nn] = JsonObj["color2"][nn];
-      Color2 = matrix1.Color(color[0], color[1], color[2]);
+      for (byte nn=0 ; nn<3 ; nn++) Colors2[nn] = JsonObj["color2"][nn];
+      Color2 = matrix1.Color(Colors2[0], Colors2[1], Colors2[2]);
     }
-    Serial.print("Color: "); Serial.print(color[0]); Serial.print(",");
-    Serial.print(color[1]); Serial.print(","); Serial.println(color[2]); 
-    
-    //uint16_t row2_color = matrix2.Color(color2[0], color2[1], color2[2]);
-    //Neopixel_Set_Colors(row1_color, row2_color);
     Neopixel_Display_Normal_Text();
   }
 }
@@ -83,29 +78,60 @@ void Neopixel_Set_Colors(uint16_t color1, uint16_t color2) {
 void Neopixel_Colorful_Text(String inputstr1, String inputstr2) {
   Text1 = inputstr1; Text2 = inputstr2;
   uint16_t colors[] = {
-  matrix1.Color(255, 0, 0), matrix1.Color(0, 255, 0), matrix1.Color(255, 255, 0),matrix1.Color(0, 0, 255), matrix1.Color(255, 0, 255), matrix1.Color(0, 255, 255), matrix1.Color(255, 255, 255)};
-  
+  matrix1.Color(155, 0, 0), matrix1.Color(0, 155, 0), matrix1.Color(155, 155, 0),matrix1.Color(0, 0, 155), matrix1.Color(155, 0, 155), matrix1.Color(0, 155, 155), matrix1.Color(155, 155, 155)};
   matrix1.fillScreen(0);  matrix2.fillScreen(0);// blank the screen
-  
   byte color_num = 0;
   for (byte nn=0; nn<inputstr1.length(); nn++) {
     if (color_num > 6) color_num = 0;
     matrix1.setTextColor(colors[color_num]);
-    matrix1.setCursor(nn*6, 0);
+    matrix1.setCursor(nn*8, 0);
     matrix1.print(Text1.charAt(nn));
     color_num++;
   }
   matrix1.show();
-
   color_num = 0;
   for (byte nn=0; nn<inputstr2.length(); nn++) {
     if (color_num > 6) color_num = 0;
     matrix2.setTextColor(colors[color_num]);
-    matrix2.setCursor(nn*6, 0);
+    matrix2.setCursor(nn*8, 0);
     matrix2.print(Text2.charAt(nn));
     color_num++;
   }
   matrix2.show();
+}
+
+
+// ================== Adjust brightness ==================
+
+void Neopixel_Adjust_Brightness() {
+    static boolean toggle_brightness;
+    int brightness = map(analogRead(A0), 0, 1023, 255, 40);
+    Serial.print("Brightness : "); Serial.println(brightness);
+
+    byte tmpcol1[3];
+    for (byte nn=0; nn<3 ; nn++) {
+      tmpcol1[nn] = Colors1[nn] * brightness / 255;
+    }
+    Color1 = matrix1.Color(tmpcol1[0], tmpcol1[1], tmpcol1[2]);
+    for (byte nn=0; nn<3 ; nn++) {
+      tmpcol1[nn] = Colors2[nn] * brightness / 255;
+    }
+    Color2 = matrix2.Color(tmpcol1[0], tmpcol1[1], tmpcol1[2]);
+    //Neopixel_Set_Colors(Color1, Color2);
+    Neopixel_Display_Normal_Text();
+    //matrix1.show(); matrix2.show();
+
+    /*
+    if (toggle_brightness) {
+      matrix1.setBrightness(brightness);
+      matrix1.show();
+    } else {
+      matrix2.setBrightness(brightness);
+      matrix2.show();
+    }
+     
+    toggle_brightness = !toggle_brightness;
+  */
 }
 
 
