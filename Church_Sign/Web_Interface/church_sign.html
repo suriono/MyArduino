@@ -1,0 +1,40 @@
+﻿<!DOCTYPE HTML >
+<html><head>
+
+<script language="JavaScript">
+console.log("uzzzz");
+
+
+function SendText() {
+    //document.writeln("<h2>uz</h2>");
+    var http = new XMLHttpRequest();
+	var url = 'http://192.168.4.100';
+	var row1text = document.getElementById("row1").value
+	var row2text = document.getElementById("row2").value
+
+	var params = '<sign>{"text1":"' + row1text + '","text2":"' + row2text + '","width1":10,"width2":8}<endsign>';
+	http.open('POST', url, true);
+
+	//Send the proper header information along with the request
+	http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+	http.onreadystatechange = function() {//Call a function when the state changes.
+	    if(http.readyState == 4 && http.status == 200) {
+	        alert(http.responseText);
+	    }
+	}
+	http.send(params);
+}
+
+
+</script>
+</head>
+
+<body>
+<h1> hello </h1>
+Row 1: <input type="text" id="row1" name="Row1" value="Love"><br>
+Row 2: <input type="text" id="row2" name="Row2" value="Never Fails"><br>
+<input type="submit" value="Send Texts" onclick="SendText()">
+</body>
+
+</html>

@@ -25,12 +25,10 @@ void setup() {
   WiFi.setOutputPower(10.0);  // 0.5 to 20 Output WiFi power, it's near AP
   WiFi.enableAP(false);
   WiFi.mode(WIFI_STA);
-  //IPAddress ip(192, 168, 4, 100); 
-  //IPAddress gateway(192, 168, 4, 1); // set gateway to match your network
-  //IPAddress subnet(255, 255, 255, 0); // set subnet mask to match your
-  //WiFi.config(ip, gateway, subnet);
-//  WiFi.begin(ssid, PASSWORD);
-  //WiFi.begin(SSID_NAME, PASSWORD);
+  IPAddress ip(192, 168, 4, 100); 
+  IPAddress gateway(192, 168, 4, 1); // set gateway to match your network
+  IPAddress subnet(255, 255, 255, 0); // set subnet mask to match your
+  WiFi.config(ip, gateway, subnet);
   Wifi_Begin();  // see the password file not in the github
   Serial.print("connecting");
   while (WiFi.status() != WL_CONNECTED) {
