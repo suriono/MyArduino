@@ -2,39 +2,96 @@
 <html><head>
 
 <script language="JavaScript">
-console.log("uzzzz");
 
-
-function SendText() {
-    //document.writeln("<h2>uz</h2>");
-    var http = new XMLHttpRequest();
+// ======================================================
+function PutHTML(htmltext) {
+	var http = new XMLHttpRequest();
 	var url = 'http://192.168.4.100';
-	var row1text = document.getElementById("row1").value
-	var row2text = document.getElementById("row2").value
-
-	var params = '<sign>{"text1":"' + row1text + '","text2":"' + row2text + '","width1":10,"width2":8}<endsign>';
+	
+	var params = '<sign>{' + htmltext + '}<endsign>';
 	http.open('POST', url, true);
 
 	//Send the proper header information along with the request
 	http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
-	http.onreadystatechange = function() {//Call a function when the state changes.
+	http.onreadystatechange = function() {  //Call a function when the state changes.
 	    if(http.readyState == 4 && http.status == 200) {
 	        alert(http.responseText);
 	    }
 	}
 	http.send(params);
+    //document.getElementById("debug").innerHTML = params;
 }
 
 
+// ======================================================
+function SendText() {
+    var http = new XMLHttpRequest();
+	var url = 'http://192.168.4.100';
+	var row1text = document.getElementById("row1").value
+	var row2text = document.getElementById("row2").value
+	var wid1 = document.getElementById("width1").value
+	var wid2 = document.getElementById("width2").value
+
+	var params = '"text1":"' + row1text + '","text2":"' + row2text + '","width1":' + wid1 + ',"width2":' + wid2;
+	PutHTML(params);
+}
+// ===================================================
+
+function updateColor(rownum) { // rgb: 1=red, 2=green, 3=blue
+	var red1 = document.getElementById("Red" + rownum).value;
+	var gre1 = document.getElementById("Green" + rownum).value;
+	var blu1 = document.getElementById("Blue" + rownum).value;
+	var params = '"color' + rownum + '":[' + red1 + ',' + gre1 + ',' + blu1 + ']';
+	PutHTML(params);
+}
+
+function updateColorTwoRows() {
+	updateColor(1);
+    updateColor(2);
+}
+
+// ===================================================
+
 </script>
-</head>
+</head> <body>
 
-<body>
-<h1> hello </h1>
-Row 1: <input type="text" id="row1" name="Row1" value="Love"><br>
-Row 2: <input type="text" id="row2" name="Row2" value="Never Fails"><br>
-<input type="submit" value="Send Texts" onclick="SendText()">
-</body>
+<font size="6">
+<table></font><tr><td></td>
+<td>Row 1</td><td>Row 2</td> </tr>
+<tr><td>Text</td></td><td><input type="text" id="row1" value="Love" style="font-size:x-large" size="15"></td>
+                      <td><input type="text" id="row2" value="Never Fails" style="font-size:x-large" size="15"></td></tr>
 
-</html>
+<tr><td>Width</td></td><td><input type="text" id="width1" value="25" style="font-size:x-large" size="15"></td>
+                       <td><input type="text" id="width2" value="9" style="font-size:x-large" size="15"></td></tr>
+
+<tr><td bgcolor="red">Red</td><td>
+<input type="range" min="0" max="255" onchange="updateColor(1)" id="Red1" oninput="red1OutId.value = this.value" value="230">
+<output id="red1OutId">230</output></td><td>
+<input type="range" min="0" max="255" onchange="updateColor(2)" id="Red2" oninput="red2OutId.value = this.value" value="200">
+<output id="red2OutId">200</output></td></tr>
+
+<tr><td bgcolor="green">Green</td><td>
+<input type="range" min="0" max="255" onchange="updateColor(1)" id="Green1" oninput="green1OutId.value = this.value" value="0">
+<output id="green1OutId">0</output></td><td>
+<input type="range" min="0" max="255" onchange="updateColor(2)" id="Green2" oninput="green2OutId.value = this.value" value="30">
+<output id="green2OutId">30</output></td></tr>
+
+<tr><td bgcolor="Blue">Blue</td><td>
+<input type="range" min="0" max="255" onchange="updateColor(1)" id="Blue1" oninput="blue1OutId.value = this.value" value="0">
+<output id="blue1OutId">0</output></td><td>
+<input type="range" min="0" max="255" onchange="updateColor(2)" id="Blue2" oninput="blue2OutId.value = this.value" value="20">
+<output id="blue2OutId">20</output></td></tr>
+
+</table>
+
+<input type="submit" value="Send Texts" onclick="SendText()" style="font-size:x-large" size="15">
+<input type="submit" value="Send Colors" onclick="updateColorTwoRows()" style="font-size:x-large" size="15"> <br>
+The colors can also be changed by moving the slider. <br>
+
+<div id="debug"></div>
+</h3>
+
+
+
+</body></html>
