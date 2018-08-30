@@ -20,14 +20,14 @@ function PutHTML(htmltext) {
 	    }
 	}
 	http.send(params);
-    //document.getElementById("debug").innerHTML = params;
+    document.getElementById("debug").innerHTML = params;
 }
 
 
 // ======================================================
 function SendText() {
-    var http = new XMLHttpRequest();
-	var url = 'http://192.168.4.100';
+    //var http = new XMLHttpRequest();
+	//var url = 'http://192.168.4.100';
 	var row1text = document.getElementById("row1").value
 	var row2text = document.getElementById("row2").value
 	var wid1 = document.getElementById("width1").value
@@ -53,16 +53,34 @@ function updateColorTwoRows() {
 
 // ===================================================
 
+function updateBrightness() {
+	var brigh = document.getElementById("BrightnessId").value;
+	var params = '"brightness":' + brigh;
+	PutHTML(params);
+}
+
+function updateMinBrightness() {
+	var brigh = document.getElementById("minBrightnessId").value;
+	var params = '"minBright":' + brigh;
+	PutHTML(params);
+}
+
+
+// ===================================================
+
 </script>
 </head> <body>
 
+
 <font size="6">
-<table></font><tr><td></td>
+
+<table>
+<tr><td></td>
 <td>Row 1</td><td>Row 2</td> </tr>
-<tr><td>Text</td></td><td><input type="text" id="row1" value="Love" style="font-size:x-large" size="15"></td>
+<tr><td>Text</td><td><input type="text" id="row1" value="Love" style="font-size:x-large" size="15"></td>
                       <td><input type="text" id="row2" value="Never Fails" style="font-size:x-large" size="15"></td></tr>
 
-<tr><td>Width</td></td><td><input type="text" id="width1" value="25" style="font-size:x-large" size="15"></td>
+<tr><td>Width</td><td><input type="text" id="width1" value="25" style="font-size:x-large" size="15"></td>
                        <td><input type="text" id="width2" value="9" style="font-size:x-large" size="15"></td></tr>
 
 <tr><td bgcolor="red">Red</td><td>
@@ -85,12 +103,22 @@ function updateColorTwoRows() {
 
 </table>
 
+The colors can also be changed by moving the sliders. <br>
 <input type="submit" value="Send Texts" onclick="SendText()" style="font-size:x-large" size="15">
 <input type="submit" value="Send Colors" onclick="updateColorTwoRows()" style="font-size:x-large" size="15"> <br>
-The colors can also be changed by moving the slider. <br>
+
+<h4>The light sensor runs every 10 seconds, the brightness setting changes is therefore observed within 10 seconds.</h3>
+<table>
+	<tr><td>Max Brightness (at daylight)</td>
+	<td><input type="range" min="100" max="255" onchange="updateBrightness()" id="BrightnessId" oninput="BrightOutId.value = this.value" value="200">
+	<output id="BrightOutId">200</output></td></tr>
+	
+	<tr><td>Min Brightness (at night)</td>
+	<td><input type="range" min="50" max="200" onchange="updateMinBrightness()" id="minBrightnessId" oninput="minBrightOutId.value = this.value" value="100">
+	<output id="minBrightOutId">100</output></td></tr>
+</table>
 
 <div id="debug"></div>
-</h3>
 
 
 
