@@ -1,0 +1,203 @@
+﻿<!DOCTYPE HTML >
+<html><head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+<script language="JavaScript">
+
+
+// ======================================================
+function PutHTML(htmltext) {
+	var http = new XMLHttpRequest();
+	var url = 'http://192.168.4.100';
+	
+	var params = '<sign>{' + htmltext + '}<endsign>';
+	http.open('POST', url, true);
+
+	//Send the proper header information along with the request
+	http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    var isHTML_fail = true;
+
+	http.onreadystatechange = function() {  //Call a function when the state changes.
+	    if(http.readyState == 4 && http.status == 200) {
+	    	document.getElementById("debug").innerHTM += http.responseText;
+	        //alert(http.responseText);
+	        isHTML_fail = false;
+	        
+	    }
+	}
+	http.send(params);
+    document.getElementById("debug").innerHTML = params;
+    return isHTML_fail;
+}
+
+
+// ======================================================
+function SendText() {
+   	var row1text = document.getElementById("row1").value
+	var row2text = document.getElementById("row2").value
+	var wid1 = document.getElementById("width1").value
+	var wid2 = document.getElementById("width2").value
+
+	var params = '"text1":"' + row1text + '","text2":"' + row2text + '","width1":' + wid1 + ',"width2":' + wid2;
+	PutHTML(params);
+}
+// ===================================================
+
+function updateColor(rownum) { // rgb: 1=red, 2=green, 3=blue
+	var red1 = document.getElementById("Red" + rownum).value;
+	var gre1 = document.getElementById("Green" + rownum).value;
+	var blu1 = document.getElementById("Blue" + rownum).value;
+	var params = '"color' + rownum + '":[' + red1 + ',' + gre1 + ',' + blu1 + ']';
+	PutHTML(params);
+}
+
+function updateColorTwoRows() {
+	updateColor(1);
+    updateColor(2);
+}
+
+// ===================================================
+
+function updateBrightness() {
+	var brigh = document.getElementById("BrightnessId").value;
+	var params = '"brightness":' + brigh;
+	PutHTML(params);
+}
+
+function updateMinBrightness() {
+	var brigh = document.getElementById("minBrightnessId").value;
+	var params = '"minBright":' + brigh;
+	PutHTML(params);
+}
+
+var jsondata;
+
+// =================================================== Read pixel files ===
+
+var jsondata;
+$(document).ready(function() {
+	
+	$(document).bind('JsonReceived', JSON_Received)
+	$.getJSON( "https://suriono.github.io/apps/church-sign/pixel.json", function( JSON_array ) {
+	
+		jsondata = JSON_array;
+		$(document).trigger('JsonReceived');	    
+	});   
+	//$.get('pixel.txt', function(data) {
+	//	jsontext = data;
+	//	$(document).trigger('JsonReceived');
+	//}, 'text');   
+});		
+		
+function JSON_Received(evt) {
+	  		
+}
+
+
+function sendRow1Pixel(rownum) { 
+	var params;
+	params = '"pixel":' + rownum;
+	PutHTML(params);
+	var datarow = jsondata["row" + rownum];
+	
+	document.getElementById("statusId").innerHTML = "Sending pixels, please wait";
+				
+	params = "";
+//		for (nn=0 ; nn<40 ; nn++) {
+		//for (nn=0 ; nn<jsondata["row1"].length ; nn++) {
+	for (nn=0 ; nn<datarow.length ; nn++) {
+
+		var tmp = JSON.stringify(datarow[nn]);
+		params = tmp.substring(1,tmp.length-1)
+		//console.log(params);
+		PutHTML(params);
+
+			
+		var ms = new Date().getTime();
+		console.log(nn);
+		while (new Date().getTime() < (ms+500)){}
+	}
+	document.getElementById("statusId").innerHTML = "Pixels sent."	
+}
+
+// ===================================================
+
+function delay(ms) {
+   ms += new Date().getTime();
+   while (new Date() < ms){}
+}
+
+/*
+
+function delay(ms) {
+        var cur_d = new Date();
+        var cur_ticks = cur_d.getTime();
+        var ms_passed = 0;
+        while(ms_passed < ms) {
+            var d = new Date();  // Possible memory leak?
+            var ticks = d.getTime();
+            ms_passed = ticks - cur_ticks;
+            // d = null;  // Prevent memory leak?
+        }
+    }
+*/
+// ======================================================================
+
+</script>
+</head> <body>
+
+
+<font size="6">
+
+<table>
+<tr><td></td>
+<td>Row 1</td><td>Row 2</td> </tr>
+<tr><td>Text</td><td><input type="text" id="row1" value="Love" style="font-size:x-large" size="15"></td>
+                      <td><input type="text" id="row2" value="Never Fails" style="font-size:x-large" size="15"></td></tr>
+
+<tr><td>Width</td><td><input type="text" id="width1" value="25" style="font-size:x-large" size="15"></td>
+                       <td><input type="text" id="width2" value="9" style="font-size:x-large" size="15"></td></tr>
+
+<tr><td bgcolor="red">Red</td><td>
+<input type="range" min="0" max="255" onchange="updateColor(1)" id="Red1" oninput="red1OutId.value = this.value" value="230">
+<output id="red1OutId">230</output></td><td>
+<input type="range" min="0" max="255" onchange="updateColor(2)" id="Red2" oninput="red2OutId.value = this.value" value="200">
+<output id="red2OutId">200</output></td></tr>
+
+<tr><td bgcolor="green">Green</td><td>
+<input type="range" min="0" max="255" onchange="updateColor(1)" id="Green1" oninput="green1OutId.value = this.value" value="0">
+<output id="green1OutId">0</output></td><td>
+<input type="range" min="0" max="255" onchange="updateColor(2)" id="Green2" oninput="green2OutId.value = this.value" value="30">
+<output id="green2OutId">30</output></td></tr>
+
+<tr><td bgcolor="Blue">Blue</td><td>
+<input type="range" min="0" max="255" onchange="updateColor(1)" id="Blue1" oninput="blue1OutId.value = this.value" value="0">
+<output id="blue1OutId">0</output></td><td>
+<input type="range" min="0" max="255" onchange="updateColor(2)" id="Blue2" oninput="blue2OutId.value = this.value" value="20">
+<output id="blue2OutId">20</output></td></tr>
+
+</table>
+
+The colors can also be changed by moving the sliders. <br>
+<input type="submit" value="Send Texts" onclick="SendText()" style="font-size:x-large" size="15">
+<input type="submit" value="Send Colors" onclick="updateColorTwoRows()" style="font-size:x-large" size="15"> <br>
+
+<h4>The light sensor runs every 10 seconds, the brightness setting changes is therefore observed within 10 seconds.</h4>
+<table>
+	<tr><td>Max Brightness (at daylight)</td>
+	<td><input type="range" min="100" max="255" onchange="updateBrightness()" id="BrightnessId" oninput="BrightOutId.value = this.value" value="230">
+	<output id="BrightOutId">230</output></td></tr>
+	
+	<tr><td>Min Brightness (at night)</td>
+	<td><input type="range" min="10" max="200" onchange="updateMinBrightness()" id="minBrightnessId" oninput="minBrightOutId.value = this.value" value="50">
+	<output id="minBrightOutId">50</output></td></tr>
+	<tr><td><input type="button" onclick=sendRow1Pixel(1) value="Send Row 1 Pixels (from pixel.txt)" style="font-size:x-large"></td>
+	    <td><input type="button" onclick=sendRow1Pixel(2) value="Send Row 2 Pixels (from pixel.txt)" style="font-size:x-large"></td></tr>
+</table>
+<div id="statusId"></div>
+<div id="debug"></div>
+
+
+
