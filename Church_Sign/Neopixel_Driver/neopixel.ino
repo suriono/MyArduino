@@ -4,8 +4,8 @@ uint16_t Color2 = Neopixel_Red;
 byte Colors1[3] = {200,0,0};                       // = [200, 0, 0];
 byte Colors2[3] = {100,0,200};                      //= [150, 0, 200];
 int Width1 = 8; int Width2 = 8;                     // widht of each letter
-byte MinBrightness = 100;                // min brightness so it does not go dark at night
-byte MaxBrightness = 200; 
+byte MinBrightness = 50;                // min brightness so it does not go dark at night
+byte MaxBrightness = 230; 
 byte TextMode = 0;       // 0=normal text,1=pixel row 1,2=pixel row 2,3=pixel row 1,2
 
 // ===================================================
@@ -54,11 +54,10 @@ void Neopixel_Process_Input_Serial(String inputstr) {
     MaxBrightness = max(int(JsonObj["brightness"]), 50); // minimum of 50
     Serial.print("Set Brightness: "); Serial.println(MaxBrightness);
     matrix1.setBrightness(MaxBrightness); matrix2.setBrightness(MaxBrightness);
-    Neopixel_Display_Normal_Text();
+    matrix1.show(); matrix2.show();
   } else if (inputstr.indexOf("minBright") > 0) {
     MinBrightness = max(int(JsonObj["minBright"]), 50); // minimum of 50
     Serial.print("MIN Brightness: "); Serial.println(MinBrightness);
-    Neopixel_Display_Normal_Text();
   } else if (inputstr.indexOf("pixel") > 0) {  // pixel file for row 1
     if (JsonObj["pixel"] == 1) {
       TextMode = 1;
@@ -145,12 +144,16 @@ void Neopixel_Colorful_Text(String inputstr1, String inputstr2) {
 
 void Neopixel_Adjust_Brightness() {
     
-    int brightness_sensor = map(analogRead(A0), 0, 1023, 255, 40);
+    int brightness_sensor = map(analogRead(A0), 0, 1023, 255, MinBrightness);
     Serial.print("Light sensor (40-255) : "); Serial.println(brightness_sensor);
 
     // get minimum total
     int sum1 = 0;
     int sum2 = 0;
+    for (byte nn=0; nn<3 ; nn++) {
+      sum1 += Colors1[nn]; // * brightness_sensor / 255 / 3;
+      sum2 += Colors2[nn]; // * brightness_sensor / 255 / 3;
+    }
 
     int tmpcol1[3], tmpcol2[3];
     
@@ -160,11 +163,8 @@ void Neopixel_Adjust_Brightness() {
       //Serial.print(tmpcol1[nn]); Serial.print(","); Serial.println(tmpcol2[nn]);
     }
 
-    for (byte nn=0; nn<3 ; nn++) {
-      //tmpcol1[nn] = Colors1[nn] * brightness_sensor / 255;
-      sum1 += tmpcol1[nn]; // * brightness_sensor / 255 / 3;
-      sum2 += tmpcol2[nn]; // * brightness_sensor / 255 / 3;
-    }
+    
+    /*
     int min_sum12 = min(sum1,sum2);// * MaxBrightness / 255;
     //Serial.print("Min sum brightness: "); Serial.println(String(min_sum12));
 
@@ -175,12 +175,20 @@ void Neopixel_Adjust_Brightness() {
         //Serial.print(tmpcol1[nn]); Serial.print(","); Serial.println(tmpcol2[nn]);
       }
     }
-    
+    */
     Color1 = matrix1.Color(tmpcol1[0], tmpcol1[1], tmpcol1[2]);
     Color2 = matrix2.Color(tmpcol2[0], tmpcol2[1], tmpcol2[2]);
 
     if (TextMode == 0) {
+      matrix1.setBrightness(MaxBrightness);  // from 0 to 255
+      matrix2.setBrightness(MaxBrightness);
       Neopixel_Display_Normal_Text();
+    } else {
+      byte pixel_bright = map(brightness_sensor, 0, 255, 0, MaxBrightness);
+      matrix1.setBrightness(pixel_bright);  // from 0 to 255
+      matrix2.setBrightness(pixel_bright);
+      matrix1.show(); matrix2.show();
+      Serial.print("Pixel brightness: "); Serial.println(pixel_bright);
     }
     
 }
