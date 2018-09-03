@@ -16,7 +16,8 @@ String Incoming_Data;
 void setup() {
   Serial.begin(9600);
   //Serial1.begin(9600);
-  SerialSoft.begin(9600);
+  SerialSoft.begin(57600);
+  SerialSoft.setTimeout(10);
   while(Serial.available()) Serial.read();  // read leftover data
 
   //ESP.eraseConfig(); delay(1000); // needed if it keeps old setup

@@ -24,17 +24,15 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, 2, 1, PIN,
    NEO_GRB + NEO_KHZ800);
 */
 
-DynamicJsonDocument jsonFromText;
-
-//void Neopixel_Initial();
-//void Neopixel_Process_Input_Serial(String tmp);
-//void Neopixel_Adjust_Brightness();
-
 void setup() {
   Serial.begin(9600);
-  Serial1.begin(9600);
+  Serial1.begin(57600);
+  //Serial1.setTimeout(10);
   Neopixel_Initial();
   Serial.print("width:"); Serial.println(matrix1.width());  
+  while (Serial1.available()) {
+    Serial1.read();   // read any remaining
+  }
 }
 
 // =========================================================
@@ -53,11 +51,14 @@ void loop() {
       if (isSignText) {  // actual sign text
         SignText += c;
       }
-      if(c == '{') {
+      if(c == '>') {
+      //if(c == '{') {
         isSignText = true;
-        SignText = "{";
-      } else if ( c == '}') {
+        //SignText = "{";
+      //} else if ( c == '}') {
+      } else if ( c == '<') {
         if (isSignText) {
+          SignText = SignText.substring(0, SignText.length()-1);
           Neopixel_Process_Input_Serial(SignText);
         }
         

@@ -6,6 +6,7 @@ byte Colors2[3] = {100,0,200};                      //= [150, 0, 200];
 int Width1 = 8; int Width2 = 8;                     // widht of each letter
 byte MinBrightness = 100;                // min brightness so it does not go dark at night
 byte MaxBrightness = 200; 
+byte TextMode = 1;       // 0=normal text,1=pixel row 1,2=pixel row 2,3=pixel row 1,2
 
 // ===================================================
 
@@ -25,20 +26,20 @@ void Neopixel_Initial() {
 // ==============================================
 
 void Neopixel_Process_Input_Serial(String inputstr) {
-  
+  DynamicJsonDocument jsonFromText;
   deserializeJson(jsonFromText, inputstr);
   JsonObject JsonObj = jsonFromText.as<JsonObject>();
 
   Serial.print("Neopixel inputstr:"); Serial.println(inputstr);
 
   if (inputstr.indexOf("text1") > 0) {
+    TextMode = 0;
     String row1 = JsonObj["text1"]; Text1 = row1;
     String row2 = JsonObj["text2"]; Text2 = row2;
     Width1 = max(JsonObj["width1"],6);
     Width2 = max(JsonObj["width2"],6);
     Serial.print("row1: "); Serial.println(Text1);
     Serial.print("row2: "); Serial.println(Text2);
-    //Serial.print("spacing: "); Serial.println(Spacing);
     Neopixel_Display_Normal_Text();
   } else if (inputstr.indexOf("color") > 0) {
     if (inputstr.indexOf("color1") > 0) {
@@ -58,6 +59,33 @@ void Neopixel_Process_Input_Serial(String inputstr) {
     MinBrightness = max(int(JsonObj["minBright"]), 50); // minimum of 50
     Serial.print("MIN Brightness: "); Serial.println(MinBrightness);
     Neopixel_Display_Normal_Text();
+  } else if (inputstr.indexOf("pixel") > 0) {  // pixel file for row 1
+    if (JsonObj["pixel"] == 1) {
+      TextMode = 1;
+      matrix1.setCursor(0,0);
+      matrix1.fillScreen(0);
+      matrix1.show();
+    } else {
+      TextMode = 2;
+      matrix2.setCursor(0,0);
+      matrix2.fillScreen(0);
+      matrix2.show();
+    }
+  } else if (inputstr.indexOf("X") > 0) {  // pixel file for row 1
+    
+    if (TextMode == 1) {
+ 
+      uint16_t R,G,B, x, y;
+    //for(int nn=0; nn< JsonObj[rownam].size(); nn++) {
+      R = JsonObj["R"];
+      G = JsonObj["G"];
+      B = JsonObj["B"];
+      x = JsonObj["X"]; y = JsonObj["Y"];
+      Serial.print("==== pixel: "); Serial.print(x);Serial.print(y); Serial.println(inputstr);
+      matrix1.drawPixel(x,y,matrix1.Color(R,G,B));
+      matrix1.show(); //delay(10);
+    }
+    
   }
 }
 
@@ -129,7 +157,7 @@ void Neopixel_Adjust_Brightness() {
     for (byte nn=0; nn<3 ; nn++) {
       tmpcol1[nn] = map(Colors1[nn],0,255, 0, brightness_sensor);
       tmpcol2[nn] = map(Colors2[nn],0,255, 0, brightness_sensor);
-      Serial.print(tmpcol1[nn]); Serial.print(","); Serial.println(tmpcol2[nn]);
+      //Serial.print(tmpcol1[nn]); Serial.print(","); Serial.println(tmpcol2[nn]);
     }
 
     for (byte nn=0; nn<3 ; nn++) {
@@ -138,20 +166,22 @@ void Neopixel_Adjust_Brightness() {
       sum2 += tmpcol2[nn]; // * brightness_sensor / 255 / 3;
     }
     int min_sum12 = min(sum1,sum2);// * MaxBrightness / 255;
-    Serial.print("Min sum brightness: "); Serial.println(String(min_sum12));
+    //Serial.print("Min sum brightness: "); Serial.println(String(min_sum12));
 
     if (min_sum12 < MinBrightness*3) { // below the minimum
       for (byte nn=0; nn<3 ; nn++) {
         tmpcol1[nn] = map(tmpcol1[nn],0,sum1, 0, MinBrightness);
         tmpcol2[nn] = map(tmpcol2[nn],0,sum2, 0, MinBrightness);
-        Serial.print(tmpcol1[nn]); Serial.print(","); Serial.println(tmpcol2[nn]);
+        //Serial.print(tmpcol1[nn]); Serial.print(","); Serial.println(tmpcol2[nn]);
       }
     }
     
     Color1 = matrix1.Color(tmpcol1[0], tmpcol1[1], tmpcol1[2]);
     Color2 = matrix2.Color(tmpcol2[0], tmpcol2[1], tmpcol2[2]);
-    
-    Neopixel_Display_Normal_Text();
+
+    if (TextMode == 0) {
+      Neopixel_Display_Normal_Text();
+    }
     
 }
 
