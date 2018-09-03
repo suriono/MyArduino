@@ -6,7 +6,7 @@ byte Colors2[3] = {100,0,200};                      //= [150, 0, 200];
 int Width1 = 8; int Width2 = 8;                     // widht of each letter
 byte MinBrightness = 100;                // min brightness so it does not go dark at night
 byte MaxBrightness = 200; 
-byte TextMode = 1;       // 0=normal text,1=pixel row 1,2=pixel row 2,3=pixel row 1,2
+byte TextMode = 0;       // 0=normal text,1=pixel row 1,2=pixel row 2,3=pixel row 1,2
 
 // ===================================================
 
@@ -71,21 +71,21 @@ void Neopixel_Process_Input_Serial(String inputstr) {
       matrix2.fillScreen(0);
       matrix2.show();
     }
-  } else if (inputstr.indexOf("X") > 0) {  // pixel file for row 1
+  } else if (inputstr.indexOf("X") > 0) {  // pixel file for row 1 & 2
     
-    if (TextMode == 1) {
- 
       uint16_t R,G,B, x, y;
-    //for(int nn=0; nn< JsonObj[rownam].size(); nn++) {
       R = JsonObj["R"];
       G = JsonObj["G"];
       B = JsonObj["B"];
       x = JsonObj["X"]; y = JsonObj["Y"];
-      Serial.print("==== pixel: "); Serial.print(x);Serial.print(y); Serial.println(inputstr);
-      matrix1.drawPixel(x,y,matrix1.Color(R,G,B));
-      matrix1.show(); //delay(10);
-    }
-    
+      if (TextMode == 1) {
+        matrix1.drawPixel(x,y,matrix1.Color(R,G,B));
+        matrix1.show(); //delay(10);
+      } else {
+        Serial.print("==== pixel: "); Serial.print(x);Serial.print(",");Serial.print(y); Serial.println(inputstr);
+        matrix2.drawPixel(x,y,matrix2.Color(R,G,B));
+        matrix2.show(); //delay(10);
+      }
   }
 }
 

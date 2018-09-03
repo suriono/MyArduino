@@ -100,71 +100,26 @@ function sendRow1Pixel(rownum) {
 	var params;
 	params = '"pixel":' + rownum;
 	PutHTML(params);
+	var datarow = jsondata["row" + rownum];
 	
-	if (rownum == 1) {
-	
-		console.log(jsondata["row1"].length);
-		//params = '"row1":' + JSON.stringify(jsondata["row1"]);
-		//console.log(params);
-		//PutHTML(params);
-	
-		params = "";
+	document.getElementById("statusId").innerHTML = "Sending pixels, please wait";
+				
+	params = "";
 //		for (nn=0 ; nn<40 ; nn++) {
-		for (nn=0 ; nn<jsondata["row1"].length ; nn++) {
+		//for (nn=0 ; nn<jsondata["row1"].length ; nn++) {
+	for (nn=0 ; nn<datarow.length ; nn++) {
 
-			//params += JSON.stringify(jsondata["row1"][nn]);
-			var tmp = JSON.stringify(jsondata["row1"][nn]);
-			params = tmp.substring(1,tmp.length-1)
-			//console.log(params);
-			console.log(PutHTML(params));
+		var tmp = JSON.stringify(datarow[nn]);
+		params = tmp.substring(1,tmp.length-1)
+		//console.log(params);
+		console.log(PutHTML(params));
 
 			
-			var ms = new Date().getTime();
-			console.log(nn);
-			while (new Date().getTime() < (ms+200)){}
-		}
-		
-		//params = params.substring(1,params.length-1)
-		//console.log(PutHTML(params));
-	} else {
-		for (nn=0 ; nn<5 ; nn++) {
-			params = JSON.stringify(jsondata["row1"][nn]);
-			console.log(params);
-			PutHTML(params);
-			delay(1000);
-			/*
-			setTimeout(func, 4000);
-			function func() {
-				console.log(params);
-			    //alert('Do stuff here');
-			}
-			//PutHTML(params);
-			*/
-		}
+		var ms = new Date().getTime();
+		console.log(nn);
+		while (new Date().getTime() < (ms+500)){}
 	}
-	/*
-	params = JSON.stringify(jsondata["row1"][0]);
-	PutHTML(params);
-	params = JSON.stringify(jsondata["row1"][1]);
-	PutHTML(params);
-*/
-	
-	var rowname = 'row' + rownum ;
-	/*
-	
-	//for (nn=0 ; nn<jsondata[rowname].length-1; nn++) {
-	for (nn=0 ; nn<2; nn++) {
-	 	params = JSON.stringify(jsondata[rowname][nn]);
-		console.log(params.substring(1,params.length-1));
-		setTimeout(func, 1000);
-		function func() {
-    		PutHTML(params.substring(1,params.length-1));
-		}
-		//setTimeout(function(){
-		//	PutHTML(JSON.stringify(jsondata[rowname][nn]));
-		//}, 1000);
-	}
-	*/
+	document.getElementById("statusId").innerHTML = "Pixels sent."	
 }
 
 // ===================================================
@@ -241,7 +196,7 @@ The colors can also be changed by moving the sliders. <br>
 	<tr><td><input type="button" onclick=sendRow1Pixel(1) value="Send Row 1 Pixels (from pixel.txt)" style="font-size:x-large"></td>
 	    <td><input type="button" onclick=sendRow1Pixel(2) value="Send Row 2 Pixels (from pixel.txt)" style="font-size:x-large"></td></tr>
 </table>
-
+<div id="statusId"></div>
 <div id="debug"></div>
 
 
