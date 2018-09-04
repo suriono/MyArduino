@@ -81,17 +81,11 @@ $(document).ready(function() {
 	
 	$(document).bind('JsonReceived', JSON_Received)
 	
-	$.getJSON( "https://suriono.github.io/apps/church-sign/pixel.json", function( JSON_array ) {
+	$.getJSON( "https://suriono.github.io/apps/Church_Sign/pixel.json", function( JSON_array ) {
 	//$.getJSON("https://github.com/suriono/MyArduino/blob/master/Church_Sign/Web_Interface/pixel.json", function( JSON_array ) {
-
-	
 		jsondata = JSON_array;
 		$(document).trigger('JsonReceived');	    
 	});   
-	//$.get('pixel.txt', function(data) {
-	//	jsontext = data;
-	//	$(document).trigger('JsonReceived');
-	//}, 'text');   
 });		
 		
 function JSON_Received(evt) {
