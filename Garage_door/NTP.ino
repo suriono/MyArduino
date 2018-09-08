@@ -1,4 +1,24 @@
+
+
 // ================ NTP request used for Epoch ===============
+
+// Epoch time server
+unsigned int localUDPPort = 2390;      // local port to listen for UDP packets
+IPAddress timeServerIP; // time.nist.gov NTP server address
+const char* ntpServerName = "time.nist.gov";
+const int NTP_PACKET_SIZE = 48; // NTP time stamp is in the first 48 bytes of the message
+byte packetBuffer[ NTP_PACKET_SIZE]; //buffer to hold incoming and outgoing packets
+
+// =========================================================
+
+void Udp_begin() {
+  Serial.println("Starting UDP");
+  udp.begin(localUDPPort);
+  Serial.print("Local port: ");
+  Serial.println(udp.localPort());
+}
+
+// =======================================================
 
 // send an NTP request to the time server at the given address
 unsigned long sendNTPpacket(IPAddress& address)

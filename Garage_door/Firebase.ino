@@ -1,31 +1,71 @@
+// ---------------------------------------------------
+long Firebase_getResetTime() {
+  long resettime = Firebase.getString("garagedoor/resetTime").toInt();
+
+  if (resettime < 1) { // try again
+    resettime = Firebase.getString("garagedoor/resetTime").toInt();
+  } else {
+    last_resettime = resettime;
+  }
+  Serial.print("Reset time read: "); Serial.println(resettime);
+  if (Firebase.failed()) {
+      Firebase_fail("Reset Fail");
+      return 0;
+  }
+  return resettime;
+}
+
 // ------------------------------------------------
 bool Firebase_Send_Distance(int new_distance) {
-  long resettime = Firebase_getResetTime();
+  //long resettime = Firebase_getResetTime();
+  static unsigned long last_server_epoch, last_server_epoch_elapsed;
   unsigned long server_epoch = get_Server_Time();
-  long new_time;
-  static long delta_last_time_distance;
-  static boolean isFirstFail = true;
-  
-  if (server_epoch < 1) { // try again
-      new_time = delta_last_time_distance + last_time_distance / 1000;
-      Serial.println("Zero Distance Server Epoch =====");
-      if (isFirstFail) return false;
-  } else {
-      new_time = server_epoch - resettime;
-      delta_last_time_distance = new_time - last_time_distance / 1000;
-      isFirstFail = false;
-  }
-  Serial.print("Firebase time from reset: "); Serial.println(new_time);
+  long time_from_reset;
+  //static long delta_last_time_distance;
+  //static boolean isFirstFail = true;
 
-  if ( new_time > 10000000 ) return false; // if something wrong
+  //if (resettime < 1) {
+  // resettime = last_resettime;
+  //}
+  /*
+  if ( server_epoch <= 0 ) {
+    delay(10000);  // some delay so it doesn't try to update too fast
+    return false;
+  }
+*/
+  /*
+  if (server_epoch < 1) { // fail, used last epoch and calculate
+      if (delta_reset_millis > 0) {
+        server_epoch = delta_reset_millis + last_time_distance / 1000;
+        Serial.println("===Zero Distance Server Epoch =====");
+        isFirstFail = false;
+      } else if (isFirstFail) {
+        return false;
+      }
+  } else { 
+  */ 
+   //   delta_reset_millis = server_epoch - last_time_distance / 1000;
+    //  isFirstFail = false;
+  //}
+  if (server_epoch > 0) {
+    last_server_epoch = server_epoch;
+    last_server_epoch_elapsed = millis();
+  } else {
+    server_epoch = last_server_epoch + (millis() - last_server_epoch_elapsed) / 1000;
+  }
+  
+  time_from_reset = server_epoch - last_resettime; //  resettime;
+  Serial.print("Distance time from reset: "); Serial.println(time_from_reset);
+
+  if ( time_from_reset > 10000000 ) return false; // if something wrong
       
-  String sendstr = "dist:" + String(new_distance) + "&time:" + String(new_time);
+  String sendstr = "dist:" + String(new_distance) + "&time:" + String(time_from_reset);
   Firebase.pushString("garagedoor/data/", sendstr);
   //Serial.println("==== Updating Firebase");
-  if (Firebase.failed()) {
-     Firebase_fail();
-     return false;
-  }
+  //if (Firebase.failed()) {
+     Firebase_fail("Send_Distance");
+  //   return false;
+  //}
  
   time_firebase_update = millis();
   return true;
@@ -33,9 +73,10 @@ bool Firebase_Send_Distance(int new_distance) {
 
 
 // -------------------------------------------------------
-void Firebase_fail() {
+void Firebase_fail(String function_name) {
    Serial.print("==== Firebase failed: ");
-   Serial.println(Firebase.error());  
+   Serial.println(function_name);
+   //Serial.println(Firebase.error());  
 
    // resetFunc(); //call reset 
    // Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
@@ -44,6 +85,7 @@ void Firebase_fail() {
 // --------------------------------------------------
 bool Firebase_getPushButtonRemote() {  // whether to push the wall remote button to open/close
   int wall_pin = Firebase.getString("garagedoor/pushButtonWallRemote").toInt();
+  Serial.print("garage door pin read: "); Serial.println(wall_pin);
   digitalWrite(RELAY_OPENER, LOW);
   
   Firebase.setString("garagedoor/pushButtonWallRemote", "1");
@@ -52,7 +94,7 @@ bool Firebase_getPushButtonRemote() {  // whether to push the wall remote button
   }
   int reset_wall_pin = Firebase.getString("garagedoor/pushButtonWallRemote").toInt();
   if ( reset_wall_pin == 1) { // make sure it has been reset so it does not open/close continuously
-    if (wall_pin == WALL_PIN) {  // pin number to open the garage
+    if (Firebase_Door_Pin_Number(wall_pin)) {  // pin number to open the garage
       digitalWrite(RELAY_OPENER, HIGH);
       delay(500);
       digitalWrite(RELAY_OPENER, LOW);
@@ -63,17 +105,6 @@ bool Firebase_getPushButtonRemote() {  // whether to push the wall remote button
     return false;
   }
   return true;
-}
-// ---------------------------------------------------
-long Firebase_getResetTime() {
-  long resettime = Firebase.getString("garagedoor/resetTime").toInt();
-
-  //Serial.print("reset time = "); Serial.println(Firebase.getString("garagedoor/resetTime"));
-  if (Firebase.failed()) {
-      Firebase_fail();
-      return 0;
-  }
-  return resettime;
 }
 
 // ------------------------------------------------------

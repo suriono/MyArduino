@@ -1,12 +1,13 @@
 // ============= Take ultra sonic distance in cm =================
-int Get_Sonic_Distance() {
-  for (int nn = 0 ; nn < 10; nn++) {
-    int tmp_distance = int(sonar.ping_median(11)/50); // in cm
-    if (tmp_distance > 0) {
-      return tmp_distance;
-    }
-    delay(100);
-  }
 
-  return 400;   // assuming it's close when it's too far away
+int Get_Sonic_Distance() {
+  unsigned long curtime = millis();
+  while ( (millis()-curtime) < 20000) { // up to 20 seconds
+    if (SerialSonar.available()) {
+      int dist = SerialSonar.parseInt();
+      if (dist <400 && dist > 0) return dist;
+    }
+    delay(500);
+  }
+  return 400;
 }
