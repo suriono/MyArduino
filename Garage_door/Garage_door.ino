@@ -21,16 +21,18 @@ WiFiUDP udp;
 
 unsigned long time_program_start = millis();
 long last_resettime;
+unsigned long last_server_epoch, last_server_epoch_elapsed;
 unsigned long time_firebase_update = millis()-70000;
 unsigned long time_this_program_start = millis();
 int last_distance;
-//unsigned long last_time_distance;
-long delta_reset_millis = 0;          // the difference between millis() and reset time
 
 #define DEBUG
 
+int Get_Sonic_Distance(); unsigned long get_Server_Time(); void Udp_begin();
+void Firebase_debug(String); void WiFi_begin(); void Firebase_begin(); 
+
 // ====================== setup ===============================
-//void WiFi_begin(); void Firebase_begin();
+
 void setup() {
   Serial.begin(9600);
   SerialSonar.begin(9600);
@@ -60,7 +62,6 @@ void setup() {
   digitalWrite(RELAY_OPENER, LOW);
 }
 
-
 // ====================== LOOP =========================
 
 void loop() { 
@@ -69,61 +70,37 @@ void loop() {
   
   int new_distance = Get_Sonic_Distance();
   if (new_distance == 400) new_distance = last_distance;
-  //last_time_distance = millis();
-  Serial.print("Garage door distance: "); Serial.print(new_distance);
-  //Serial.print(", time: "); Serial.println(millis());
+  Serial.print(new_distance); Serial.print(",");
   
-  //Firebase_getPushButtonRemote(); // check whether to open/close garage
+  Firebase_getPushButtonRemote(); // check whether to open/close garage
   
   if ( ( (millis() - time_firebase_update) > CLOUD_SEND_INTERVAL || 
          ( last_distance < 80 && new_distance > 100) ||
          ( last_distance > 100 && new_distance < 80)
         ) && new_distance > 0) {  // big distance change
  
-      //if (Firebase_Send_Distance(new_distance) ) {
         Firebase_Send_Distance(new_distance);
         last_distance = new_distance;
         last_debug_time = millis(); // so the debug doesn't go too often
-      //}
-  }  else {
-      if ((millis() - last_debug_time) > DEBUG_INTERVAL) {
-        
-        Firebase_getResetTime();
+      
+  }  else if ((millis() - last_debug_time) > DEBUG_INTERVAL) {
         
         unsigned long tmp_time = get_Server_Time();
-        Firebase_debug("Dist@" + String(new_distance) + "^Epoch@" + String(tmp_time));
-        last_debug_time = millis();
-
-      }
-  }
-        /*
-        //Serial.print("Debug epoch: "); Serial.println(tmp_time);
-        //Serial.print("Delta time: "); Serial.println(delta_reset_millis);
-
-        Firebase_debug("Dist@" + String(new_distance) + "^Epoch@" + String(tmp_time));
-        last_debug_time = millis();
-
-        long resettime = Firebase_getResetTime();
-        if (resettime > last_resettime) {
-        
-          Firebase.remove("garagedoor/data/");
-          if (Firebase.success()) {
-            last_resettime = resettime;
-        
-            if (Firebase_Send_Distance(new_distance) ) {
-              last_distance = new_distance;
-              last_debug_time = millis(); // so the debug doesn't go too often
-            }
-            delay(2000);
-          }
+        if (tmp_time < 199) { // no data packet for server time
+          tmp_time = last_server_epoch + (millis() - last_server_epoch_elapsed)/1000; // 199 just arbitrary 
         }
-    }
-  }
+        Firebase_debug("Dist@" + String(new_distance) + "^Epoch@" + String(tmp_time));
+        last_debug_time = millis();
 
-  //while ( (millis() - last_time_distance) < DISTANCE_MEAS_INTERVAL) {
-  //  delay(1000);
-  //}
-  */
+        long resettime = last_resettime; // to check any reset time change
+        Serial.print("debug resettime: "); Serial.println(resettime);
+        Firebase_getResetTime();
+        Serial.print("debug last_resettime: "); Serial.println(last_resettime);
+        if (resettime < last_resettime) {
+            Firebase.remove("garagedoor/data/"); // remove data
+            Firebase_Send_Distance(new_distance);
+        }
+  }
 }
 
 
