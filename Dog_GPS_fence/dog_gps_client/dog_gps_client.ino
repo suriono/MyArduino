@@ -1,9 +1,3 @@
-/* NodeMCU pins mapping to Arduino
-D0   = 16;    D1   = 5;     D2   = 4;
-D3   = 0;     D4   = 2/TX1;     D5   = 14;    D6   = 12;
-D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
-*/
-
 #include <TinyGPS.h>
 #include <EEPROM.h>
 #include <SoftwareSerial.h>
@@ -28,52 +22,23 @@ bool isBuzzerEnable = false;    // if the buzzer is enabled
 float Fx[4], Fy[4];             // Fence coordinates
 float FvxN[4], FvyN[4];         // Fence normalized wall vectors
 double Dist_to_Fence[4];  // distance fences, negative = outside the fence
+boolean isGPSfixed = false;
 
 
 // ************* Setup *************************             
 void setup() { 
-  
   Serial.begin(57600);
   mySerial.begin(9600);
-  
   while(mySerial.available()) mySerial.read();  // read leftover data
-
-  //ESP.reset(); delay(5000);   // if necessary
-  ESP.eraseConfig(); delay(1000); // needed if it keeps old setup
-  Serial.print("Auto Connect: "); Serial.println(WiFi.getAutoConnect());
- 
-  WiFi.setOutputPower(1.0);  // 0.5 to 20 Output WiFi power, it's near AP
-  WiFi.enableAP(false);
-  WiFi.mode(WIFI_STA);
-  IPAddress ip(192, 168, 4, 100); 
-  IPAddress gateway(192, 168, 4, 1); // set gateway to match your network
-  IPAddress subnet(255, 255, 255, 0); // set subnet mask to match your
-  WiFi.config(ip, gateway, subnet);
-  WiFi.begin("Dog_AP","hellopuppy");
-  Serial.print("connecting");
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(500);
-  }
-  
-  
-  Serial.println();
-  Serial.print("connected: ");
-  Serial.println(WiFi.localIP());
-    
-  // Start the server
-  server.begin();
-  Serial.println("Server started");
-
   pinMode(BUZZER_PIN, OUTPUT);
-  last_buzz = Buzz(100, 300); // freq, amplitude (0-1023)
-  delay(1000);
-  Buzz_Stop();
 
+  WiFi_Setup();                    // WiFi setup followed by buzzer indicator 
+  
   isFenceOK = get_Fence();
-     
+  if (isFenceOK) {
+    Buzz_Delay(100, 300, 500); delay(500); Buzz_Delay(100, 300, 500); 
+  }
 }
-
 
 // ************** Loop *************************
 
@@ -84,22 +49,35 @@ void loop() {
   static int numConnectedClient = 0;
   static bool isBuzz;
   static bool isDataSent = false;
-  
+  static unsigned long last_newGPSdata;
+
   while (mySerial.available()) {      //char c=mySerial.read();
      if (gps1.encode(mySerial.read())) {// Did a new valid sentence come in?
         newGPSdata = true;
      }
   }
 
-  if(newGPSdata) {
+  if(newGPSdata && (millis() - last_newGPSdata) > 600) { // if any GPS data, GPS only refresh 1 sec
+     last_newGPSdata = millis();
      get_gps(newGPSdata, gps1, &lat1, &lon1);
-  } else if ( ((millis() - last_buzz) > 100) && isBuzz ) { // stop buzz
+     if( isGPSfixed && isFenceOK) {
+        Distance_to_Fence();
+        int min_dist = 10000;
+        //Serial.println("GPS is fixed and fence is available");
+        for (byte nn=0; nn<4 ; nn++) {    // from four walls
+           if ( Dist_to_Fence[nn] < min_dist) min_dist = Dist_to_Fence[nn];
+        //  Serial.print(","); Serial.print(Dist_to_Fence[nn]);
+        }
+        Serial.print("The closest wall distance: "); Serial.println( min_dist);
+        //Serial.println();
+     }
+  } else if ( ((millis() - last_buzz) > 100) && isBuzz ) { // stop buzz if buzzing
      Buzz(100, 0);  // stop buzzing
      isBuzz = false; 
   }
 
   client = server.available();
-  if (client) {
+  if (client) {           // connected to phone client
 
      char readchar;
      String readstr, datastr;
@@ -122,8 +100,6 @@ void loop() {
         count++;
      }
         
-     
-     //} else {
      write_client(); // send lattitude, longitude, and time
 
      if (isFenceOK) {
@@ -137,7 +113,7 @@ void loop() {
 
      datastr.trim();
      if (datastr.indexOf("buzz") > -1) {  // sound buzz
-        last_buzz = Buzz(100, 1); // freq, amplitude (0-1023)
+        last_buzz = Buzz_Delay(100, 1, 1000); // freq, amplitude (0-1023)
         isBuzz = true;
         client.print(",RP BUZZ");
      } else if (datastr.indexOf("get_fence_points") > -1) {   // receive the fence coordinates
@@ -158,5 +134,3 @@ void loop() {
 
   }
 }  // ************* end of Loop ***********************
-
-

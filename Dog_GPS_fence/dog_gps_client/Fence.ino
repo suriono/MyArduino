@@ -111,8 +111,8 @@ void Distance_to_Fence() {
 
       if (Dist_to_Fence[nn] < min_dist) min_dist = Dist_to_Fence[nn];
       
-      Serial.print("cross product: "); Serial.print(crossproduct,9); // + = inside the fence
-      Serial.print(", dist: "); Serial.println(Dist_to_Fence[nn]);
+      //Serial.print("cross product: "); Serial.print(crossproduct,9); // + = inside the fence
+      //Serial.print(", dist: "); Serial.println(Dist_to_Fence[nn]);
 
       if (isBuzzerEnable) {
          if ( crossproduct ) {   // outside the fence
@@ -131,4 +131,3 @@ void Distance_to_Fence() {
       }
    }
 }
-

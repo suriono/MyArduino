@@ -12,7 +12,9 @@ void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon) {
      Serial.println("No fix detected");
   else if (fix_age > 5000)
      Serial.println("Warning: possible stale data!");
-     
+
+  isGPSfixed = false;  // start with no GPS fixed
+  
   if (newData) {
     unsigned long age;
     gps.f_get_position(&flat, &flon, &age);
@@ -37,6 +39,8 @@ void get_gps(boolean newData, TinyGPS gps, float *fixlat, float *fixlon) {
        last_lon = flon;
        
        if (isFenceOK) Distance_to_Fence();  // get Dist_to_Fence[nn] distance to fences
+
+       isGPSfixed = true;
     }
   }
   
@@ -72,4 +76,3 @@ double get_gps_distance(float flat1, float flon1, float flat2, float flon2) {
    //Serial.print(distance);
    return distance;
 } // *********** end of get_distance **********************
-
