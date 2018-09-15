@@ -20,7 +20,7 @@ WiFiUDP udp;
 #define DEBUG_INTERVAL 60002           // Firebase debug update
 
 unsigned long time_program_start = millis();
-long last_resettime;
+long last_resettime = 0;
 unsigned long last_server_epoch, last_server_epoch_elapsed;
 unsigned long time_firebase_update = millis()-70000;
 unsigned long time_this_program_start = millis();
@@ -54,7 +54,7 @@ void setup() {
 
   // OTA_Setup();
   Firebase_begin();
-  Firebase_getResetTime();
+  Firebase_getResetTime(0);
 
   Udp_begin();
 
@@ -92,15 +92,13 @@ void loop() {
         Firebase_debug("Dist@" + String(new_distance) + "^Epoch@" + String(tmp_time));
         last_debug_time = millis();
 
-        long resettime = last_resettime; // to check any reset time change
-        Serial.print("debug resettime: "); Serial.println(resettime);
-        Firebase_getResetTime();
+        //long resettime = last_resettime; // to check any reset time change
+        //Serial.print("debug resettime: "); Serial.println(resettime);
+        Firebase_getResetTime(new_distance);
         Serial.print("debug last_resettime: "); Serial.println(last_resettime);
-        if (resettime < last_resettime) {
-            Firebase.remove("garagedoor/data/"); // remove data
-            Firebase_Send_Distance(new_distance);
-        }
+        //if (resettime < last_resettime) {
+         //   Firebase.remove("garagedoor/data/"); // remove data
+         //   Firebase_Send_Distance(new_distance);
+       // }
   }
 }
-
-

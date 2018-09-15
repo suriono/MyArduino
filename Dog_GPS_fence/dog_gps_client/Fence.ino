@@ -114,13 +114,13 @@ void Distance_to_Fence() {
       //Serial.print("cross product: "); Serial.print(crossproduct,9); // + = inside the fence
       //Serial.print(", dist: "); Serial.println(Dist_to_Fence[nn]);
 
-      if (isBuzzerEnable) {
-         if ( crossproduct ) {   // outside the fence
-            Buzz_Max();
-         }
-      }
+      //if (isAutoBuzzer) {
+      //   if ( crossproduct < 0) {   // outside the fence
+       //     Buzz_Max();
+       //  }
+      //}
    }
-   if (isBuzzerEnable) {
+   if (isAutoBuzzer) {
       if (min_dist < 0.0) {
           Buzz_Max();
           Serial.println("Max Buzz");

@@ -1,18 +1,26 @@
 // ---------------------------------------------------
-long Firebase_getResetTime() {
+
+long Firebase_getResetTime(int new_distance) {
   long resettime = Firebase.getString("garagedoor/resetTime").toInt();
   
- // if (resettime < 1) { // try again
-  //  resettime = Firebase.getString("garagedoor/resetTime").toInt();
-  //} else {
-  if (resettime > 1999) {
-    last_resettime = resettime;
+  if (resettime > 1999) {  // a success
+    if (last_resettime > 0) {  // not the first time
+      if (resettime > last_resettime) {  // new reset time
+        Firebase.remove("garagedoor/data/"); // remove data
+        if (Firebase.success()) {
+          last_resettime = resettime;
+          Firebase_Send_Distance(new_distance);
+        }
+      }
+    } else { // first time
+      last_resettime = resettime;
+    }
   }
   Serial.print("Reset time read: "); Serial.println(resettime);
-  if (Firebase.failed()) {
-      Firebase_fail("Reset Fail");
-      return 0;
-  }
+  //if (Firebase.failed()) {
+  //  Firebase_fail("Reset Fail");
+  //  return 0;
+  //}
   return resettime;
 }
 
@@ -90,5 +98,3 @@ void Firebase_debug(String debug_msg) {
 void(* resetFunc) (void) = 0;//declare reset function at address 0
 
 // ============= End of Firebase ================================
-
-

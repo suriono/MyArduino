@@ -18,7 +18,7 @@ unsigned long last_time_gps;
 unsigned long total_distance;
 unsigned long last_buzz;        // last time buzz
 bool isFenceOK = false;
-bool isBuzzerEnable = false;    // if the buzzer is enabled
+bool isAutoBuzzer = false;    // if the buzzer is enabled
 float Fx[4], Fy[4];             // Fence coordinates
 float FvxN[4], FvyN[4];         // Fence normalized wall vectors
 double Dist_to_Fence[4];  // distance fences, negative = outside the fence
@@ -116,14 +116,14 @@ void loop() {
         last_buzz = Buzz_Delay(100, 1, 1000); // freq, amplitude (0-1023)
         isBuzz = true;
         client.print(",RP BUZZ");
+     } else if (datastr.indexOf("autonobuz") > -1) { 
+        isAutoBuzzer = false;
+     } else if (datastr.indexOf("autobuz") > -1) { 
+        isAutoBuzzer = true;
      } else if (datastr.indexOf("get_fence_points") > -1) {   // receive the fence coordinates
-        
         send_Fence();
-        
      } else if (datastr.indexOf("[[") > -1) {   // receive the fence coordinates and write
-        
         write_Fence(datastr);
-        
      }
      client.flush();
      
