@@ -125,9 +125,14 @@ void Distance_to_Fence() {
           Buzz_Max();
           Serial.println("Max Buzz");
       } else if (min_dist < BUZZ_MIN_DISTANCE_METER) {
-          int buzz_amp = map(int(min_dist*1000.0),0, int(BUZZ_MIN_DISTANCE_METER*1000.0), 1000, 0 );
+          int buzz_amp = map(int(min_dist*1000.0),0, int(BUZZ_MIN_DISTANCE_METER*1000.0), BUZZ_MAX_AMPLITUDE, 0 );
           //Buzz(300, buzz_amp);
+          Buzz_Delay(300, buzz_amp, 200);
           Serial.print("Buzz: "); Serial.println(buzz_amp);
+      //} else {
+       //   Buzz_Stop();
       }
+   //} else {
+    //  Buzz_Stop();
    }
 }

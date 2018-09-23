@@ -22,7 +22,7 @@ WiFiUDP udp;
 unsigned long time_program_start = millis();
 long last_resettime = 0;
 unsigned long last_server_epoch, last_server_epoch_elapsed;
-unsigned long time_firebase_update = millis()-70000;
+unsigned long time_firebase_update; // = millis()-70000;
 unsigned long time_this_program_start = millis();
 int last_distance;
 
@@ -54,7 +54,7 @@ void setup() {
 
   // OTA_Setup();
   Firebase_begin();
-  Firebase_getResetTime(0);
+  //Firebase_getResetTime(0,"Initial");
 
   Udp_begin();
 
@@ -72,7 +72,7 @@ void loop() {
   if (new_distance == 400) new_distance = last_distance;
   Serial.print(new_distance); Serial.print(",");
   
-  Firebase_getPushButtonRemote(); // check whether to open/close garage
+  //Firebase_getPushButtonRemote(); // check whether to open/close garage
   
   if ( ( (millis() - time_firebase_update) > CLOUD_SEND_INTERVAL || 
          ( last_distance < 80 && new_distance > 100) ||
@@ -94,8 +94,8 @@ void loop() {
 
         //long resettime = last_resettime; // to check any reset time change
         //Serial.print("debug resettime: "); Serial.println(resettime);
-        Firebase_getResetTime(new_distance);
-        Serial.print("debug last_resettime: "); Serial.println(last_resettime);
+        //Firebase_getResetTime(new_distance, "^Dist@" + String(new_distance) + "^Epoch@" + String(tmp_time));
+        //Serial.print("debug last_resettime: "); Serial.println(last_resettime);
         //if (resettime < last_resettime) {
          //   Firebase.remove("garagedoor/data/"); // remove data
          //   Firebase_Send_Distance(new_distance);

@@ -1,15 +1,40 @@
 // ---------------------------------------------------
 
-long Firebase_getResetTime(int new_distance) {
+long Firebase_getResetTime(int new_distance, String inpstr) {
+  //delay(1000);
+  yield();
   long resettime = Firebase.getString("garagedoor/resetTime").toInt();
+  yield();
+  delay(1000);
   
+  Firebase_debug("Reset@" + String(resettime) + inpstr);
+  delay(1000);
+
   if (resettime > 1999) {  // a success
+    //Serial.print("Read data: "); Serial.print(Firebase.getString("garagedoor/data/"));
+    //Serial.println("====");
     if (last_resettime > 0) {  // not the first time
       if (resettime > last_resettime) {  // new reset time
         Firebase.remove("garagedoor/data/"); // remove data
+        delay(1000);
+        Firebase_debug("fail-remove_data");
+        
         if (Firebase.success()) {
+          delay(1000);
+          Firebase_debug("success-remove-data");
           last_resettime = resettime;
+          delay(1000);
           Firebase_Send_Distance(new_distance);
+        } else {
+          delay(1000);
+          Firebase.remove("garagedoor/data/"); // try again
+          if (Firebase.success()) {
+            delay(1000);
+            Firebase_debug("success-remove-data");
+            last_resettime = resettime;
+            delay(1000);
+            Firebase_Send_Distance(new_distance);
+          }
         }
       }
     } else { // first time
@@ -29,7 +54,7 @@ unsigned long get_Server_Time();
 
 bool Firebase_Send_Distance(int new_distance) {
   unsigned long server_epoch = get_Server_Time();
-  long time_from_reset;
+  //long time_from_reset;
   
   if (server_epoch > 0) {
     last_server_epoch = server_epoch;
@@ -38,20 +63,22 @@ bool Firebase_Send_Distance(int new_distance) {
     server_epoch = last_server_epoch + (millis() - last_server_epoch_elapsed) / 1000;
   }
   
-  time_from_reset = server_epoch - last_resettime; //  resettime;
-  Serial.print("Distance time from reset: "); Serial.println(time_from_reset);
+  //time_from_reset = server_epoch - last_resettime; //  resettime;
+  //Serial.print("Distance time from reset: "); Serial.println(time_from_reset);
 
-  if ( time_from_reset > 10000000 || time_from_reset < 0 ) return false; // if something wrong
+  //if ( time_from_reset > 10000000 || time_from_reset < 0 ) return false; // if something wrong
       
-  String sendstr = "dist:" + String(new_distance) + "&time:" + String(time_from_reset);
+  //String sendstr = "dist:" + String(new_distance) + "&time:" + String(time_from_reset);
+  String sendstr = "dist:" + String(new_distance) + "&time:" + String(server_epoch);
   Firebase.pushString("garagedoor/data/", sendstr);
   //Serial.println("==== Updating Firebase");
   //if (Firebase.failed()) {
-     Firebase_fail("Send_Distance");
+    // Firebase_fail("Send_Distance");
   //   return false;
   //}
- 
-  time_firebase_update = millis();
+  //if (Firebase.success()) {
+    time_firebase_update = millis();
+  //}
   return true;
 }
 

@@ -82,9 +82,12 @@ void loop() {
      char readchar;
      String readstr, datastr;
      int count = 0;
+     int readcount = 0;
      bool isStartData = false;
-     while(count < 100) {    // to account for delay in data streaming in
-        while(client.available()) {
+     while(client.connected() && count < 5000) {
+     //while(count < 100) {    // to account for delay in data streaming in
+        //while(client.available()) {
+        if(client.available()) {
            count++;
            readchar = client.read();
            if (isStartData) {
@@ -95,8 +98,10 @@ void loop() {
                  isStartData = true;
               }
            }
+        } else {
+           delayMicroseconds(10);  // if it goes too fast
         }
-        if (count < 100) delay(1);
+        //if (count < 100) delay(1);
         count++;
      }
         
@@ -113,7 +118,7 @@ void loop() {
 
      datastr.trim();
      if (datastr.indexOf("buzz") > -1) {  // sound buzz
-        last_buzz = Buzz_Delay(100, 1, 1000); // freq, amplitude (0-1023)
+        last_buzz = Buzz_Delay(1000, 500, 500); // freq, amplitude (0-1023)
         isBuzz = true;
         client.print(",RP BUZZ");
      } else if (datastr.indexOf("autonobuz") > -1) { 

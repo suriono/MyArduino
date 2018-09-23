@@ -46,17 +46,14 @@ void loop() {
   int send_angle_mag = (button_press << 14) + send_angle + last_mag; // send to NodeMCU
 
   #ifdef DEBUG
-      //Serial.println("");
-      Serial.print("Button press="); Serial.print(button_press);
-      Serial.print(",Input  mag=") ; Serial.print(last_mag); 
-      Serial.print(",angle=");     Serial.println(angle);
-      //Serial.print("Output mag=");
-      //Serial.print(send_angle_mag & 127); Serial.print(",angle=");
-      //Serial.print( ((send_angle_mag>>7) & 127)*3 ); Serial.print(",button=");
-      //Serial.println( send_angle_mag >> 14);
+      //Serial.print("Button press="); Serial.print(button_press);
+      //Serial.print(",Input  mag=") ; Serial.print(last_mag); 
+      //Serial.print(",angle=");     Serial.println(angle);
   #endif
   //Serial.print(send_angle_mag);  // actual number sent to NodeMCU
-  mySerial.print("joystick=" + String(send_angle_mag) + "<");
+  //mySerial.print("joystick=" + String(send_angle_mag) + "<");
+  String outstr = "{\"mag\":" + String(last_mag) + ",\"angle\":" + String(angle) + ",\"button\":" + String(button_press) +  '}';
+  Serial.println(outstr);
+  mySerial.print(outstr); // + String(last_mag) + ',Angle:' + String(angle) + '}');
   delay(100);
 }
-

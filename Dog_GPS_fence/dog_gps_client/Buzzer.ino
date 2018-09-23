@@ -1,4 +1,4 @@
-
+#define BUZZ_MAX_AMPLITUDE 600
 
 void Buzz(int freq, int amplitude) { // zero for indefinite
   analogWriteFreq(freq);
@@ -7,7 +7,7 @@ void Buzz(int freq, int amplitude) { // zero for indefinite
 }
 
 void Buzz_Max() {
-   Buzz (300, 300);
+   Buzz_Delay (600, BUZZ_MAX_AMPLITUDE, 200);
 }
 
 void Buzz_Stop() {
@@ -22,4 +22,3 @@ unsigned long Buzz_Delay(int freq, int amplitude, int time_delay) {
   }
   return millis();
 }
-
