@@ -1,18 +1,19 @@
-#include <MegaServo.h>
+//#include <MegaServo.h>
 #include <SabertoothSimplified.h>
 #include <SoftwareSerial.h>
+#include <ArduinoJson.h>
 
-#define PHONE_SERVO_PIN  2
-#define RPWM             11 // PWM A and used for trimmer
+//#define PHONE_SERVO_PIN  2
+//#define RPWM             11 // PWM A and used for trimmer
 
 SoftwareSerial mySerial(9, 10); // RX, TX-> Sabertooth
-MegaServo Servos[1] ; // max servos is 32 for mega, 8 for other boards
+//MegaServo Servos[1] ; // max servos is 32 for mega, 8 for other boards
 SabertoothSimplified ST(mySerial); // Use SWSerial as the serial port.
 
-#define PHONE_SERVO_REF 90
+//#define PHONE_SERVO_REF 90
 
 unsigned long last_time, last_time1;
-boolean toggle_trimmer = false;   // toggle trimmer on and off
+//boolean toggle_trimmer = false;   // toggle trimmer on and off
 
 #define DEBUG
 
@@ -29,11 +30,13 @@ void setup()
   #endif
 
   motorStop();
-    
+
+  /*
   //Servos[0].attach(PHONE_SERVO_PIN, 700, 1800);
   Servos[0].attach(PHONE_SERVO_PIN, 650, 1610);
   Servo_Phone(70); delay(1000);
   Servo_Phone(PHONE_SERVO_REF);
+  */
 
   pinMode(A0, INPUT);       // to control maximum speed
   motorStop();
@@ -41,9 +44,56 @@ void setup()
 }
 
 // ============== Loop =======================
-void loop()
-{ 
+void loop()   { 
+  char inc;
+  static String inpstr;
+  static unsigned long lastimecurl;
+  static boolean isValidCommand = false;
+
+  if ( (millis() - lastimecurl) > 2000) { // clear input string if too long
+    inpstr = "";
+  }
+  
   if (mySerial.available()) {
+    int count = 0;
+    isValidCommand = false;
+    while (mySerial.available() && count < 50000) {
+      count++;
+      inc = mySerial.read();  // read the remaining bytes
+      //Serial.println(inc);
+      if (inc == '{') {
+        inpstr = inc;
+        lastimecurl = millis();
+      } else if (inc == '}') {
+        inpstr += inc;
+        //Serial.print("promini robot input: "); Serial.println(inpstr);
+        isValidCommand = true;
+        break;
+      } else {
+        inpstr += inc;
+      }
+    }
+    if (isValidCommand) {
+      //Serial.print("promini input: "); Serial.println(inpstr);
+      StaticJsonBuffer<200> jsonBuffer;
+      JsonObject& jsonob = jsonBuffer.parseObject(inpstr);
+
+      if (!jsonob.success()) {
+        Serial.println("parseObject() failed");
+      } else {
+        int mag = jsonob["mag"];
+        int angle = jsonob["angle"];
+        int button = jsonob["button"];
+        Serial.print("count: "); Serial.print(count);Serial.print(", mag: ");
+        Serial.print(mag); Serial.print(", angle: ");
+        Serial.print(angle); Serial.print(", button: ");
+        Serial.println(button);
+        
+        motorRun( mag,  angle);
+        last_time = millis();
+      }    
+    }  
+    /*
     String instring;
     while(mySerial.available()) {
       char inchar = mySerial.read();
@@ -68,7 +118,9 @@ void loop()
       Serial.println("UNKNOWN: " + instring);
       #endif
     }
+    */
   }
+  
 
   if ( (millis() - last_time) > 500) { // stop motor with 1 sec not getting a cmd
     #ifdef DEBUG
@@ -88,46 +140,18 @@ void setServo(String instring) {
   int pos = instring.substring(str_acceptable.length(), instring.length()).toInt(); 
 
   #ifdef DEBUG
-  Serial.print("Phone turn (+=right) : "); Serial.println(Servo_Phone(pos + PHONE_SERVO_REF));
+  //Serial.print("Phone turn (+=right) : "); Serial.println(Servo_Phone(pos + PHONE_SERVO_REF));
   #endif
 }
 
+/*
 int Servo_Phone(int pos) {
   Servos[0].write(pos);
   return Servos[0].read();
 }
+*/
 
-// ================== Set motor speeds ================
-void motorRun(int pow_mot, int degree) {
 
-  float max_speed = analogRead(A0) * pow_mot / 1023.0;
-  
-  float x = cos(degree*PI/180.0);
-  float y = sin(degree*PI/180.0);
-  float norm_f = abs(max_speed) / max(abs(y-x),abs(y+x));
-  int motor1 = round((y-x) * norm_f);
-  int motor2 = round(-(y+x) * norm_f);
-
-  #ifdef DEBUG
-  Serial.print(" Power="); Serial.print(pow_mot);
-  Serial.print("  Degree="); Serial.print(degree);
-  Serial.print("  M1="); Serial.print(motor1); 
-  Serial.print(",M2=");  Serial.println(motor2);
-  #endif
-
-  ST.motor(1, motor1); delay(15);
-  ST.motor(2, motor2);// delay(1);
-  //ST.motor(1, motor1); delay(10);
-  //ST.motor(2, motor2); delay(10);
-}
-
-void motorStop() {
-  ST.stop();
-  #ifdef DEBUG
-  Serial.println("STOP");
-  #endif
-  last_time = millis();
-}
 
 // ==================================
 unsigned long last_toggle_trimmer;
@@ -154,6 +178,7 @@ boolean setMotorSpeed(String instring) {
       
     motorRun( motor_pow , motor_degree);
 
+    /*
     if (anglespeed >> 14) {  // push down joystick for trimmer
        if ( (millis() - last_toggle_trimmer) > 1000) {
           toggle_trimmer = !(toggle_trimmer);
@@ -165,8 +190,6 @@ boolean setMotorSpeed(String instring) {
           }
        }
     }
+    */
     return true;
-  //}
-  //return false;
 }
-

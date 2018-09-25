@@ -1,7 +1,7 @@
 //#include <EEPROM.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <ArduinoJson.h>
+//#include <ArduinoJson.h>
 //#include <SoftwareSerial.h>
 
 //SoftwareSerial SerialSoft(0, 5); // RX, TX
@@ -16,7 +16,7 @@ String Incoming_Data;
 
 void setup() {
   Serial.begin(57600);
-  Serial1.begin(57600);  // D4
+  Serial1.begin(38400);  // D4
   //SerialSoft.begin(57600);
   //SerialSoft.setTimeout(10);
   //while(Serial.available()) Serial.read();  // read leftover data
@@ -84,8 +84,10 @@ void loop() {
     //Serial.print("count:"); Serial.println(count);
 
     if (isValidCommand) {
-      
+      Serial1.print(inpstr);
       Serial.print("robot input: "); Serial.println(inpstr);
+
+      /*
       StaticJsonBuffer<200> jsonBuffer;
       JsonObject& jsonob = jsonBuffer.parseObject(inpstr);
 
@@ -97,9 +99,10 @@ void loop() {
         int button = jsonob["button"];
         Serial.print("count:"); Serial.print(count);Serial.print(",");
         Serial.print(mag); Serial.print(",");
-          Serial.print(angle); Serial.print(",");
-          Serial.println(button);
-       }    
+        Serial.print(angle); Serial.print(",");
+        Serial.println(button);
+      }    
+      */
     }  
   } else {
     delay(1);
