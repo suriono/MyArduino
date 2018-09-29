@@ -11,7 +11,7 @@ void motorStop() {
 // ================== Set motor speeds ================
 void motorRun(int pow_mot, int degree) {
 
-  float max_speed = analogRead(A0) * pow_mot / 1023.0;
+  float max_speed = analogRead(A0) * float(pow_mot) / 1023.0;
   
   float x = cos(degree*PI/180.0);
   float y = sin(degree*PI/180.0);
@@ -20,10 +20,11 @@ void motorRun(int pow_mot, int degree) {
   int motor2 = round(-(y+x) * norm_f);
 
   #ifdef DEBUG
+  Serial.print("Max speed="); Serial.print(max_speed);
   Serial.print(" Power="); Serial.print(pow_mot);
-  Serial.print("  Degree="); Serial.print(degree);
-  Serial.print("  M1="); Serial.print(motor1); 
-  Serial.print(",M2=");  Serial.println(motor2);
+  Serial.print(" Degree="); Serial.print(degree);
+  Serial.print(" M1="); Serial.print(motor1); 
+  Serial.print(" M2=");  Serial.println(motor2);
   #endif
 
   ST.motor(1, motor1); delay(15);

@@ -84,10 +84,10 @@ void loop()   {
         int mag = jsonob["mag"];
         int angle = jsonob["angle"];
         int button = jsonob["button"];
-        Serial.print("count: "); Serial.print(count);Serial.print(", mag: ");
-        Serial.print(mag); Serial.print(", angle: ");
-        Serial.print(angle); Serial.print(", button: ");
-        Serial.println(button);
+        //Serial.print("count: "); Serial.print(count);Serial.print(", mag: ");
+        //Serial.print(mag); Serial.print(", angle: ");
+        //Serial.print(angle); Serial.print(", button: ");
+        //Serial.println(button);
         
         motorRun( mag,  angle);
         last_time = millis();
