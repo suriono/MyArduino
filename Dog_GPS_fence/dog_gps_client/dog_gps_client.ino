@@ -118,7 +118,7 @@ void loop() {
 
      datastr.trim();
      if (datastr.indexOf("buzz") > -1) {  // sound buzz
-        last_buzz = Buzz_Delay(1000, 500, 500); // freq, amplitude (0-1023)
+        last_buzz = Buzz_Delay(1000, 1000, 1000); // freq, amplitude (0-1023)
         isBuzz = true;
         client.print(",RP BUZZ");
      } else if (datastr.indexOf("autonobuz") > -1) { 

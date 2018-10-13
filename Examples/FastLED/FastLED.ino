@@ -1,15 +1,26 @@
 #include <FastLED.h>
 #define NUM_LEDS 50
-#define DATA_PIN 6
+#define DATA_PIN 10
 
 CRGB leds[NUM_LEDS];
 
 void setup() {
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
-
+  for (byte nn=0 ; nn<NUM_LEDS ; nn++) {
+    leds[nn] = CRGB::Black;  // turn all off first
+  }
+  for (byte nn=NUM_LEDS-11 ; nn<NUM_LEDS ; nn++) {
+    leds[nn] = CRGB::Green;
+  }
+  //for (byte nn=NUM_LED-4 ; nn<NUM_LEDS ; nn++) {
+  //  leds[nn] = CRGB::Green;
+  //}
+  //leds[0] = CRGB::Green;
+  FastLED.show(); 
 }
 
 void loop() {
+  /*
   static int nn = 0;
   static int sign = 1;
 
@@ -33,5 +44,5 @@ void loop() {
   
   FastLED.show(); 
   delay(300);
-
+*/
 }

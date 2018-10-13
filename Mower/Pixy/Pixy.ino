@@ -2,9 +2,15 @@
 #include <SabertoothSimplified.h>
 #include <SoftwareSerial.h>
 #include <ArduinoJson.h>
+#include <NewPing.h>
+
+#define MAX_DISTANCE 254
+#define MIN_SONIC_DIST_STOP 50  // minimum distance to stop the robot
 
 SoftwareSerial mySerial(9, 10); // RX(not used), TX->Sabertooth
 SabertoothSimplified ST(mySerial); // Use SWSerial as the serial port.
+NewPing sonar(7, 8, MAX_DISTANCE); // trig, echo, max distance
+
 Pixy2 pixy;
 
 #define DEBUG
@@ -82,7 +88,17 @@ void loop()
       }  
       
   } else {  // when no incoming serial from nodeMCU
-  
+
+    int dist = Get_Sonic_Distance();
+    int mag = 0;   
+    if (dist < 63 && dist > 10) {
+       mag = dist*2;
+       pixy.setLamp(1,0);
+       Serial.print("Dist :"); Serial.println(String(dist));
+    } else {
+       pixy.setLamp(0,0);
+    }
+    
     pixy.ccc.getBlocks();
   
     if (pixy.ccc.numBlocks)
@@ -100,24 +116,28 @@ void loop()
         //Serial.print(",");
         //Serial.print(pixy.ccc.blocks[i].m_angle); Serial.print(",");
         //Serial.println();
-        int mag   = min((120-wid)*(wid<70), 100);
+        
+        
+        //int mag   = min((120-wid)*(wid<70), 100);
         
         int angle = 90 - dx/3;
         //String outstr = "{\"mag\":" + String(mag) + ",\"angle\":" + String(angle) + ",\"button\":" + String(button_press) +  '}';
         //String outstr = "{\"mag\":" + String(mag) + ",\"angle\":" + String(angle) +  '}';
         //Serial.println(outstr);
         //mySerial.print(outstr);
+        
         motorRun(mag , angle);
-        delay(500);
+        
+        delay(200);
         last_time = millis();
       } 
     }
   }  
 
-  if ( (millis() - last_time) > 500) { // stop motor with 1 sec not getting a cmd
-    #ifdef DEBUG
-    Serial.print("No incoming instruction."); 
-    #endif
+  if ( (millis() - last_time) > 300) { // stop motor with 1 sec not getting a cmd
+    //#ifdef DEBUG
+    //Serial.print("No instruction."); 
+    //#endif
     motorStop();
   }
 }
