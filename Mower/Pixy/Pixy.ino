@@ -4,8 +4,9 @@
 #include <ArduinoJson.h>
 #include <NewPing.h>
 
-#define MAX_DISTANCE 254
+#define MAX_DISTANCE        254
 #define MIN_SONIC_DIST_STOP 50  // minimum distance to stop the robot
+#define EVA_PIN             6   // sonic detect a close object, could be Eva picture
 
 SoftwareSerial mySerial(9, 10); // RX(not used), TX->Sabertooth
 SabertoothSimplified ST(mySerial); // Use SWSerial as the serial port.
@@ -24,6 +25,7 @@ void setup()
   motorStop(); 
   mySerial.flush();
   pinMode(A0, INPUT);       // to control maximum speed
+  pinMode(EVA_PIN, OUTPUT);
 
   #ifdef DEBUG
     Serial.begin(57600);
@@ -91,26 +93,41 @@ void loop()
 
     int dist = Get_Sonic_Distance();
     int mag = 0;   
-    if (dist < 63 && dist > 10) {
+    if (dist < 63 && dist > 5) {
        mag = dist*2;
-       pixy.setLamp(1,0);
-       Serial.print("Dist :"); Serial.println(String(dist));
+       //pixy.setLamp(1,0);
+       digitalWrite(EVA_PIN, LOW);
+       Serial.print("Dist :"); Serial.print(String(dist));
     } else {
+       digitalWrite(EVA_PIN, HIGH);
        pixy.setLamp(0,0);
     }
     
     pixy.ccc.getBlocks();
+
+    //Serial.print("block num:"); Serial.println(pixy.pirnt());
   
-    if (pixy.ccc.numBlocks)
-    {
-      int wid = pixy.ccc.blocks[BLOCKN].m_width;
-      int hei = pixy.ccc.blocks[BLOCKN].m_height;
-      if ( (wid+hei) > 40 && (wid+hei) < 200 && max(wid/hei,hei/wid) < 3) {
+    if (pixy.ccc.numBlocks) {
+      byte biggest_block = 0;
+      /*
+      int widest = 0;
+      for (byte nn = 0 ; nn < pixy.ccc.numBlocks; nn++) { // find biggest one
+         if ( pixy.ccc.blocks[nn].m_width > widest) {
+            widest = pixy.ccc.blocks[nn].m_width;
+            biggest_block = nn;
+         }
+      }
+      */
+      
+      int wid = pixy.ccc.blocks[biggest_block].m_width;
+      int hei = pixy.ccc.blocks[biggest_block].m_height;
+      if ( wid > 70 && hei > 70 && (hei/wid) < 1) { //  && max(wid/hei,hei/wid) < 3) {
         //pixy.ccc.blocks[i].print();
-        int dx = pixy.ccc.blocks[BLOCKN].m_x - 160;
-        Serial.print("dx: "); Serial.print(dx); Serial.print(",width:");
-        Serial.print(wid); Serial.print(",");
-        //Serial.print(hei); Serial.print(",");
+        int dx = pixy.ccc.blocks[biggest_block].m_x - 160;
+        //Serial.print(",block number: "); Serial.print(pixy.ccc.numBlocks);
+        Serial.print(",dx: "); Serial.print(dx); Serial.print(",width:");
+        Serial.print(wid); Serial.print(",height:");
+        Serial.print(hei); Serial.print(",");
         //Serial.print(" X : ");Serial.print(pixy.ccc.blocks[i].m_x); 
         //Serial.print(", Y :");Serial.print(pixy.ccc.blocks[i].m_y); 
         //Serial.print(",");

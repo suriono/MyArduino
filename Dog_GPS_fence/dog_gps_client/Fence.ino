@@ -123,7 +123,7 @@ void Distance_to_Fence() {
    if (isAutoBuzzer) {
       if (min_dist < 0.0) {
           Buzz_Max();
-          Serial.println("Max Buzz");
+          //Serial.println("Outside fence");
       } else if (min_dist < BUZZ_MIN_DISTANCE_METER) {
           int buzz_amp = map(int(min_dist*1000.0),0, int(BUZZ_MIN_DISTANCE_METER*1000.0), BUZZ_MAX_AMPLITUDE, 0 );
           //Buzz(300, buzz_amp);

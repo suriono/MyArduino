@@ -3,7 +3,7 @@
 void motorStop() {
   ST.stop();
   #ifdef DEBUG
-  Serial.println("STOP");
+  //Serial.println("STOP");
   #endif
   last_time = millis();
 }

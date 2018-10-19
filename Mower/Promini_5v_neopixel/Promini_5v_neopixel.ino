@@ -3,9 +3,10 @@
 #include <Adafruit_NeoPixel.h>
 #include <FastLED.h>
 
-#define NEOPIXEL_PIN 9
-#define LED_STRING_PIN 10
-#define NUM_LEDS 50
+#define NEOPIXEL_PIN    9
+#define LED_STRING_PIN  10
+#define EVA_PIN         11      // when Eva picture detected
+#define NUM_LEDS        50
 
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, NEOPIXEL_PIN,
   NEO_MATRIX_BOTTOM    + NEO_MATRIX_RIGHT +
@@ -27,7 +28,7 @@ void setup() {
     leds[nn] = CRGB::Green;
   }
   FastLED.show(); 
-  //Serial.print("width:"); Serial.println(matrix1.width());  
+  pinMode(EVA_PIN, INPUT_PULLUP);      // when Eva picture detected
 }
 
 // ==================== Loop ===================================
@@ -39,6 +40,7 @@ const uint16_t colors[] = {
 void loop() {
   static byte leds_brightness = 0;
   static boolean leds_upbright = true;
+  static byte color_rotation = 0;
   matrix.fillScreen(0);
   matrix.setCursor(x, 0);
   matrix.print(F("I am Wall-E. Where is Eva?"));
@@ -50,22 +52,45 @@ void loop() {
     matrix.setTextColor(colors[pass]);
   }
 
-  if (leds_brightness > 200) {
-    leds_upbright = false;
-  } else if (leds_brightness < 20) {
-    leds_upbright = true;
-  }
-  if (leds_upbright) {
-    leds_brightness += 3;
-  } else {
-    leds_brightness -= 3;
+  if (digitalRead(EVA_PIN)) {
+    
+    if (leds_brightness > 200) {
+      leds_upbright = false;
+    } else if (leds_brightness < 20) {
+      leds_upbright = true;
+      color_rotation = (color_rotation+1) % 3;
+      for (byte nn=NUM_LEDS-12 ; nn<NUM_LEDS ; nn++) {
+        switch (color_rotation) {
+          case 1:
+            leds[nn] = CRGB::Green;
+            break;
+          case 2:
+            leds[nn] = CRGB::Blue;
+            break;
+          default:
+            leds[nn] = CRGB::Red;
+            break;
+        }
+      }
+    }
+    leds_brightness += 5 * (leds_upbright - !leds_upbright);
+  
+  } else {  // when Eva picture detected
+    for (byte nn=NUM_LEDS-12 ; nn<NUM_LEDS ; nn++) {
+      leds[nn] = CRGB::White;
+    }
+    leds_brightness = 220;
   }
   FastLED.setBrightness(leds_brightness);
+
+  running_LED();
   
   matrix.show();
   FastLED.show();
   delay(30);
 }
+
+// ============================================
 
 void Neopixel_Initial() {
   delay(2000);   // so no big surge of current at the beginning
