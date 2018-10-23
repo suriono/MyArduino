@@ -7,6 +7,7 @@
 #define MAX_DISTANCE        254
 #define MIN_SONIC_DIST_STOP 50  // minimum distance to stop the robot
 #define EVA_PIN             6   // sonic detect a close object, could be Eva picture
+#define SONIC_DETECT_PIN    5   // sonic detect a close object
 
 SoftwareSerial mySerial(9, 10); // RX(not used), TX->Sabertooth
 SabertoothSimplified ST(mySerial); // Use SWSerial as the serial port.
@@ -24,8 +25,9 @@ void setup()
   mySerial.begin(38400);
   motorStop(); 
   mySerial.flush();
-  pinMode(A0, INPUT);       // to control maximum speed
+  pinMode(A0, INPUT);                 // to control maximum speed
   pinMode(EVA_PIN, OUTPUT);
+  pinMode(SONIC_DETECT_PIN, OUTPUT);
 
   #ifdef DEBUG
     Serial.begin(57600);
@@ -93,14 +95,14 @@ void loop()
 
     int dist = Get_Sonic_Distance();
     int mag = 0;   
-    if (dist < 63 && dist > 5) {
+    if (dist < 65 ) { // && dist > 5) {
        mag = dist*2;
        //pixy.setLamp(1,0);
-       digitalWrite(EVA_PIN, LOW);
+       digitalWrite(SONIC_DETECT_PIN, LOW);
        Serial.print("Dist :"); Serial.print(String(dist));
     } else {
-       digitalWrite(EVA_PIN, HIGH);
-       pixy.setLamp(0,0);
+       digitalWrite(SONIC_DETECT_PIN, HIGH);
+       // pixy.setLamp(0,0);
     }
     
     pixy.ccc.getBlocks();
@@ -109,19 +111,10 @@ void loop()
   
     if (pixy.ccc.numBlocks) {
       byte biggest_block = 0;
-      /*
-      int widest = 0;
-      for (byte nn = 0 ; nn < pixy.ccc.numBlocks; nn++) { // find biggest one
-         if ( pixy.ccc.blocks[nn].m_width > widest) {
-            widest = pixy.ccc.blocks[nn].m_width;
-            biggest_block = nn;
-         }
-      }
-      */
       
       int wid = pixy.ccc.blocks[biggest_block].m_width;
       int hei = pixy.ccc.blocks[biggest_block].m_height;
-      if ( wid > 70 && hei > 70 && (hei/wid) < 1) { //  && max(wid/hei,hei/wid) < 3) {
+      if ( wid > 70 && hei > 40 && (hei/wid) < 1) { //  && max(wid/hei,hei/wid) < 3) {
         //pixy.ccc.blocks[i].print();
         int dx = pixy.ccc.blocks[biggest_block].m_x - 160;
         //Serial.print(",block number: "); Serial.print(pixy.ccc.numBlocks);
@@ -133,6 +126,8 @@ void loop()
         //Serial.print(",");
         //Serial.print(pixy.ccc.blocks[i].m_angle); Serial.print(",");
         //Serial.println();
+
+        digitalWrite(EVA_PIN, LOW);
         
         
         //int mag   = min((120-wid)*(wid<70), 100);
@@ -147,7 +142,11 @@ void loop()
         
         delay(200);
         last_time = millis();
-      } 
+      } else {
+        digitalWrite(EVA_PIN, HIGH);
+      }
+    } else {
+        digitalWrite(EVA_PIN, HIGH);
     }
   }  
 

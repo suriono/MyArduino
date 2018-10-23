@@ -21,13 +21,17 @@ void setup() {
 
 void loop() {
   static int last_smooth, last_mag;
-  
-  int A0ready = analogRead(A0)-A0refy;
-  int A1readx = (analogRead(A1)-A1refx) / TURN_COEF;
+  static unsigned long last_time;
 
-  if (abs(A0ready) > 400) {   //when going fast
-    A1readx /= 2;
-  }
+  if ( (millis()-last_time) > 100) {
+    last_time = millis();
+  
+    int A0ready = analogRead(A0)-A0refy;
+    int A1readx = (analogRead(A1)-A1refx) / TURN_COEF;
+
+    if (abs(A0ready) > 400) {   //when going fast
+      A1readx /= 2;
+    }
 
   //int xval = A1readx / 20; // map(A1readx, -520,520, -30,30);
   //if ( abs(A1readx) > 470) {
@@ -41,26 +45,27 @@ void loop() {
   
   //int mag = map(max(abs(xval),abs(A1ready)), 0, 520,0,127);
   //int angle = atan2(xval,A1ready)*180.0/PI;
-  int mag = map(max(abs(A0ready),abs(A1readx)), 0, 520,0,127);
-  int angle = atan2(A0ready,A1readx)*180.0/PI;
-  int button_press = digitalRead(BUTTON_PRESS_PIN);
+    int mag = map(max(abs(A0ready),abs(A1readx)), 0, 520,0,127);
+    int angle = atan2(A0ready,A1readx)*180.0/PI;
+    int button_press = digitalRead(BUTTON_PRESS_PIN);
 
   // make angle less sensitive
   
-  last_mag = int( mag * SMOOTH_COEF + (1.0 - SMOOTH_COEF) * last_mag);
-
+  //last_mag = int( mag * SMOOTH_COEF + (1.0 - SMOOTH_COEF) * last_mag);
+    last_mag = mag;
   //int send_angle = (((angle + 360) % 360) / 3) << 7; // increment by 3 degree then shift 7 bit
   //int send_angle_mag = (button_press << 14) + send_angle + last_mag; // send to NodeMCU
 
-  #ifdef DEBUG
+    #ifdef DEBUG
       //Serial.print("Button press="); Serial.print(button_press);
       //Serial.print(",Input  mag=") ; Serial.print(last_mag); 
       Serial.print(",angle=");     Serial.println(angle);
-  #endif
+    #endif
   //Serial.print(send_angle_mag);  // actual number sent to NodeMCU
   //mySerial.print("joystick=" + String(send_angle_mag) + "<");
-  String outstr = "{\"mag\":" + String(last_mag) + ",\"angle\":" + String(angle) + ",\"button\":" + String(button_press) +  '}';
+    String outstr = "{\"mag\":" + String(last_mag) + ",\"angle\":" + String(angle) + ",\"button\":" + String(button_press) +  '}';
   //Serial.println(outstr);
-  mySerial.print(outstr); // + String(last_mag) + ',Angle:' + String(angle) + '}');
-  delay(100);
+    mySerial.print(outstr); // + String(last_mag) + ',Angle:' + String(angle) + '}');
+//    delay(100);
+  }
 }

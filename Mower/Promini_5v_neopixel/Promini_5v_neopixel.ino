@@ -2,11 +2,15 @@
 #include <Adafruit_NeoMatrix.h>
 #include <Adafruit_NeoPixel.h>
 #include <FastLED.h>
+#include <MegaServo.h>
+
 
 #define NEOPIXEL_PIN    9
 #define LED_STRING_PIN  10
 #define EVA_PIN         11      // when Eva picture detected
+#define SONIC_DETECT_PIN 3       // when close object detected
 #define NUM_LEDS        50
+#define SERVO_PIN       7
 
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, NEOPIXEL_PIN,
   NEO_MATRIX_BOTTOM    + NEO_MATRIX_RIGHT +
@@ -14,6 +18,7 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, NEOPIXEL_PIN,
   NEO_GRB            + NEO_KHZ800);
 
 CRGB leds[NUM_LEDS];
+MegaServo Servos[1];
 
 // ==================== Setup =================================
 
@@ -29,6 +34,10 @@ void setup() {
   }
   FastLED.show(); 
   pinMode(EVA_PIN, INPUT_PULLUP);      // when Eva picture detected
+  pinMode(SONIC_DETECT_PIN, INPUT_PULLUP);      // when Eva picture detected
+  
+  Servos[0].attach(SERVO_PIN, 650, 1610);  // for UNO
+  //Servos[0].attach(SERVO_PIN, 600, 2000);
 }
 
 // ==================== Loop ===================================
@@ -52,7 +61,17 @@ void loop() {
     matrix.setTextColor(colors[pass]);
   }
 
-  if (digitalRead(EVA_PIN)) {
+  if (digitalRead(EVA_PIN)) {   // open the lid
+    
+    leds[17] = CRGB::White; // candy bucket
+    leds[18] = CRGB::White; // candy bucket
+    leds[19] = CRGB::White; // candy bucket
+    Servos[0].write(120);   // open the lid to the candy
+  } else {   
+   Servos[0].write(15);    // close the lid
+  }
+
+  if (digitalRead(SONIC_DETECT_PIN)) {
     
     if (leds_brightness > 200) {
       leds_upbright = false;
@@ -75,11 +94,11 @@ void loop() {
     }
     leds_brightness += 5 * (leds_upbright - !leds_upbright);
   
-  } else {  // when Eva picture detected
+  } else {  // when a close object
     for (byte nn=NUM_LEDS-12 ; nn<NUM_LEDS ; nn++) {
       leds[nn] = CRGB::White;
     }
-    leds_brightness = 220;
+    leds_brightness = 200; 
   }
   FastLED.setBrightness(leds_brightness);
 
