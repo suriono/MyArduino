@@ -95,7 +95,7 @@ void loop()
 
     int dist = Get_Sonic_Distance();
     int mag = 0;   
-    if (dist < 65 ) { // && dist > 5) {
+    if (dist < 65 && dist > 1) {
        mag = dist*2;
        //pixy.setLamp(1,0);
        digitalWrite(SONIC_DETECT_PIN, LOW);
@@ -109,7 +109,7 @@ void loop()
 
     //Serial.print("block num:"); Serial.println(pixy.pirnt());
   
-    if (pixy.ccc.numBlocks) {
+    if (pixy.ccc.numBlocks>0 && dist < 65 && dist > 1) {
       byte biggest_block = 0;
       
       int wid = pixy.ccc.blocks[biggest_block].m_width;
@@ -132,11 +132,16 @@ void loop()
         
         //int mag   = min((120-wid)*(wid<70), 100);
         
-        int angle = 90 - dx/3;
+        int angle = 90 - dx;
         //String outstr = "{\"mag\":" + String(mag) + ",\"angle\":" + String(angle) + ",\"button\":" + String(button_press) +  '}';
         //String outstr = "{\"mag\":" + String(mag) + ",\"angle\":" + String(angle) +  '}';
         //Serial.println(outstr);
         //mySerial.print(outstr);
+        if (angle > 180) {
+          angle = 180;
+        } else if (angle < 0) {
+          angle = 0;
+        }
         
         motorRun(mag , angle);
         
