@@ -1,37 +1,56 @@
-String Text1, Text2;                      // text for each row
-uint16_t Color1 = Neopixel_Red;
-uint16_t Color2 = Neopixel_Red;
-byte Colors1[3] = {200,0,0};                       // = [200, 0, 0];
-byte Colors2[3] = {100,0,200};                      //= [150, 0, 200];
-int Width1 = 8; int Width2 = 8;                     // widht of each letter
+
+//String Text1, Text2;                      // text for each row
+//uint16_t Color1 = Neopixel_Red;
+//uint16_t Color2 = Neopixel_Red;
+//byte Colors1[3] = {200,0,0};                       // = [200, 0, 0];
+//byte Colors2[3] = {100,0,200};                      //= [150, 0, 200];
+//int Width1 = 8; int Width2 = 8;                     // widht of each letter
 byte MinBrightness = 50;                // min brightness so it does not go dark at night
 byte MaxBrightness = 230; 
-byte TextMode = 0;       // 0=normal text,1=pixel row 1,2=pixel row 2,3=pixel row 1,2
+//byte TextMode = 0;       // 0=normal text,1=pixel row 1,2=pixel row 2,3=pixel row 1,2
 
 // ===================================================
 
-void Neopixel_Initial() {
-  delay(5000);   // so no big surge of current at the beginning
-  matrix1.begin(); matrix2.begin();
-  matrix1.setTextWrap(false); matrix2.setTextWrap(false);
-  matrix1.setBrightness(MaxBrightness);  // from 0 to 255
-  matrix2.setBrightness(MaxBrightness);
-  // matrix2.setTextSize(2);  // font size
-  Text1 = "L  O  V  E";
-  Text2 = "Never Fails";
-  //Neopixel_Display_Normal_Text();
-  Neopixel_Colorful_Text(Text1, Text2);
+void Neopixel_Initial(String initext, byte bright) {
+  //delay(5000);   // so no big surge of current at the beginning
+  matrix.begin();
+  matrix.setTextWrap(false); 
+  matrix.setBrightness(bright);  // from 0 to 255
+  matrix.setTextColor(matrix.Color(200, 0, 0));
+  matrix.setTextSize(1);
+  matrix.fillScreen(0);  
+  matrix.setCursor(0, 0);
+
+  matrix.print(initext);
+  matrix.show();
+  
+  //Neopixel_Colorful_Text(Text1, Text2);
 }
 
 // ==============================================
 
 void Neopixel_Process_Input_Serial(String inputstr) {
-  DynamicJsonDocument jsonFromText;
-  deserializeJson(jsonFromText, inputstr);
-  JsonObject JsonObj = jsonFromText.as<JsonObject>();
-
+  //char inpstr[20];
+  //inpstr = inputstr.toCharArray();
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& jsonob = jsonBuffer.parseObject(inputstr);
+  //DynamicJsonDocument jsonFromText;
+  //deserializeJson(jsonFromText, inputstr);
+  //JsonObject JsonObj = jsonFromText.as<JsonObject>();
+  if (!jsonob.success()) {
+    Serial.println("parseObject() failed");
+    return;
+  }
+  
   Serial.print("Neopixel inputstr:"); Serial.println(inputstr);
-
+  int width = jsonob["width"];
+  String textinput = jsonob["text"];
+  Serial.println(textinput);
+  matrix.fillScreen(0);  
+  matrix.setCursor(0, 0);
+  matrix.print(textinput);
+  matrix.show();
+/*
   if (inputstr.indexOf("text1") > 0) {
     TextMode = 0;
     String row1 = JsonObj["text1"]; Text1 = row1;
@@ -86,8 +105,9 @@ void Neopixel_Process_Input_Serial(String inputstr) {
         matrix2.show(); //delay(10);
       }
   }
+  */
 }
-
+/*
 // ============================================
 
 void Neopixel_Display_Normal_Text() {
@@ -164,18 +184,8 @@ void Neopixel_Adjust_Brightness() {
     }
 
     
-    /*
-    int min_sum12 = min(sum1,sum2);// * MaxBrightness / 255;
-    //Serial.print("Min sum brightness: "); Serial.println(String(min_sum12));
-
-    if (min_sum12 < MinBrightness*3) { // below the minimum
-      for (byte nn=0; nn<3 ; nn++) {
-        tmpcol1[nn] = map(tmpcol1[nn],0,sum1, 0, MinBrightness);
-        tmpcol2[nn] = map(tmpcol2[nn],0,sum2, 0, MinBrightness);
-        //Serial.print(tmpcol1[nn]); Serial.print(","); Serial.println(tmpcol2[nn]);
-      }
-    }
-    */
+    
+    
     Color1 = matrix1.Color(tmpcol1[0], tmpcol1[1], tmpcol1[2]);
     Color2 = matrix2.Color(tmpcol2[0], tmpcol2[1], tmpcol2[2]);
 
@@ -192,5 +202,4 @@ void Neopixel_Adjust_Brightness() {
     }
     
 }
-
-
+*/

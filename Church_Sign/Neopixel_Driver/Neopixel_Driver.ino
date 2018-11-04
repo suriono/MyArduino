@@ -4,40 +4,27 @@
 #include <ArduinoJson.h>
  
 #define PIN_TOP_SIGN 2
-#define PIN_BOTTOM_SIGN 3
 
-// 1st row
-Adafruit_NeoMatrix matrix1 = Adafruit_NeoMatrix(32, 8, 3, 1, PIN_TOP_SIGN,
-  NEO_TILE_TOP   + NEO_TILE_LEFT   + NEO_TILE_ROWS   + NEO_TILE_PROGRESSIVE +
-  NEO_MATRIX_TOP + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG,
-  NEO_GRB + NEO_KHZ800);
-// 2nd row
-Adafruit_NeoMatrix matrix2 = Adafruit_NeoMatrix(32, 8, 3, 1, PIN_BOTTOM_SIGN,
-  NEO_TILE_TOP   + NEO_TILE_LEFT   + NEO_TILE_ROWS   + NEO_TILE_PROGRESSIVE +
+ // Use Arduino Due because SRAM is high, 96KB, Mega is 8KB
+Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, 6, 5, PIN_TOP_SIGN,
+  NEO_TILE_TOP   + NEO_TILE_LEFT   + NEO_TILE_ROWS   + NEO_TILE_ZIGZAG +
   NEO_MATRIX_TOP + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG,
   NEO_GRB + NEO_KHZ800);
 
-/* for single tile
-Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, 2, 1, PIN,
-  NEO_MATRIX_TOP + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG +
-  NEO_TILE_TOP   + NEO_TILE_LEFT   + NEO_TILE_ROWS   + NEO_TILE_ZIGZAG,
-   NEO_GRB + NEO_KHZ800);
-*/
+
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(57600);
   Serial1.begin(57600);
-  //Serial1.setTimeout(10);
-  Neopixel_Initial();
-  Serial.print("width:"); Serial.println(matrix1.width());  
-  while (Serial1.available()) {
-    Serial1.read();   // read any remaining
-  }
+  
+  Neopixel_Initial("hello", 10);
+  
 }
 
 // =========================================================
 
 void loop() {
+  
   static unsigned long last_time_brigthness;
   
   static String SignText;
@@ -60,6 +47,7 @@ void loop() {
         if (isSignText) {
           SignText = SignText.substring(0, SignText.length()-1);
           Neopixel_Process_Input_Serial(SignText);
+          //Serial.println(SignText);
         }
         
         isSignText = false;
@@ -68,10 +56,9 @@ void loop() {
     }
     //Serial.print("Incoming Serial:"); Serial.println(incoming_serial);
     
-  } else if ( (millis() - last_time_brigthness) > 10000) { // check brightness
-    
+  } else if ( (millis() - last_time_brigthness) > 10000) { // check brightness  
     last_time_brigthness = millis();
-    Neopixel_Adjust_Brightness();
+    //Neopixel_Adjust_Brightness();
   }
+  
 }
-
