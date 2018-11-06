@@ -10,6 +10,8 @@ function PutHTML(htmltext) {
 	var http = new XMLHttpRequest();
 	var url = 'http://192.168.4.100';
 	
+	document.getElementById("debug").innerHTML = htmltext;
+	
 	var params = '<sign>{' + htmltext + '}<endsign>';
 	http.open('POST', url, true);
 
@@ -27,7 +29,7 @@ function PutHTML(htmltext) {
 	    }
 	}
 	http.send(params);
-    document.getElementById("debug").innerHTML = params;
+    //document.getElementById("debug").innerHTML = params;
     return isHTML_fail;
 }
 
@@ -38,18 +40,21 @@ function SendText() {
 	//var row2text = document.getElementById("row2").value
 	var wid1 = document.getElementById("width1").value
 	//var wid2 = document.getElementById("width2").value
+	
+	var fontsize = 1;
+	if (document.getElementById("fontsize").checked) fontsize = 2;
 
 	//var params = '"text1":"' + row1text + '","text2":"' + row2text + '","width1":' + wid1 + ',"width2":' + wid2;
-	var params = '"text":"' + row1text + '","width":' + wid1;
+	var params = '"text":"' + row1text + '","width":' + wid1 + ',"fontsize":' + fontsize;
 	PutHTML(params);
 }
 // ===================================================
 
-function updateColor(rownum) { // rgb: 1=red, 2=green, 3=blue
-	var red1 = document.getElementById("Red" + rownum).value;
-	var gre1 = document.getElementById("Green" + rownum).value;
-	var blu1 = document.getElementById("Blue" + rownum).value;
-	var params = '"color' + rownum + '":[' + red1 + ',' + gre1 + ',' + blu1 + ']';
+function updateColor() { // rgb: 1=red, 2=green, 3=blue
+	var red1 = document.getElementById("Red1").value;
+	var gre1 = document.getElementById("Green1").value;
+	var blu1 = document.getElementById("Blue1").value;
+	var params = '"color":[' + red1 + ',' + gre1 + ',' + blu1 + ']';
 	PutHTML(params);
 }
 
@@ -80,23 +85,24 @@ function updateMinBrightness() {
 
 <table>
 <tr><td>Text</td><td><input type="text" id="row1" value="Love" style="font-size:x-large" size="15"></td>
+<td><input type="checkbox" id="fontsize">large font</td>
                       </tr>
 
 <tr><td>Width</td><td><input type="text" id="width1" value="25" style="font-size:x-large" size="15"></td>
                        </tr>
 
 <tr><td bgcolor="red">Red</td><td>
-<input type="range" min="0" max="255" onchange="updateColor(1)" id="Red1" oninput="red1OutId.value = this.value" value="230">
+<input type="range" min="0" max="255" onchange="updateColor()" id="Red1" oninput="red1OutId.value = this.value" value="230">
 <output id="red1OutId">230</output></td>
 </tr>
 
 <tr><td bgcolor="green">Green</td><td>
-<input type="range" min="0" max="255" onchange="updateColor(1)" id="Green1" oninput="green1OutId.value = this.value" value="0">
+<input type="range" min="0" max="255" onchange="updateColor()" id="Green1" oninput="green1OutId.value = this.value" value="0">
 <output id="green1OutId">0</output></td>
 </tr>
 
 <tr><td bgcolor="Blue">Blue</td><td>
-<input type="range" min="0" max="255" onchange="updateColor(1)" id="Blue1" oninput="blue1OutId.value = this.value" value="0">
+<input type="range" min="0" max="255" onchange="updateColor()" id="Blue1" oninput="blue1OutId.value = this.value" value="0">
 <output id="blue1OutId">0</output></td>
 </tr>
 

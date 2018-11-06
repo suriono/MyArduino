@@ -1,8 +1,9 @@
 
-//String Text1, Text2;                      // text for each row
-//uint16_t Color1 = Neopixel_Red;
+String TextSign;
+
+//uint16_t ColorText = Neopixel_Red;
 //uint16_t Color2 = Neopixel_Red;
-//byte Colors1[3] = {200,0,0};                       // = [200, 0, 0];
+byte Colors[3] = {200,0,0};                       // = [200, 0, 0];
 //byte Colors2[3] = {100,0,200};                      //= [150, 0, 200];
 //int Width1 = 8; int Width2 = 8;                     // widht of each letter
 byte MinBrightness = 50;                // min brightness so it does not go dark at night
@@ -17,12 +18,14 @@ void Neopixel_Initial(String initext, byte bright) {
   matrix.setTextWrap(false); 
   matrix.setBrightness(bright);  // from 0 to 255
   matrix.setTextColor(matrix.Color(200, 0, 0));
-  matrix.setTextSize(1);
+  matrix.setTextSize(2);
   matrix.fillScreen(0);  
-  matrix.setCursor(0, 0);
+  //matrix.setCursor(0, 0);
 
-  matrix.print(initext);
-  matrix.show();
+  TextSign = initext;
+  Neopixel_Display_Normal_Text();
+  //matrix.print(initext);
+ // matrix.show();
   
   //Neopixel_Colorful_Text(Text1, Text2);
 }
@@ -30,8 +33,7 @@ void Neopixel_Initial(String initext, byte bright) {
 // ==============================================
 
 void Neopixel_Process_Input_Serial(String inputstr) {
-  //char inpstr[20];
-  //inpstr = inputstr.toCharArray();
+  
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& jsonob = jsonBuffer.parseObject(inputstr);
   //DynamicJsonDocument jsonFromText;
@@ -43,13 +45,23 @@ void Neopixel_Process_Input_Serial(String inputstr) {
   }
   
   Serial.print("Neopixel inputstr:"); Serial.println(inputstr);
-  int width = jsonob["width"];
-  String textinput = jsonob["text"];
-  Serial.println(textinput);
-  matrix.fillScreen(0);  
-  matrix.setCursor(0, 0);
-  matrix.print(textinput);
-  matrix.show();
+  if (inputstr.indexOf("text") > 0) {
+    int width = jsonob["width"];
+    byte fontsize = jsonob["fontsize"];
+    String tmpstr = jsonob["text"];   TextSign = tmpstr;
+    matrix.setTextSize(fontsize);
+
+    //matrix.fillScreen(0);
+    Neopixel_Display_Normal_Text();
+   
+  } else if (inputstr.indexOf("color") > 0) {
+    for (byte nn=0 ; nn<3 ; nn++) Colors[nn] = jsonob["color"][nn];
+
+    matrix.setTextColor(Neopixel_Black);
+    Neopixel_Display_Normal_Text();
+    matrix.setTextColor(matrix.Color(Colors[0], Colors[1], Colors[2]));
+    Neopixel_Display_Normal_Text();
+  }
 /*
   if (inputstr.indexOf("text1") > 0) {
     TextMode = 0;
@@ -107,13 +119,15 @@ void Neopixel_Process_Input_Serial(String inputstr) {
   }
   */
 }
-/*
+
 // ============================================
 
 void Neopixel_Display_Normal_Text() {
-  Neopixel_Set_Colors(Color1, Color2);
-  matrix1.fillScreen(0);  matrix2.fillScreen(0);// erase everything
-  matrix1.setCursor(0, 0); matrix2.setCursor(0, 0);
+  //Neopixel_Set_Colors(Color1, Color2);
+  //matrix.fillScreen(0);  
+  matrix.setCursor(0, 0);
+  matrix.print(TextSign);
+  /*
   for (byte nn=0; nn<Text1.length(); nn++) {
     matrix1.setCursor(nn*Width1, 0);
     matrix1.print(Text1.charAt(nn));
@@ -122,9 +136,11 @@ void Neopixel_Display_Normal_Text() {
     matrix2.setCursor(nn*Width2, 0);
     matrix2.print(Text2.charAt(nn));
   }
-  matrix1.show(); matrix2.show();
+  */
+  matrix.show();
 }
 
+/*
 // =============================================
 
 void Neopixel_Set_Colors(uint16_t color1, uint16_t color2) {

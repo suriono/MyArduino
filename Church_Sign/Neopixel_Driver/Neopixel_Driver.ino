@@ -6,7 +6,8 @@
 #define PIN_TOP_SIGN 2
 
  // Use Arduino Due because SRAM is high, 96KB, Mega is 8KB
-Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, 6, 5, PIN_TOP_SIGN,
+//Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, 6, 5, PIN_TOP_SIGN,
+Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, 1, 5, PIN_TOP_SIGN,
   NEO_TILE_TOP   + NEO_TILE_LEFT   + NEO_TILE_ROWS   + NEO_TILE_ZIGZAG +
   NEO_MATRIX_TOP + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG,
   NEO_GRB + NEO_KHZ800);
