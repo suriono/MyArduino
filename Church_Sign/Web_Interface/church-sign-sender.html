@@ -33,6 +33,13 @@ function PutHTML(htmltext) {
     return isHTML_fail;
 }
 
+// ======================================================
+function SetCursor() {
+  	var xcursor = document.getElementById("xcursor").value
+	var ycursor = document.getElementById("ycursor").value
+	var params = '"cursor":[' + xcursor + ',' + ycursor + ']';
+	PutHTML(params);
+}
 
 // ======================================================
 function SendText() {
@@ -48,6 +55,13 @@ function SendText() {
 	var params = '"text":"' + row1text + '","width":' + wid1 + ',"fontsize":' + fontsize;
 	PutHTML(params);
 }
+
+// ===================================================
+function ClearAll() {
+	var params = '"command":"clearall"';
+	PutHTML(params);
+}
+
 // ===================================================
 
 function updateColor() { // rgb: 1=red, 2=green, 3=blue
@@ -77,6 +91,8 @@ function updateMinBrightness() {
 	PutHTML(params);
 }
 
+// ===================================================
+
 </script>
 </head> <body>
 
@@ -84,12 +100,22 @@ function updateMinBrightness() {
 <font size="6">
 
 <table>
-<tr><td>Text</td><td><input type="text" id="row1" value="Love" style="font-size:x-large" size="15"></td>
-<td><input type="checkbox" id="fontsize">large font</td>
-                      </tr>
+<!--<tr><td>Start Pixel X</td>  
+<td><input type="range" min="0" max="190" onchange="updateStartX()" id="startxpixel" oninput="pixelXOutId.value = this.value" value="230">
+<output id="red1OutId">230</output></td>
+-->
 
-<tr><td>Width</td><td><input type="text" id="width1" value="25" style="font-size:x-large" size="15"></td>
-                       </tr>
+<tr><td><input type="submit" value="Set Cursor (X-Y)" onclick="SetCursor()" style="font-size:x-large" size="15"></td>
+<td><input type="number" id="xcursor" value="0" style="font-size:x-large" size="15"></td>
+<td><input type="number" id="ycursor" value="0" style="font-size:x-large" size="15"></td>
+</tr>
+
+
+<tr><td>Text</td><td><input type="text" id="row1" value="Love" style="font-size:x-large" size="15"></td>
+
+<td><input type="checkbox" id="fontsize">large font</td></tr>
+
+<tr><td>Width</td><td><input type="text" id="width1" value="25" style="font-size:x-large" size="15"></td></tr>
 
 <tr><td bgcolor="red">Red</td><td>
 <input type="range" min="0" max="255" onchange="updateColor()" id="Red1" oninput="red1OutId.value = this.value" value="230">
@@ -110,7 +136,9 @@ function updateMinBrightness() {
 
 The colors can also be changed by moving the sliders. <br>
 <input type="submit" value="Send Text" onclick="SendText()" style="font-size:x-large" size="15">
-<input type="submit" value="Send Colors" onclick="updateColorTwoRows()" style="font-size:x-large" size="15"> <br>
+<input type="submit" value="Send Colors" onclick="updateColorTwoRows()" style="font-size:x-large" size="15">
+<input type="submit" value="Clear All" onclick="ClearAll()" style="font-size:x-large" size="15"> <br>
+
 
 <h4>The light sensor runs every 10 seconds, the brightness setting changes is therefore observed within 10 seconds.</h4>
 <table>
