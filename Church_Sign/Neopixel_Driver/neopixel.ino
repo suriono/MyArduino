@@ -1,4 +1,3 @@
-
 String TextSign;
 
 //uint16_t ColorText = Neopixel_Red;
@@ -8,8 +7,8 @@ byte Colors[3] = {200,0,0};                       // = [200, 0, 0];
 //int Width1 = 8; int Width2 = 8;                     // widht of each letter
 byte MinBrightness = 50;                // min brightness so it does not go dark at night
 byte MaxBrightness = 230; 
-byte xcursor = 0;
-byte ycursor = 0;
+
+
 //byte TextMode = 0;       // 0=normal text,1=pixel row 1,2=pixel row 2,3=pixel row 1,2
 
 // ===================================================
@@ -40,6 +39,8 @@ void Neopixel_Process_Input_Serial(String inputstr) {
     Serial.println("parseObject() failed");
     return;
   }
+
+  isCursorEnable = false;
   
   Serial.print("Neopixel inputstr:"); Serial.println(inputstr);
   if (inputstr.indexOf("text") > 0) {
@@ -61,8 +62,16 @@ void Neopixel_Process_Input_Serial(String inputstr) {
     
   } else if (inputstr.indexOf("command") > 0) {
     String cmd = jsonob["command"];
-    Serial.println(cmd);
+    //Serial.println(cmd);
     if (cmd.indexOf("clearall") > -1) matrix.fillScreen(0);
+    if (cmd.indexOf("moveCursor") > -1) {
+      if (cmd.indexOf("Right") > 0) xcursor++;
+      if (cmd.indexOf("Left") > 0) xcursor--;
+      isCursorEnable = true;
+      matrix.setPixelColor(cursorNum, cursorColor_last);
+      getCursorNum();
+      cursorColor_last = matrix.getPixelColor(cursorNum);
+    }
     matrix.show();
   } else if (inputstr.indexOf("cursor") > 0) {
     xcursor = jsonob["cursor"][0];

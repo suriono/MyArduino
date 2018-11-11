@@ -13,20 +13,27 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, 1, 5, PIN_TOP_SIGN,
   NEO_GRB + NEO_KHZ800);
 
 
+boolean isCursorEnable = false;
+uint16_t cursorNum;
+uint32_t cursorColor_last;
+const uint32_t Neopixel_Red = matrix.Color(0, 0, 255);
 
 void setup() {
   Serial.begin(57600);
   Serial1.begin(57600);
   
   Neopixel_Initial("hello", 10);
-  
+  cursorColor_last = matrix.getPixelColor(10);
+  Serial.println(cursorColor_last);
+  Serial.println(matrix.getPixelColor(10));
 }
 
 // =========================================================
 
 void loop() {
   
-  static unsigned long last_time_brigthness;
+  static unsigned long last_time_brigthness, last_cursorToggle;
+  static boolean cursorToggle;
   
   static String SignText;
   static boolean isSignText = false;
@@ -59,7 +66,28 @@ void loop() {
     
   } else if ( (millis() - last_time_brigthness) > 10000) { // check brightness  
     last_time_brigthness = millis();
+    /*
+    int np=0;
+    for (int row=0 ; row<8 ; row++) {
+      for (int col=0 ; col<32 ; col++) {
+        Serial.print(row); Serial.print(","); Serial.print(col);Serial.print(",");
+        Serial.println(matrix.getPixelColor(np));
+        np++;
+      }
+    }
+    */
     //Neopixel_Adjust_Brightness();
+  } else if (isCursorEnable) {
+    if ( (millis()-last_cursorToggle)>500) {
+      last_cursorToggle = millis();
+      cursorToggle = !cursorToggle;
+      if (cursorToggle) {
+        matrix.setPixelColor(cursorNum, Neopixel_Red);
+      } else {
+        matrix.setPixelColor(cursorNum, 0);
+      }
+      matrix.show();
+    }
   }
   
 }

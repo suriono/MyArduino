@@ -41,6 +41,17 @@ function SetCursor() {
 	PutHTML(params);
 }
 
+function cursorToRight() {
+	var params = '"command":"moveCursorRight"';
+	PutHTML(params);
+
+}
+function cursorToLeft() {
+	var params = '"command":"moveCursorLeft"';
+	PutHTML(params);
+
+}
+
 // ======================================================
 function SendText() {
    	var row1text = document.getElementById("row1").value
@@ -106,7 +117,9 @@ function updateMinBrightness() {
 -->
 
 <tr><td><input type="submit" value="Set Cursor (X-Y)" onclick="SetCursor()" style="font-size:x-large" size="15"></td>
-<td><input type="number" id="xcursor" value="0" style="font-size:x-large" size="15"></td>
+<td><input type="button" id="xcursorleft" value="<<" onclick="cursorToLeft()">
+<input type="number" id="xcursor" value="0" maxlength="3" size="2" style="font-size:x-large" size="15">
+<input type="button" id="xcursorright" value=">>" onclick="cursorToRight()"></td>
 <td><input type="number" id="ycursor" value="0" style="font-size:x-large" size="15"></td>
 </tr>
 
