@@ -4,7 +4,7 @@ String TextSign;
 //uint16_t Color2 = Neopixel_Red;
 byte Colors[3] = {200,0,0};                       // = [200, 0, 0];
 //byte Colors2[3] = {100,0,200};                      //= [150, 0, 200];
-//int Width1 = 8; int Width2 = 8;                     // widht of each letter
+byte Width = 0;                     // widht of each letter
 byte MinBrightness = 50;                // min brightness so it does not go dark at night
 byte MaxBrightness = 230; 
 
@@ -19,10 +19,11 @@ void Neopixel_Initial(String initext, byte bright) {
   matrix.setTextWrap(false); 
   matrix.setBrightness(bright);  // from 0 to 255
   matrix.setTextColor(matrix.Color(200, 0, 0));
-  matrix.setTextSize(2);
+  matrix.setTextSize(1);
   matrix.fillScreen(0);  
  
   TextSign = initext;
+  Width = 9;
   Neopixel_Display_Normal_Text();
 }
 
@@ -44,7 +45,7 @@ void Neopixel_Process_Input_Serial(String inputstr) {
   
   Serial.print("Neopixel inputstr:"); Serial.println(inputstr);
   if (inputstr.indexOf("text") > 0) {
-    int width = jsonob["width"];
+    Width = jsonob["width"];
     byte fontsize = jsonob["fontsize"];
     String tmpstr = jsonob["text"];   TextSign = tmpstr;
     matrix.setTextSize(fontsize);
@@ -62,17 +63,10 @@ void Neopixel_Process_Input_Serial(String inputstr) {
     
   } else if (inputstr.indexOf("command") > 0) {
     String cmd = jsonob["command"];
-    //Serial.println(cmd);
     if (cmd.indexOf("clearall") > -1) matrix.fillScreen(0);
-    if (cmd.indexOf("moveCursor") > -1) {
-      if (cmd.indexOf("Right") > 0) xcursor++;
-      if (cmd.indexOf("Left") > 0) xcursor--;
-      isCursorEnable = true;
-      matrix.setPixelColor(cursorNum, cursorColor_last);
-      getCursorNum();
-      cursorColor_last = matrix.getPixelColor(cursorNum);
-    }
     matrix.show();
+  } else if (inputstr.indexOf("moveCursor") > 0) {
+    moveCursor(jsonob["moveCursor"]);
   } else if (inputstr.indexOf("cursor") > 0) {
     xcursor = jsonob["cursor"][0];
     ycursor = jsonob["cursor"][1];
@@ -82,20 +76,15 @@ void Neopixel_Process_Input_Serial(String inputstr) {
 // ============================================
 
 void Neopixel_Display_Normal_Text() {
-  //Neopixel_Set_Colors(Color1, Color2);
-  //matrix.fillScreen(0);  
-  matrix.setCursor(xcursor, ycursor);
-  matrix.print(TextSign);
-  /*
-  for (byte nn=0; nn<Text1.length(); nn++) {
-    matrix1.setCursor(nn*Width1, 0);
-    matrix1.print(Text1.charAt(nn));
+  if (Width < 1) {         // normal text
+    matrix.setCursor(xcursor, ycursor);
+    matrix.print(TextSign);
+  } else {
+    for (byte nn=0; nn<TextSign.length() ; nn++) {
+      matrix.setCursor(xcursor+nn*Width, ycursor);
+      matrix.print(TextSign[nn]);
+    }
   }
-  for (byte nn=0; nn<Text2.length(); nn++) {
-    matrix2.setCursor(nn*Width2, 0);
-    matrix2.print(Text2.charAt(nn));
-  }
-  */
   matrix.show();
 }
 

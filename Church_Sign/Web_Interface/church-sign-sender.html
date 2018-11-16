@@ -33,7 +33,7 @@ function PutHTML(htmltext) {
     return isHTML_fail;
 }
 
-// ======================================================
+// ============== Cursors ========================================
 function SetCursor() {
   	var xcursor = document.getElementById("xcursor").value
 	var ycursor = document.getElementById("ycursor").value
@@ -41,19 +41,34 @@ function SetCursor() {
 	PutHTML(params);
 }
 
+function cursorSlider() {
+	var pixelloc = document.getElementById("cursorsliderOutId").value;
+	var params = '"moveCursor":' + pixelloc;
+	PutHTML(params);
+}
+
+/*
+
 function cursorToRight() {
 	var params = '"command":"moveCursorRight"';
+	var tmp = parseInt(document.getElementById("xcursor").value);
+	document.getElementById("xcursor").value = tmp + 1; 
 	PutHTML(params);
-
 }
 function cursorToLeft() {
 	var params = '"command":"moveCursorLeft"';
+	document.getElementById("xcursor").value = parseInt(document.getElementById("xcursor").value) - 1; 
 	PutHTML(params);
-
 }
+function cursorToDown() {
+	var params = '"command":"moveCursorDown"';
+	PutHTML(params);
+}
+*/
 
 // ======================================================
 function SendText() {
+	//updateColor();
    	var row1text = document.getElementById("row1").value
 	//var row2text = document.getElementById("row2").value
 	var wid1 = document.getElementById("width1").value
@@ -65,6 +80,7 @@ function SendText() {
 	//var params = '"text1":"' + row1text + '","text2":"' + row2text + '","width1":' + wid1 + ',"width2":' + wid2;
 	var params = '"text":"' + row1text + '","width":' + wid1 + ',"fontsize":' + fontsize;
 	PutHTML(params);
+	updateColor();
 }
 
 // ===================================================
@@ -72,6 +88,13 @@ function ClearAll() {
 	var params = '"command":"clearall"';
 	PutHTML(params);
 }
+
+// ===================================================
+function Undo() {
+	var params = '"color":[0,0,0]';
+	PutHTML(params);
+}
+
 
 // ===================================================
 
@@ -90,6 +113,13 @@ function updateColorTwoRows() {
 
 // ===================================================
 
+function SendPixel() {
+	var params = document.getElementById("pixeltext").value;
+	PutHTML(params);
+}
+
+// ===================================================
+
 function updateBrightness() {
 	var brigh = document.getElementById("BrightnessId").value;
 	var params = '"brightness":' + brigh;
@@ -102,13 +132,31 @@ function updateMinBrightness() {
 	PutHTML(params);
 }
 
+document.getElementById("cursorsliderOutId").value = 0;
+
 // ===================================================
 
 </script>
 </head> <body>
 
+<style>
+.slidercontainer {
+	 width: 100%;
+}
+.slider {
+	width:100%;
+}
+</style>
+
 
 <font size="6">
+
+<!--
+<div class="slidercontainer">
+<input type="range" class="slider" value="0" min="0" max="1280" onchange="cursorSlider()" id="cursorslider" oninput="cursorsliderOutId.value = this.value">
+<output id="cursorsliderOutId">Move the slider</output>
+</div> -->
+
 
 <table>
 <!--<tr><td>Start Pixel X</td>  
@@ -116,19 +164,23 @@ function updateMinBrightness() {
 <output id="red1OutId">230</output></td>
 -->
 
+<!-- Set Cursor -->
+
 <tr><td><input type="submit" value="Set Cursor (X-Y)" onclick="SetCursor()" style="font-size:x-large" size="15"></td>
-<td><input type="button" id="xcursorleft" value="<<" onclick="cursorToLeft()">
+<td><!--<input type="button" id="xcursorleft" value="<<" onclick="cursorToLeft()"> -->
 <input type="number" id="xcursor" value="0" maxlength="3" size="2" style="font-size:x-large" size="15">
-<input type="button" id="xcursorright" value=">>" onclick="cursorToRight()"></td>
-<td><input type="number" id="ycursor" value="0" style="font-size:x-large" size="15"></td>
+<!--<input type="button" id="xcursorright" value=">>" onclick="cursorToRight()">--></td>
+<td>
+<!--<input type="button" id="ycursordown" value="\/" onclick="cursorToDown()"> -->
+
+<input type="number" id="ycursor" value="0" style="font-size:x-large" size="15"></td>
 </tr>
 
+<!-- Set Texts -->
 
 <tr><td>Text</td><td><input type="text" id="row1" value="Love" style="font-size:x-large" size="15"></td>
-
 <td><input type="checkbox" id="fontsize">large font</td></tr>
-
-<tr><td>Width</td><td><input type="text" id="width1" value="25" style="font-size:x-large" size="15"></td></tr>
+<tr><td>Width</td><td><input type="text" id="width1" value="10" style="font-size:x-large" size="15"></td></tr>
 
 <tr><td bgcolor="red">Red</td><td>
 <input type="range" min="0" max="255" onchange="updateColor()" id="Red1" oninput="red1OutId.value = this.value" value="230">
@@ -148,10 +200,31 @@ function updateMinBrightness() {
 </table>
 
 The colors can also be changed by moving the sliders. <br>
+Set the cursor location before "Send Text"<br>
 <input type="submit" value="Send Text" onclick="SendText()" style="font-size:x-large" size="15">
 <input type="submit" value="Send Colors" onclick="updateColorTwoRows()" style="font-size:x-large" size="15">
-<input type="submit" value="Clear All" onclick="ClearAll()" style="font-size:x-large" size="15"> <br>
+<input type="submit" value="Clear All" onclick="ClearAll()" style="font-size:x-large" size="15"> 
+<input type="submit" value="Undo" onclick="Undo()" style="font-size:x-large" size="15"><br>
 
+Copy and paste pixel text from Excel to generate a picture<br>
+<textarea rows="5" cols="40"
+<textarea type="text" rows="10" id="pixeltext">{
+   "pixels": [
+      {
+         "X": 0,
+         "Y": 0,
+         "R": 255,
+         "G": 255,
+         "B": 0
+      },
+      {
+         "X": 1,
+         "Y": 0,
+         "R": 255,
+         "G": 255,
+         "B": 0
+      }]}</textarea>
+<input type="submit" value="Send Pixels" onclick="SendPixel()" style="font-size:x-large" size="15">
 
 <h4>The light sensor runs every 10 seconds, the brightness setting changes is therefore observed within 10 seconds.</h4>
 <table>
@@ -162,8 +235,10 @@ The colors can also be changed by moving the sliders. <br>
 	<tr><td>Min Brightness (at night)</td>
 	<td><input type="range" min="10" max="200" onchange="updateMinBrightness()" id="minBrightnessId" oninput="minBrightOutId.value = this.value" value="50">
 	<output id="minBrightOutId">50</output></td></tr>
+	<!--
 	<tr><td><input type="button" onclick=sendRow1Pixel(1) value="Send Row 1 Pixels (from pixel.txt)" style="font-size:x-large"></td>
 	    <td><input type="button" onclick=sendRow1Pixel(2) value="Send Row 2 Pixels (from pixel.txt)" style="font-size:x-large"></td></tr>
+    -->
 </table>
 <div id="statusId"></div>
 <div id="debug"></div>

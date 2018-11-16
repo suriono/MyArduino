@@ -4,36 +4,35 @@
 #include <ArduinoJson.h>
  
 #define PIN_TOP_SIGN 2
+#define TILE_COLUMNS 1
+#define TILE_ROWS    5
+#define NEO_RED      9109504
 
  // Use Arduino Due because SRAM is high, 96KB, Mega is 8KB
 //Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, 6, 5, PIN_TOP_SIGN,
-Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, 1, 5, PIN_TOP_SIGN,
+Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(32, 8, TILE_COLUMNS, TILE_ROWS, PIN_TOP_SIGN,
   NEO_TILE_TOP   + NEO_TILE_LEFT   + NEO_TILE_ROWS   + NEO_TILE_ZIGZAG +
   NEO_MATRIX_TOP + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG,
   NEO_GRB + NEO_KHZ800);
 
 
 boolean isCursorEnable = false;
-uint16_t cursorNum;
+uint16_t cursorNum=0;
 uint32_t cursorColor_last;
-const uint32_t Neopixel_Red = matrix.Color(0, 0, 255);
 
 void setup() {
   Serial.begin(57600);
   Serial1.begin(57600);
   
   Neopixel_Initial("hello", 10);
-  cursorColor_last = matrix.getPixelColor(10);
-  Serial.println(cursorColor_last);
-  Serial.println(matrix.getPixelColor(10));
+  cursorColor_last = matrix.getPixelColor(0);
 }
 
 // =========================================================
 
 void loop() {
   
-  static unsigned long last_time_brigthness, last_cursorToggle;
-  static boolean cursorToggle;
+  static unsigned long last_time_brigthness;
   
   static String SignText;
   static boolean isSignText = false;
@@ -77,17 +76,8 @@ void loop() {
     }
     */
     //Neopixel_Adjust_Brightness();
-  } else if (isCursorEnable) {
-    if ( (millis()-last_cursorToggle)>500) {
-      last_cursorToggle = millis();
-      cursorToggle = !cursorToggle;
-      if (cursorToggle) {
-        matrix.setPixelColor(cursorNum, Neopixel_Red);
-      } else {
-        matrix.setPixelColor(cursorNum, 0);
-      }
-      matrix.show();
-    }
+  } else { // if (isCursorEnable) {
+    showCursor(isCursorEnable);
   }
   
 }
