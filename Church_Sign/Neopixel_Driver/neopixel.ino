@@ -65,8 +65,38 @@ void Neopixel_Process_Input_Serial(String inputstr) {
     String cmd = jsonob["command"];
     if (cmd.indexOf("clearall") > -1) matrix.fillScreen(0);
     matrix.show();
-  } else if (inputstr.indexOf("moveCursor") > 0) {
-    moveCursor(jsonob["moveCursor"]);
+  //} else if (inputstr.indexOf("moveCursor") > 0) {
+  //  moveCursor(jsonob["moveCursor"]);
+  } else if (inputstr.indexOf("pix") > 0) {
+    Serial.println(sizeof(jsonob["pix"]));
+    int nn = 0;
+    boolean isnotend = true;
+    uint16_t pixnum;
+    uint32_t pixcolor;
+    while (nn < 80 && isnotend) {
+      if (nn%2) {   // odd for color
+        pixcolor = jsonob["pix"][nn];
+        isnotend = (pixcolor > 0);
+        if (isnotend) {
+          matrix.setPixelColor(pixnum, pixcolor);
+        }
+        //Serial.println(pixcolor);
+      } else {
+        pixnum = jsonob["pix"][nn];
+        //Serial.print(pixnum); Serial.print(",");
+      }
+      
+      nn++;
+    }
+    matrix.show();
+    /*
+    for(uint16_t nn=0 ; nn<sizeof(jsonob["pix"])/2; nn++) {
+      if (nn%2) {
+        if (sizeof
+        uint32_t pixcolor = jsonob["pix"][nn];
+        Serial.println(pixcolor);
+      }
+    }*/
   } else if (inputstr.indexOf("cursor") > 0) {
     xcursor = jsonob["cursor"][0];
     ycursor = jsonob["cursor"][1];

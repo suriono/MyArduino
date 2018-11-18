@@ -1,9 +1,6 @@
 ﻿<!DOCTYPE HTML >
 <html><head>
-
-
 <script language="JavaScript">
-
 
 // ======================================================
 function PutHTML(htmltext) {
@@ -41,13 +38,12 @@ function SetCursor() {
 	PutHTML(params);
 }
 
+/*
 function cursorSlider() {
 	var pixelloc = document.getElementById("cursorsliderOutId").value;
 	var params = '"moveCursor":' + pixelloc;
 	PutHTML(params);
 }
-
-/*
 
 function cursorToRight() {
 	var params = '"command":"moveCursorRight"';
@@ -95,7 +91,6 @@ function Undo() {
 	PutHTML(params);
 }
 
-
 // ===================================================
 
 function updateColor() { // rgb: 1=red, 2=green, 3=blue
@@ -106,16 +101,23 @@ function updateColor() { // rgb: 1=red, 2=green, 3=blue
 	PutHTML(params);
 }
 
+/*
 function updateColorTwoRows() {
 	updateColor(1);
     updateColor(2);
 }
+*/
 
 // ===================================================
 
 function SendPixel() {
 	var params = document.getElementById("pixeltext").value;
-	PutHTML(params);
+	var jsonpix = JSON.parse(params);
+	for (nn=0 ; nn<jsonpix["pix"].length/2 ; nn++) {
+	    var newparam = '"pix":[' + jsonpix["pix"][nn*2] + ',' + jsonpix["pix"][nn*2+1] + ']'
+		PutHTML(newparam);
+	}
+	//PutHTML(params.replace(/\s/g,''));
 }
 
 // ===================================================
@@ -208,22 +210,13 @@ Set the cursor location before "Send Text"<br>
 
 Copy and paste pixel text from Excel to generate a picture<br>
 <textarea rows="5" cols="40"
-<textarea type="text" rows="10" id="pixeltext">{
-   "pixels": [
-      {
-         "X": 0,
-         "Y": 0,
-         "R": 255,
-         "G": 255,
-         "B": 0
-      },
-      {
-         "X": 1,
-         "Y": 0,
-         "R": 255,
-         "G": 255,
-         "B": 0
-      }]}</textarea>
+<textarea type="text" rows="10" id="pixeltext">
+   {"pix": [
+      10,
+       9109504,
+      20,
+         91095
+      ]}</textarea>
 <input type="submit" value="Send Pixels" onclick="SendPixel()" style="font-size:x-large" size="15">
 
 <h4>The light sensor runs every 10 seconds, the brightness setting changes is therefore observed within 10 seconds.</h4>
