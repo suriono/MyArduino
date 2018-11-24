@@ -18,12 +18,23 @@ void Neopixel_Initial(String initext, byte bright) {
   matrix.begin();
   matrix.setTextWrap(false); 
   matrix.setBrightness(bright);  // from 0 to 255
-  matrix.setTextColor(matrix.Color(200, 0, 0));
-  matrix.setTextSize(1);
+  matrix.setTextColor(matrix.Color(0, 200, 0));
+  matrix.setTextSize(2);
   matrix.fillScreen(0);  
- 
-  TextSign = initext;
-  Width = 9;
+  TextSign = "L";
+  Width = 0;
+  Neopixel_Display_Normal_Text();
+  xcursor = 8; ycursor = 8;
+  matrix.setTextColor(matrix.Color(200, 0, 0));
+  TextSign = "O";
+  Neopixel_Display_Normal_Text();
+  xcursor = 18; ycursor = 16;
+  matrix.setTextColor(matrix.Color(0, 0, 200));
+  TextSign = "V";
+  Neopixel_Display_Normal_Text();
+  xcursor = 24; ycursor = 24;
+  matrix.setTextColor(matrix.Color(150, 0, 150));
+  TextSign = "E";
   Neopixel_Display_Normal_Text();
 }
 
@@ -89,17 +100,13 @@ void Neopixel_Process_Input_Serial(String inputstr) {
       nn++;
     }
     matrix.show();
-    /*
-    for(uint16_t nn=0 ; nn<sizeof(jsonob["pix"])/2; nn++) {
-      if (nn%2) {
-        if (sizeof
-        uint32_t pixcolor = jsonob["pix"][nn];
-        Serial.println(pixcolor);
-      }
-    }*/
   } else if (inputstr.indexOf("cursor") > 0) {
     xcursor = jsonob["cursor"][0];
     ycursor = jsonob["cursor"][1];
+  } else if (inputstr.indexOf("Bright") > 0) {
+    if (inputstr.indexOf("min") > 0) MinBrightness = jsonob["minBright"];
+    
+    if (inputstr.indexOf("max") > 0) MaxBrightness = jsonob["maxBright"];
   }
 }
 
@@ -152,18 +159,21 @@ void Neopixel_Colorful_Text(String inputstr1, String inputstr2) {
   }
   matrix2.show();
 }
-
+*/
 
 // ================== Adjust brightness ==================
 
 void Neopixel_Adjust_Brightness() {
-    
-    int brightness_sensor = map(analogRead(A0), 0, 1023, 255, MinBrightness);
-    Serial.print("Light sensor (40-255) : "); Serial.println(brightness_sensor);
+    //Serial.print("max"); Serial.println(MaxBrightness);
+    int brightness_sensor = map(analogRead(A0), 0, 1023, MaxBrightness, MinBrightness);
+    //Serial.print("Light sensor (0-255) : "); Serial.println(brightness_sensor);
 
+    matrix.setBrightness(brightness_sensor);
+    matrix.show();
     // get minimum total
+    /*
     int sum1 = 0;
-    int sum2 = 0;
+    //int sum2 = 0;
     for (byte nn=0; nn<3 ; nn++) {
       sum1 += Colors1[nn]; // * brightness_sensor / 255 / 3;
       sum2 += Colors2[nn]; // * brightness_sensor / 255 / 3;
@@ -194,6 +204,5 @@ void Neopixel_Adjust_Brightness() {
       matrix1.show(); matrix2.show();
       Serial.print("Pixel brightness: "); Serial.println(pixel_bright);
     }
-    
+    */
 }
-*/

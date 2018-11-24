@@ -122,9 +122,9 @@ function SendPixel() {
 
 // ===================================================
 
-function updateBrightness() {
+function updateMaxBrightness() {
 	var brigh = document.getElementById("BrightnessId").value;
-	var params = '"brightness":' + brigh;
+	var params = '"maxBright":' + brigh;
 	PutHTML(params);
 }
 
@@ -224,7 +224,7 @@ Copy and paste pixel text from Excel to generate a picture<br>
 <h4>The light sensor runs every 10 seconds, the brightness setting changes is therefore observed within 10 seconds.</h4>
 <table>
 	<tr><td>Max Brightness (at daylight)</td>
-	<td><input type="range" min="100" max="255" onchange="updateBrightness()" id="BrightnessId" oninput="BrightOutId.value = this.value" value="230">
+	<td><input type="range" min="100" max="255" onchange="updateMaxBrightness()" id="BrightnessId" oninput="BrightOutId.value = this.value" value="230">
 	<output id="BrightOutId">230</output></td></tr>
 	
 	<tr><td>Min Brightness (at night)</td>
