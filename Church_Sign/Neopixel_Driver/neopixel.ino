@@ -11,32 +11,7 @@ byte MaxBrightness = 230;
 
 //byte TextMode = 0;       // 0=normal text,1=pixel row 1,2=pixel row 2,3=pixel row 1,2
 
-// ===================================================
 
-void Neopixel_Initial(String initext, byte bright) {
-  //delay(5000);   // so no big surge of current at the beginning
-  matrix.begin();
-  matrix.setTextWrap(false); 
-  matrix.setBrightness(bright);  // from 0 to 255
-  matrix.setTextColor(matrix.Color(0, 200, 0));
-  matrix.setTextSize(2);
-  matrix.fillScreen(0);  
-  TextSign = "L";
-  Width = 0;
-  Neopixel_Display_Normal_Text();
-  xcursor = 8; ycursor = 8;
-  matrix.setTextColor(matrix.Color(200, 0, 0));
-  TextSign = "O";
-  Neopixel_Display_Normal_Text();
-  xcursor = 18; ycursor = 16;
-  matrix.setTextColor(matrix.Color(0, 0, 200));
-  TextSign = "V";
-  Neopixel_Display_Normal_Text();
-  xcursor = 24; ycursor = 24;
-  matrix.setTextColor(matrix.Color(150, 0, 150));
-  TextSign = "E";
-  Neopixel_Display_Normal_Text();
-}
 
 // ==============================================
 
@@ -205,4 +180,54 @@ void Neopixel_Adjust_Brightness() {
       Serial.print("Pixel brightness: "); Serial.println(pixel_bright);
     }
     */
+}
+
+// ===================================================
+
+void Neopixel_Initial() {
+  //delay(5000);   // so no big surge of current at the beginning
+  matrix.begin();
+  matrix.setTextWrap(false); 
+  matrix.setBrightness(200);  // from 0 to 255
+  
+  matrix.setTextSize(2);
+  matrix.fillScreen(0); 
+
+  matrix.setTextColor(matrix.Color(0, 255, 0));
+  ycursor = 13;
+  TextSign = "OPEN";
+  Neopixel_Display_Normal_Text();
+
+  matrix.setTextColor(matrix.Color(255, 0, 0));
+  xcursor =50; ycursor = 0;
+  TextSign = "Heart";
+  Neopixel_Display_Normal_Text();
+
+  matrix.setTextColor(matrix.Color(29, 219, 109));
+  xcursor =85; ycursor = 26;
+  TextSign = "Minds";
+  Neopixel_Display_Normal_Text();
+
+  matrix.setTextColor(matrix.Color(237, 23, 100));
+  xcursor =146; ycursor = 8;
+  TextSign = "Door";
+  Neopixel_Display_Normal_Text();
+
+  /*
+  //TextSign = "L";
+  //Width = 0;
+  Neopixel_Display_Normal_Text();
+  xcursor = 8; ycursor = 8;
+  matrix.setTextColor(matrix.Color(200, 0, 0));
+  TextSign = "O";
+  Neopixel_Display_Normal_Text();
+  xcursor = 18; ycursor = 16;
+  matrix.setTextColor(matrix.Color(0, 0, 200));
+  TextSign = "V";
+  Neopixel_Display_Normal_Text();
+  xcursor = 24; ycursor = 24;
+  matrix.setTextColor(matrix.Color(150, 0, 150));
+  TextSign = "E";
+  Neopixel_Display_Normal_Text();
+  */
 }

@@ -4,7 +4,7 @@
 #include <ArduinoJson.h>
  
 #define PIN_TOP_SIGN 2
-#define TILE_COLUMNS 1
+#define TILE_COLUMNS 6
 #define TILE_ROWS    5
 #define NEO_RED      9109504
 
@@ -22,7 +22,7 @@ void setup() {
   Serial.begin(57600);
   Serial1.begin(57600);
   
-  Neopixel_Initial("love", 10);
+  Neopixel_Initial();
   cursorColor_last = matrix.getPixelColor(0);
 }
 
