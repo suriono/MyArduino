@@ -1,11 +1,13 @@
 #include <FastLED.h>
-#define NUM_LEDS 50
+#include <ESP8266WiFi.h>
+#define NUM_LEDS 7680
 #define DATA_PIN 10
 #define NUM_LED_ADJ 2    // number of adjacent LEDs
 
 CRGB leds[NUM_LEDS];
 CRGB colors[5] = {CRGB::Blue, CRGB::Red, CRGB::Green, CRGB(0,255,255),CRGB(45,205,0)}; // GRB
 int pp;
+
 
 void setup() {
   Serial.begin(57600);

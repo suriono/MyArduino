@@ -5,8 +5,8 @@ String TextSign;
 byte Colors[3] = {200,0,0};                       // = [200, 0, 0];
 //byte Colors2[3] = {100,0,200};                      //= [150, 0, 200];
 byte Width = 0;                     // widht of each letter
-byte MinBrightness = 50;                // min brightness so it does not go dark at night
-byte MaxBrightness = 230; 
+byte MinBrightness = 100;                // min brightness so it does not go dark at night
+byte MaxBrightness = 220; 
 
 
 //byte TextMode = 0;       // 0=normal text,1=pixel row 1,2=pixel row 2,3=pixel row 1,2
@@ -100,41 +100,6 @@ void Neopixel_Display_Normal_Text() {
   matrix.show();
 }
 
-/*
-// =============================================
-
-void Neopixel_Set_Colors(uint16_t color1, uint16_t color2) {
-  matrix1.setTextColor(color1);
-  matrix2.setTextColor(color2);
-}
-
-// ===============================================
-
-void Neopixel_Colorful_Text(String inputstr1, String inputstr2) {
-  Text1 = inputstr1; Text2 = inputstr2;
-  uint16_t colors[] = {
-  matrix1.Color(155, 0, 0), matrix1.Color(0, 155, 0), matrix1.Color(155, 155, 0),matrix1.Color(0, 0, 155), matrix1.Color(155, 0, 155), matrix1.Color(0, 155, 155), matrix1.Color(155, 155, 155)};
-  matrix1.fillScreen(0);  matrix2.fillScreen(0);// blank the screen
-  byte color_num = 0;
-  for (byte nn=0; nn<inputstr1.length(); nn++) {
-    if (color_num > 6) color_num = 0;
-    matrix1.setTextColor(colors[color_num]);
-    matrix1.setCursor(nn*8, 0);
-    matrix1.print(Text1.charAt(nn));
-    color_num++;
-  }
-  matrix1.show();
-  color_num = 0;
-  for (byte nn=0; nn<inputstr2.length(); nn++) {
-    if (color_num > 6) color_num = 0;
-    matrix2.setTextColor(colors[color_num]);
-    matrix2.setCursor(nn*8, 0);
-    matrix2.print(Text2.charAt(nn));
-    color_num++;
-  }
-  matrix2.show();
-}
-*/
 
 // ================== Adjust brightness ==================
 
@@ -145,41 +110,6 @@ void Neopixel_Adjust_Brightness() {
 
     matrix.setBrightness(brightness_sensor);
     matrix.show();
-    // get minimum total
-    /*
-    int sum1 = 0;
-    //int sum2 = 0;
-    for (byte nn=0; nn<3 ; nn++) {
-      sum1 += Colors1[nn]; // * brightness_sensor / 255 / 3;
-      sum2 += Colors2[nn]; // * brightness_sensor / 255 / 3;
-    }
-
-    int tmpcol1[3], tmpcol2[3];
-    
-    for (byte nn=0; nn<3 ; nn++) {
-      tmpcol1[nn] = map(Colors1[nn],0,255, 0, brightness_sensor);
-      tmpcol2[nn] = map(Colors2[nn],0,255, 0, brightness_sensor);
-      //Serial.print(tmpcol1[nn]); Serial.print(","); Serial.println(tmpcol2[nn]);
-    }
-
-    
-    
-    
-    Color1 = matrix1.Color(tmpcol1[0], tmpcol1[1], tmpcol1[2]);
-    Color2 = matrix2.Color(tmpcol2[0], tmpcol2[1], tmpcol2[2]);
-
-    if (TextMode == 0) {
-      matrix1.setBrightness(MaxBrightness);  // from 0 to 255
-      matrix2.setBrightness(MaxBrightness);
-      Neopixel_Display_Normal_Text();
-    } else {
-      byte pixel_bright = map(brightness_sensor, 0, 255, 0, MaxBrightness);
-      matrix1.setBrightness(pixel_bright);  // from 0 to 255
-      matrix2.setBrightness(pixel_bright);
-      matrix1.show(); matrix2.show();
-      Serial.print("Pixel brightness: "); Serial.println(pixel_bright);
-    }
-    */
 }
 
 // ===================================================
@@ -192,7 +122,15 @@ void Neopixel_Initial() {
   
   matrix.setTextSize(2);
   matrix.fillScreen(0); 
+/*
+  matrix.setTextSize(1);
+  matrix.setBrightness(20);  // from 0 to 255
+  matrix.setTextColor(matrix.Color(0, 255, 0));
+  xcursor = 0; ycursor = 0;
+  TextSign = "River";
+  Neopixel_Display_Normal_Text();
 
+*/
   matrix.setTextColor(matrix.Color(0, 255, 0));
   ycursor = 13;
   TextSign = "OPEN";
@@ -203,8 +141,8 @@ void Neopixel_Initial() {
   TextSign = "Heart";
   Neopixel_Display_Normal_Text();
 
-  matrix.setTextColor(matrix.Color(29, 219, 109));
-  xcursor =85; ycursor = 26;
+  matrix.setTextColor(matrix.Color(29, 219, 159));
+  xcursor =85; ycursor = 16;
   TextSign = "Minds";
   Neopixel_Display_Normal_Text();
 
@@ -213,21 +151,9 @@ void Neopixel_Initial() {
   TextSign = "Door";
   Neopixel_Display_Normal_Text();
 
-  /*
-  //TextSign = "L";
-  //Width = 0;
-  Neopixel_Display_Normal_Text();
-  xcursor = 8; ycursor = 8;
-  matrix.setTextColor(matrix.Color(200, 0, 0));
-  TextSign = "O";
-  Neopixel_Display_Normal_Text();
-  xcursor = 18; ycursor = 16;
-  matrix.setTextColor(matrix.Color(0, 0, 200));
-  TextSign = "V";
-  Neopixel_Display_Normal_Text();
-  xcursor = 24; ycursor = 24;
-  matrix.setTextColor(matrix.Color(150, 0, 150));
-  TextSign = "E";
-  Neopixel_Display_Normal_Text();
-  */
+  matrix.setTextSize(1);
+  matrix.setTextColor(matrix.Color(255, 0, 0));
+  xcursor =0; ycursor = 32;
+  TextSign = "www.RiverHillsUMC.org";
+  Neopixel_Display_Normal_Text(); 
 }

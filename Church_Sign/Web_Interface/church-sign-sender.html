@@ -6,6 +6,8 @@
 function PutHTML(htmltext) {
 	var http = new XMLHttpRequest();
 	var url = 'http://192.168.4.100';
+	//var url = 'http://192.168.254.151';
+
 	
 	document.getElementById("debug").innerHTML = htmltext;
 	
@@ -116,6 +118,11 @@ function SendPixel() {
 	for (nn=0 ; nn<jsonpix["pix"].length/2 ; nn++) {
 	    var newparam = '"pix":[' + jsonpix["pix"][nn*2] + ',' + jsonpix["pix"][nn*2+1] + ']'
 		PutHTML(newparam);
+		
+		var ms = new Date().getTime();
+		console.log(nn);
+		while (new Date().getTime() < (ms+1000)){}
+
 	}
 	//PutHTML(params.replace(/\s/g,''));
 }
@@ -217,7 +224,10 @@ Copy and paste pixel text from Excel to generate a picture<br>
       10,
        9109504,
       20,
-         91095
+         91095,
+         30,
+         678
+
       ]}</textarea>
 <input type="submit" value="Send Pixels" onclick="SendPixel()" style="font-size:x-large" size="15">
 

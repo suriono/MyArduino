@@ -57,20 +57,7 @@ void loop() {
     last_time_brigthness = millis(); // so brightness doesn't update immediately
   } else if ( (millis() - last_time_brigthness) > 10000) { // check brightness  
     last_time_brigthness = millis();
-    //Serial.print("Brightness: "); Serial.println(analogRead(A0));
-    /*
-    int np=0;
-    for (int row=0 ; row<8 ; row++) {
-      for (int col=0 ; col<32 ; col++) {
-        Serial.print(row); Serial.print(","); Serial.print(col);Serial.print(",");
-        Serial.println(matrix.getPixelColor(np));
-        np++;
-      }
-    }
-    */
     Neopixel_Adjust_Brightness();
-  //} else { // if (isCursorEnable) {
-   // showCursor(isCursorEnable);
   }
   
 }
