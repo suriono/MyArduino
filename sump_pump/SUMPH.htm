@@ -1,0 +1,30 @@
+<html>
+<style>
+h3 {
+color:blue;
+}
+</style>
+<title>Usman's Sump Pump Water Level Monitoring system</title>
+<h3> The plot above was a real-time data taken from an ultra-sonic sensor to measure the sump water level in my basement.</h3>
+
+Up-to-date implementations:
+<li> Measure water depth using an ultra-sonic sensor and Arduino UNO microcontroller.
+<li> Write the data into a file in the SD card memory of the ethernet card.
+<li> Upload the file using FTP to my personal frontier.com website. 
+I guess I am too cheap to pay for a subscription to a web hosting with PHP. 
+Having PHP website would've been easier to implement.
+<li> Use Java-Script to plot the data (plot above).
+<li> Send the data to another Arduino microcontroller wirelessly via Xbee. 
+The 2nd microcontroller will be placed upstairs.
+<li> Both controllers, in the sump and upstairs, will be powered by batteries
+just in case of power outage.
+<br>
+<hr><br>
+<h3>The ultrasonic sensor in the sump</h3>
+<img src="sensor_in_sump.jpg" width=600 height=400><hr><br>
+<h3>During development of the wireless transmitter and the receiver.</h3>
+<img src="wireless_units.jpg" width=600 height=400><hr><br>
+<h3>The transmitter unit, it sends wirelessly the water depth from the ultrasonic sensor to the receiver unit. It also updates the plot above on real-time via the internet.</h3>
+<img src="transmitter_unit.JPG" width=600 height=400><hr><br>
+</p>
+</html>
