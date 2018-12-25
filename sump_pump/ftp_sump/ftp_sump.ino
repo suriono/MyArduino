@@ -16,6 +16,7 @@ void setup() {
   
   if (!SD.begin(4)) {
     Serial.println("SD card initialization failed!");
+    return;
   }
   
   byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x98, 0xF3 }; // MAC address
