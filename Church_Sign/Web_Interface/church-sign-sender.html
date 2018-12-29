@@ -89,6 +89,12 @@ function ClearAll() {
 
 // ===================================================
 function Undo() {
+	document.getElementById("Red1").value = 0;
+	document.getElementById("Green1").value = 0;
+	document.getElementById("Blue1").value = 0;
+	document.getElementById("red1OutId").value = 0;
+	document.getElementById("green1OutId").value = 0;
+	document.getElementById("blue1OutId").value = 0;
 	var params = '"color":[0,0,0]';
 	PutHTML(params);
 }
