@@ -1,0 +1,30 @@
+Uno to Uno ISP (In System Programming)
+10 -> RESET
+11 -> 11
+12 -> 12
+13 -> 13
+GND -> GND
+5V -> 5V
+
+Upload the ArduinoISP to the programmer Uno
+
+To upload to the target UNO using IDE:
+	Set the Tool->Programmer to Arduino as ISP
+	Sketch -> Upload Using Programmer.
+
+To upload to the target UNO using command line avrdude:
+	On the target UNO IDE:
+		Sketch -> Export compiled Binary
+			The hex file is in the same folder
+	Go to DOS command line:
+		Folder: C:\Program Files (x86)\Arduino\hardware\tools\avr\bin
+		Run: 
+			avrdude -c avrisp -p  m328p -P COM8 -C ../etc/avrdude.conf -C ../etc/avrdude.conf -Uflash:w:C:\Users\UZMN\Documents\Arduino\BlinkWithoutDelay\BlinkWithoutDelay\uno1.hex:i -b 19200
+		Syntax: avrdude -c avrisp -p  <device> -P COM8 -C ../etc/avrdude.conf -Uflash:w:<hex file path>.hex:i -b 19200
+
+The file name could be with <file>:a for automatic format detection.
+
+<device>:
+	Uno: m328p
+	Mega: m2560
+

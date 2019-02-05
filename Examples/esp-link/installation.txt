@@ -1,0 +1,22 @@
+Install esptool.py:
+	python esptool.py install
+
+Download *tar.tgz firmware to be flashed: 
+	https://github.com/jeelabs/esp-link/releases
+
+Go to the firmware folder to flash Nodemcu:
+	https://github.com/jeelabs/esp-link/blob/master/FLASHING.md
+
+	python "<esptool folder>/esptool.py" --port COM7 --baud 115200 write_flash --flash_freq 80m --flash_mode qio --flash_size 32m 0x0000 boot_v1.6.bin 0x1000 user1.bin 0x3FC000 esp_init_data_default.bin 0x3FE000 blank.bin
+
+After flashing Nodemcu run as an Access Point, look for ESP_*** SSID
+
+Go to http://192.168.4.1/wifi/wifiAp.html
+	Optionally connect to local wifi
+
+How to flash another Arduino:
+	https://github.com/jeelabs/esp-link/blob/master/FLASHING.md
+	Connect the ESP-12 for example simple RX->TX, TX-RX, D3->Reset
+
+Use DOS cmd, go to C:\Program Files (x86)\Arduino\hardware\tools\avr\bin\
+	
