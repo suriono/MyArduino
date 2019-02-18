@@ -46,13 +46,16 @@ void Neopixel_Process_Input_Serial(String inputstr) {
     Neopixel_Display_Normal_Text();
     matrix.setTextColor(matrix.Color(Colors[0], Colors[1], Colors[2]));
     Neopixel_Display_Normal_Text();
+
+  } else if (inputstr.indexOf("setBright") > 0) {
+    byte tmpbright = jsonob["setBright"];
+    matrix.setBrightness(constrain(tmpbright, 150,255));  // from 0 to 255
     
   } else if (inputstr.indexOf("command") > 0) {
     String cmd = jsonob["command"];
     if (cmd.indexOf("clearall") > -1) matrix.fillScreen(0);
     matrix.show();
-  //} else if (inputstr.indexOf("moveCursor") > 0) {
-  //  moveCursor(jsonob["moveCursor"]);
+  
   } else if (inputstr.indexOf("pix") > 0) {
     Serial.println(sizeof(jsonob["pix"]));
     int nn = 0;

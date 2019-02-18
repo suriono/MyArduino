@@ -135,6 +135,12 @@ function SendPixel() {
 
 // ===================================================
 
+function setBrightness() {
+	var brigh = document.getElementById("setBrightnessId").value;
+	var params = '"setBright":' + brigh;
+	PutHTML(params);
+}
+
 function updateMaxBrightness() {
 	var brigh = document.getElementById("BrightnessId").value;
 	var params = '"maxBright":' + brigh;
@@ -239,18 +245,20 @@ Copy and paste pixel text from Excel to generate a picture<br>
 
 <h4>The light sensor runs every 10 seconds, the brightness setting changes is therefore observed within 10 seconds.</h4>
 <table>
-	<tr><td>Max Brightness (at daylight)</td>
+	<tr><td>Set Brightness</td>
+	<td><input type="range" min="150" max="255" onchange="setBrightness()" id="setBrightnessId" oninput="setBrightId.value = this.value" value="200">
+	<output id="setBrightId">200</output></td>
+	</tr>
+	<!---
+	<tr><td>(Disabled) Max Brightness (at daylight)</td>
 	<td><input type="range" min="100" max="255" onchange="updateMaxBrightness()" id="BrightnessId" oninput="BrightOutId.value = this.value" value="230">
 	<output id="BrightOutId">230</output></td></tr>
 	
-	<tr><td>Min Brightness (at night)</td>
+	<tr><td>(Disabled) Min Brightness (at night)</td>
 	<td><input type="range" min="10" max="200" onchange="updateMinBrightness()" id="minBrightnessId" oninput="minBrightOutId.value = this.value" value="50">
 	<output id="minBrightOutId">50</output></td></tr>
-	<!--
-	<tr><td><input type="button" onclick=sendRow1Pixel(1) value="Send Row 1 Pixels (from pixel.txt)" style="font-size:x-large"></td>
-	    <td><input type="button" onclick=sendRow1Pixel(2) value="Send Row 2 Pixels (from pixel.txt)" style="font-size:x-large"></td></tr>
-    -->
-</table>
+	--->
+	</table>
 <div id="statusId"></div>
 <div id="debug"></div>
 

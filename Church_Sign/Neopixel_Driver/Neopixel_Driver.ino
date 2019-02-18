@@ -30,7 +30,7 @@ void setup() {
 
 void loop() {
   
-  static unsigned long last_time_brigthness;
+  //static unsigned long last_time_brightness;
   
   static String SignText;
   static boolean isSignText = false;
@@ -54,10 +54,10 @@ void loop() {
         SignText = "";
       }
     }
-    last_time_brigthness = millis(); // so brightness doesn't update immediately
-  } else if ( (millis() - last_time_brigthness) > 10000) { // check brightness  
-    last_time_brigthness = millis();
-    Neopixel_Adjust_Brightness();
+    //last_time_brightness = millis(); // so brightness doesn't update immediately
+  //} else if ( (millis() - last_time_brightness) > 10000) { // check brightness  
+  //  last_time_brightness = millis();
+    // Neopixel_Adjust_Brightness();
   }
   
 }
