@@ -72,8 +72,9 @@ function SendText() {
 	var wid1 = document.getElementById("width1").value
 	//var wid2 = document.getElementById("width2").value
 	
-	var fontsize = 1;
-	if (document.getElementById("fontsize").checked) fontsize = 2;
+	var fontsize = 2;
+	fontsize = document.getElementById("fontsize2").value
+	//if (document.getElementById("fontsize").checked) fontsize = 2;
 
 	//var params = '"text1":"' + row1text + '","text2":"' + row2text + '","width1":' + wid1 + ',"width2":' + wid2;
 	var params = '"text":"' + row1text + '","width":' + wid1 + ',"fontsize":' + fontsize;
@@ -200,9 +201,11 @@ document.getElementById("cursorsliderOutId").value = 0;
 <!-- Set Texts -->
 
 <tr><td>Text</td><td><input type="text" id="row1" value="Love" style="font-size:x-large" size="15"></td>
-<td><input type="checkbox" id="fontsize">large font</td></tr>
+<td>Size<input type="text" id="fontsize2" value="2" style="font-size:x-large" size="15"></td>
+<!--<td><input type="checkbox" id="fontsize">large font</td></tr>-->
 <tr><td>Width</td><td><input type="text" id="width1" value="0" style="font-size:x-large" size="15"></td>
 <td>Set "0" for default width</td>
+
 </tr>
 
 <tr><td bgcolor="red">Red</td><td>

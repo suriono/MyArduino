@@ -3,8 +3,8 @@
 #include <Adafruit_NeoPixel.h>
  
 #define PIN_TOP_SIGN 2
-#define TILE_COLUMNS 2
-#define TILE_ROWS    1
+#define TILE_COLUMNS 6
+#define TILE_ROWS    5
 #define NEO_RED      9109504
 
  // Use Arduino Due because SRAM is high, 96KB, Mega is 8KB
@@ -17,28 +17,38 @@ void setup() {
   Serial.begin(57600);
   matrix.begin();
   matrix.setTextWrap(false); 
-  matrix.setBrightness(50);  // from 0 to 255
-  matrix.setTextSize(1);
+  matrix.setBrightness(10);  // from 0 to 255
+  matrix.setTextSize(5);
   matrix.fillScreen(0); 
-  matrix.setTextColor(matrix.Color(0, 155, 0));
+  matrix.setTextColor(matrix.Color(0, 0, 200));
   matrix.show();
 }
 
 int x = 0;
+int nbright = 1;
+int color_cycle = 0;
+int bright_inc = 10;
 
 void loop() {
   matrix.fillScreen(0);
-  matrix.setCursor(x, 0);
+  matrix.setCursor(x, 3);
   matrix.print(F("Welcome to"));
   //matrix.show();
   //matrix.setCursor(x, 20);
   //matrix.print(F("River Hills"));
+  matrix.setBrightness(nbright);
+  nbright = nbright % 50 + bright_inc;
 
-  if(++x > 60) { // was 30 for 10 character
+  if (nbright < bright_inc*2) {
+    color_cycle = color_cycle%3 + 1;
+    matrix.setTextColor(matrix.Color(150*(color_cycle==3), 150*(color_cycle==2), 150*(color_cycle==1)));
+  }
+
+  if(++x > 150) { // was 30 for 10 character
     x = 0;
   }
   
   matrix.show();
-  delay(10);
+  delay(100);
 
 }
