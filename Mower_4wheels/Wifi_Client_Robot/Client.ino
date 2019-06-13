@@ -1,4 +1,56 @@
+
+// ===================================================
+
+boolean incoming_client() {
+  char inc;
+  static String inpstr;
+  static unsigned long lastimecurl;
+  static boolean isValidCommand = false;
+  
+  if ( (millis() - lastimecurl) > 2000) { // clear input string if too long
+    inpstr = "";
+  }
+  
+  client = server.available();
+  if (client) {
+    int count = 0;
+    
+    while (client.connected() && count < 50000) {
+      while (client.available()) {
+        count++;
+        inc = client.read();  // read the remaining bytes
+        if (inc == '{') {
+          inpstr = inc;
+          lastimecurl = millis();
+        } else if (inc == '}') {
+          inpstr += inc;
+          isValidCommand = true;
+          //incoming_str = inpstr;
+          deserializeJson(jsonparse, inpstr);
+          break;
+        } else {
+          inpstr += inc;
+        }
+      }
+      delayMicroseconds(10);  // if it goes too fast
+    }
+    client.stop();
+    
+    #ifdef DEBUG
+      //Serial.println(count);
+     // Serial.print("robot input: "); Serial.println(inpstr);
+      
+    #endif
+    return isValidCommand;
+  }
+}
+
+// ===================================================
+
+
 // the following are not used at this point
+
+
 
 void write_client() {
   // send a standard http response header
@@ -20,7 +72,7 @@ void write_client() {
 
 // ===================================================
 
-void incoming_client() {
+void incoming_client_old() {
     char readchar;
     String readstr, datastr;
     int count = 0;

@@ -17,6 +17,8 @@ StaticJsonDocument<200> jsonparse;
 unsigned long last_mower_toggle, last_motor_run;
 boolean Mower_Toggle = false;
 
+String incoming_str;
+
 #define DEBUG
 
 void setup() {
@@ -58,50 +60,26 @@ void setup() {
 // ======================= Loop ==============================
 
 void loop() {
-  char inc;
-  static String inpstr;
-  static unsigned long lastimecurl, last_toggle;
-  static boolean isValidCommand = false;
-
-  if ( (millis() - lastimecurl) > 2000) { // clear input string if too long
-    inpstr = "";
-  }
+  static boolean last_toggle;
+  static int last_mag;
+  float SMOOTHF = 0.4;
   
-  client = server.available();
-  if (client) {
-    int count = 0;
-    isValidCommand = false;
-    while (client.connected() && count < 50000) {
-      count++;
-      inc = client.read();  // read the remaining bytes
-      if (inc == '{') {
-        inpstr = inc;
-        lastimecurl = millis();
-      } else if (inc == '}') {
-        inpstr += inc;
-        isValidCommand = true;
-        break;
-      } else {
-        inpstr += inc;
-      }
-    }
-    //Serial.println(count);
-    client.stop();
-    
-    if (isValidCommand) {
-      deserializeJson(jsonparse, inpstr);
+  if ( incoming_client()) {
+      
       int mag  = jsonparse["mag"];
       int angle = jsonparse["angle"];
       int enable_mower = jsonparse["button"];
 
+      last_mag = int(mag*SMOOTHF + (1.0-SMOOTHF)*last_mag);
+
       #ifdef DEBUG
-        //Serial.print("robot input: "); Serial.println(inpstr);
-        //Serial.print("mag: ");Serial.print(mag);
+        //Serial.print("mag: ");Serial.print(last_mag);
         //Serial.print(" , angle: ");Serial.println(angle);
       #endif
+      
       unsigned long tmp = millis()-last_motor_run;
       int new_delay = constrain(150 - tmp, 5, 100);
-      motorRun(mag, angle, new_delay);
+      motorRun(last_mag, angle, 1); // new_delay);
 
       if (enable_mower==0 && (millis() - last_toggle) > 500) {
         Mower_Toggle = !Mower_Toggle;
@@ -114,10 +92,8 @@ void loop() {
           pinMode(MOWER_PIN, INPUT_PULLUP);     // D2 = 4
         }
       }
-    }  
+ 
   } else if ( (millis()-last_motor_run)>200 ) {
     motorStop();
-  //} else {
-    //delay(1);
   }
 }
