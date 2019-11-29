@@ -32,7 +32,7 @@ void motorRun(int pow_mot, int degree, unsigned long delaytime) {
 void motorStop() {
   ST.stop();
   #ifdef DEBUG
-    Serial.println("STOP");
+  //  Serial.println("STOP");
   #endif
   last_motor_run = millis();
 }

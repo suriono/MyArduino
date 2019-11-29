@@ -2,12 +2,13 @@
 #include <WiFiClient.h>
 #include <ArduinoJson.h>
 #include <SabertoothSimplified.h>
+#include "MPU9250.h"
 
-
+MPU9250 mpu;
 WiFiServer server(8000);
 WiFiClient client;
 SabertoothSimplified ST(Serial1); // Use SWSerial as the serial port.
-#define  MOWER_PIN  4             // D2 = 4
+#define  MOWER_PIN  16             // D0 = 16
 
 char* get_SSID();
 String get_WiFi_Password();
@@ -22,26 +23,26 @@ String incoming_str;
 #define DEBUG
 
 void setup() {
-  Serial.begin(57600);
+  Wire.begin();
+  Serial.begin(115200);
   Serial1.begin(38400);                 // D4
   motorStop();
- // pinMode(MOWER_PIN, OUTPUT);     // D2 = 4
   pinMode(MOWER_PIN, INPUT_PULLUP);
-  //SerialSoft.begin(57600);
-  //SerialSoft.setTimeout(10);
-  //while(Serial.available()) Serial.read();  // read leftover data
-  //digitalWrite(MOWER_PIN, HIGH);
+  while(Serial.available()) Serial.read();  // read leftover data
 
   //ESP.eraseConfig(); delay(1000); // needed if it keeps old setup
   Serial.print("Auto Connect: "); Serial.println(WiFi.getAutoConnect());
   WiFi.enableAP(false);
   WiFi.mode(WIFI_STA);
+  /*
   IPAddress ip(192, 168, 4, 100); 
   IPAddress gateway(192, 168, 4, 1); // set gateway to match your network
   IPAddress subnet(255, 255, 255, 0); // set subnet mask to match your
   WiFi.config(ip, gateway, subnet);
   WiFi.setOutputPower(5.0);  // 0.5 to 20 Output WiFi power, it's near AP
   WiFi.begin("Robot_AP", "hellorobot");
+  */
+  WiFi.begin("philip", "fern5077266123");
   Serial.print("connecting");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
@@ -53,6 +54,7 @@ void setup() {
     
   // Start the server
   server.begin();
+  mpu.setup();
   delay(2000);
   Serial.println("Server started");
 }
@@ -63,6 +65,7 @@ void loop() {
   static boolean last_toggle;
   static int last_mag;
   float SMOOTHF = 0.4;
+  static unsigned long prev_mpu = millis();
   
   if ( incoming_client()) {
       
@@ -95,5 +98,13 @@ void loop() {
  
   } else if ( (millis()-last_motor_run)>200 ) {
     motorStop();
+  } else if ( (millis()-prev_mpu) > 500){
+     mpu.update();
+     // mpu.print();
+     Serial.print("Yaw: "); Serial.print(mpu.getYaw());
+     Serial.print(", Magnet X: "); Serial.print(mpu.getMag(0));
+     Serial.print(", Magnet Y: "); Serial.print(mpu.getMag(1));
+     Serial.println();
+     prev_mpu = millis();
   }
 }
