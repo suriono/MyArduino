@@ -1,0 +1,131 @@
+﻿<!DOCTYPE HTML >
+<html><head>
+<script language="JavaScript">
+
+// ======================================================
+function PutHTML(htmltext) {
+	var http = new XMLHttpRequest();
+	var url = 'http://192.168.254.42';
+
+	document.getElementById("debug").innerHTML = htmltext;
+	
+	var params = '<sign>{' + htmltext + '}<endsign>';
+	http.open('POST', url, true);
+
+	//Send the proper header information along with the request
+	http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    var isHTML_fail = true;
+
+	http.onreadystatechange = function() {  //Call a function when the state changes.
+	    if(http.readyState == 4 && http.status == 200) {
+	    	document.getElementById("debug").innerHTM += http.responseText;
+	        //alert(http.responseText);
+	        isHTML_fail = false;
+	        
+	    }
+	}
+	http.send(params);
+    //document.getElementById("debug").innerHTML = params;
+    return isHTML_fail;
+}
+
+// ======================================================
+function SendText() {
+   	var delayvar  = document.getElementById("idDelay").value
+	var colorvar  = document.getElementById("idColor").value
+	var modevar   = document.getElementById("idMode").value;
+	
+	var adjacent = 2;
+	adjacent = document.getElementById("idAdjacent").value
+	
+	var params = '"d":' + delayvar + ',"c":' + colorvar + 
+			',"a":' + adjacent + ',"m":' + modevar;
+	//var params = '"d":' + delayvar + ',"a":' + adjacent + ',"m":' + modevar;
+	PutHTML(params);
+	//params = "c":' + colorvar 
+	//PutHTML(params);
+	
+}
+
+function SendColor() {
+	var colorvar  = document.getElementById("idColor").value
+	var params = '"c":' + colorvar 
+	PutHTML(params);
+}
+
+// ===================================================
+
+function updateColor() { // rgb: 1=red, 2=green, 3=blue
+	var red1 = document.getElementById("Red1").value;
+	var gre1 = document.getElementById("Green1").value;
+	var blu1 = document.getElementById("Blue1").value;
+	var params = '"color":[' + red1 + ',' + gre1 + ',' + blu1 + ']';
+	PutHTML(params);
+}
+
+document.getElementById("cursorsliderOutId").value = 0;
+
+// ===================================================
+
+</script>
+</head> <body>
+
+<style>
+.slidercontainer {
+	 width: 100%;
+}
+.slider {
+	width:100%;
+}
+</style>
+
+
+<font size="6">
+
+<!--
+<div class="slidercontainer">
+<input type="range" class="slider" value="0" min="0" max="1280" onchange="cursorSlider()" id="cursorslider" oninput="cursorsliderOutId.value = this.value">
+<output id="cursorsliderOutId">Move the slider</output>
+</div> -->
+
+
+<table>
+
+<tr>
+	<td>Delay(ms)</td><td><input type="number" id="idDelay"      value=100 style="font-size:x-large" size="15"></td>
+</tr>
+<tr>
+	<td>Adjacent #</td><td><input type="number" id="idAdjacent"  value=2  style="font-size:x-large" size="15"></td>
+</tr>
+<tr><td>Mode      </td><td><input type="number" id="idMode"      value=0  style="font-size:x-large" size="15" min="0" max="2"></td>
+	<td>0=uni, 1=bounce, 2=uni mix colors</td>
+</tr>
+
+<tr>
+	<td bgcolor="red">Red</td><td> <input type="range" min="0" max="255" onchange="updateColor()" id="Red1" oninput="red1OutId.value = this.value" value="230">
+			<output id="red1OutId">230</output></td>
+</tr>
+<tr>
+	<td bgcolor="green">Green</td><td><input type="range" min="0" max="255" onchange="updateColor()" id="Green1" oninput="green1OutId.value = this.value" value="0">
+			<output id="green1OutId">0</output></td>
+</tr>
+<tr>
+	<td bgcolor="Blue">Blue</td><td><input type="range" min="0" max="255" onchange="updateColor()" id="Blue1" oninput="blue1OutId.value = this.value" value="0">
+			<output id="blue1OutId">0</output></td>
+</tr>
+</table>
+
+
+<br>
+<input type="submit" value="Send Setup" onclick="SendText()" style="font-size:x-large" size="15">
+<br>Color<br>
+<input  id="idColor" type="number" min="0" max="6"    value=0  style="font-size:x-large" size="50">
+<br>
+<!--<input type="submit" value="Send Colors" onclick="SendColor()" style="font-size:x-large" size="15"> -->
+
+<div id="statusId"></div>
+<div id="debug"></div>
+
+
+

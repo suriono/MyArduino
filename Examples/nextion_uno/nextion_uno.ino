@@ -2,8 +2,8 @@
 #include "NexText.h"
 //#include "NexNumber.h"
 //#include "Arduino.h"
-#include "Wire.h"
-#include "RTCLib.h"
+//#include "Wire.h"
+//#include "RTCLib.h"
 
 // Use by Nextion
 SoftwareSerial HMISerial(10, 11);//RX,TX Change the nexConfig.h file otherwise Mega is required (Serial2)
@@ -361,4 +361,3 @@ void loop(void)
     //updateTime();
     
 }
-
