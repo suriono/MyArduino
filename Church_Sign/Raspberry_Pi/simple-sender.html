@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+   <meta charset="utf-8">
+   <title>River Hills Digital Sign </title>
+
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> 
+   <script language="JavaScript">
+		
+    // ================================================================
+
+   function Delete_All() {
+		
+      $.ajax({
+         url: 'http://192.168.0.186:5002/Delete_All',
+         type: 'POST'
+      });		
+   }
+
+   // ================================================================
+
+   function Set_Cursor() {
+      $.ajax({
+         url: 'http://192.168.0.186:5002/Set_Cursor',
+	 type: 'POST',
+         data: $('form').serialize(),
+         success: function(response){ console.log(response);
+            document.getElementById("returnId").innerHTML = response;
+         },
+         error: function(error){ console.log(error);
+            document.getElementById("returnId").innerHTML = error;
+         }
+      });
+   }
+
+   // ================================================================
+
+   function Set_Text() {
+      $.ajax({
+         url: 'http://192.168.0.186:5002/Set_Text',
+         type: 'POST',
+         data: $('form').serialize()
+      });
+   }
+
+
+   // ================================================================
+
+   function Test_Connection() {
+      $.ajax({
+         url: 'http://192.168.0.186:5002/Test_Connection',
+         type: 'POST'
+      });
+   }
+
+   // ================================================================
+
+   </script>
+</head>
+ 
+<body>
+   <div class="container">
+      <form class="form-cursor"  role="form">
+         <h2>River Hills Digital Sign Controller</h2>
+         <table>
+	    <tr>
+               <td>X-Y Cursor:</td>
+               <td><input type="number" id="xcursor" name="cursorx" class="form-control"  value=10 required autofocus></td>
+               <td><input type="number" id="ycursor" name="cursory" class="form-control"  value=2 required autofocus></td>
+            </tr>
+	    <tr>
+               <td><input type="button" value="Set Text" onclick="Set_Text()" style="font-size:x-medium"></td>
+               <td><input type="text" id="signtext" name="sign_text" value="River" class="form-control"   required autofocus></td>
+            </tr>
+        </table>
+	</form>   
+   </div>  
+
+<br><button type="button" onClick=Delete_All()>Delete All</button>
+<br><button type="button" onClick=Test_Connection()>Test Connection</button>
+<h3>Return Message from the webserver:</h3>
+<div id="returnId">(Return Message) </div>
+
+</body>
+ 
+</html>
