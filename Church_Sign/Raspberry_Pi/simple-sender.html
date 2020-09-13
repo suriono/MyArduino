@@ -47,9 +47,54 @@
 
    // ================================================================
 
-   function Test_Connection() {
+   function Set_Brightness() {
       $.ajax({
-         url: 'http://192.168.0.186:5002/Test_Connection',
+         url: 'http://192.168.0.186:5002/Set_Brightness',
+         type: 'POST',
+         data: $('form').serialize()
+      });
+   }
+
+   // ================================================================
+
+   function Undo() {
+      $.ajax({
+         url: 'http://192.168.0.186:5002/Undo',
+         type: 'POST',
+         data: $('form').serialize()
+      });
+	document.getElementById("Red1").value = 0;
+	document.getElementById("Green1").value = 0;
+	document.getElementById("Blue1").value = 0;
+	document.getElementById("red1OutId").value = 0;
+	document.getElementById("green1OutId").value = 0;
+	document.getElementById("blue1OutId").value = 0;
+   }
+
+   // ================================================================
+
+   function Pixels() {
+      $.ajax({
+         url: 'http://192.168.0.186:5002/Set_Pixels',
+         type: 'POST',
+         data: $('form').serialize()
+      });
+   }
+
+   // ================================================================
+
+   function SavePixels() {
+      $.ajax({
+         url: 'http://192.168.0.186:5002/SavePixels',
+         type: 'POST'
+      });
+   }
+
+   // ================================================================
+
+   function Load_SavePixels() {
+      $.ajax({
+         url: 'http://192.168.0.186:5002/Load_SavePixels',
          type: 'POST'
       });
    }
@@ -66,19 +111,55 @@
          <table>
 	    <tr>
                <td>X-Y Cursor:</td>
-               <td><input type="number" id="xcursor" name="cursorx" class="form-control"  value=10 required autofocus></td>
-               <td><input type="number" id="ycursor" name="cursory" class="form-control"  value=2 required autofocus></td>
+               <td><input type="number" id="xcursor" name="cursorx" class="form-control"  value=1 required autofocus></td>
+               <td><input type="number" id="ycursor" name="cursory" class="form-control"  value=1 required autofocus></td>
             </tr>
 	    <tr>
-               <td><input type="button" value="Set Text" onclick="Set_Text()" style="font-size:x-medium"></td>
+               <td><input type="button" value="Text and Size" onclick="Set_Text()" style="font-size:x-medium"></td>
                <td><input type="text" id="signtext" name="sign_text" value="River" class="form-control"   required autofocus></td>
+               <td><input type="number" id="textsize" name="textsize" class="form-control"  value=1 required autofocus></td>
             </tr>
-        </table>
-	</form>   
+            <tr>
+               <td bgcolor="red">Red</td><td>
+               <input name=red type="range" min="0" max="255" onchange="Set_Text()" id="Red1" oninput="red1OutId.value = this.value" value="230">
+               <output id="red1OutId">230</output></td>
+            </tr>
+
+            <tr>
+               <td bgcolor="green">Green</td>
+               <td><input name="green" type="range" min="0" max="255" onchange="Set_Text()" id="Green1" oninput="green1OutId.value = this.value" value="0">
+                   <output id="green1OutId">0</output></td>
+            </tr>
+            <tr>
+               <td bgcolor="Blue">Blue</td>
+               <td><input name="blue" type="range" min="0" max="255" onchange="Set_Text()" id="Blue1" oninput="blue1OutId.value = this.value" value="0">
+<output id="blue1OutId">0</output></td>
+            </tr>
+<!--            <tr>
+               <td>Brightness</td>
+               <td><input name="brightnessDay" type="range" min="0" max="255" onchange="Set_Brightness()" id="BrightDay" oninput="brightId.value = this.value" value="20"> 
+<output id="brightId">0</output></td>
+            </tr> -->
+
+            <tr>
+               <td colspan="2">
+                  <textarea type="text" rows="10" cols="35" name="pixels">[10,9109504]</textarea>
+               </td>
+               <td><button type="button" onClick=Pixels()>Send Pixels</button></td>
+            </tr>
+         </table>
+      </form>   
    </div>  
 
-<br><button type="button" onClick=Delete_All()>Delete All</button>
-<br><button type="button" onClick=Test_Connection()>Test Connection</button>
+<table> <tr>
+<td><button type="button" onClick=Delete_All()>Delete All</button></td>
+<td>====</td>
+<td><button type="button" onClick=Undo()>Undo</button></td>
+<td>====</td>
+<td><button type="button" onClick=SavePixels()>Save</button></td>
+<td>====</td>
+<td><button type="button" onClick=Load_SavePixels()>Load Last Saved</button></td>
+</tr></table>
 <h3>Return Message from the webserver:</h3>
 <div id="returnId">(Return Message) </div>
 

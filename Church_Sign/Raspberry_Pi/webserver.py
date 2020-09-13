@@ -6,10 +6,13 @@ import serial, time
 class MySerial:
    ser = serial.Serial()
 
+   # ---------------------------
    #def __init__(self, portcom):
    def __init__(self):
-      self.ser.baudrate = 57600
+      self.ser.baudrate = 115200
+      self.ser.timeout = 1
 
+   # ---------------------------
    def findPort(self):  # find Arduino serial port
       def testConnection():
          try:
@@ -38,6 +41,7 @@ class MySerial:
          return "Port: " + self.ser.port
          return
 
+   # ---------------------------
    def serOpen(self):
       try: 
          self.ser.open()
@@ -53,9 +57,11 @@ class MySerial:
             # print ("Error open serial port: " , str(e))
             exit()
 
+   # ---------------------------
    def serClose(self):
       self.ser.close()
 
+   # ---------------------------
    def serWrite(self, message):
       if self.ser.isOpen():
          #time.sleep(0.001)
@@ -69,6 +75,7 @@ class MySerial:
       else:
          print("Cannot open serial port")
 
+   # ---------------------------
    def serReadline(self):
       if self.ser.isOpen():
          return self.ser.readline()
@@ -83,7 +90,7 @@ mySerial = MySerial()
 app = Flask(__name__)
 
 @app.route('/')
-def signUp():
+def mainhome():
    print(mySerial.findPort())
    return render_template('simple-sender.html')
 
@@ -92,9 +99,9 @@ def signUp():
 @app.route('/Set_Cursor', methods=['POST'])
 def setcursor():
    data = {}
+   data["cmd"] = "SetCursor"
    data["X"]   = request.form['cursorx']
    data["Y"]   = request.form['cursory']
-   data["cmd"] = "SetCursor"
    
    json_obj = json.dumps(data)
    mySerial.serOpen()
@@ -107,10 +114,14 @@ def setcursor():
 @app.route('/Set_Text', methods=['POST'])
 def settext():
    data = {}
-   data["X"]    = request.form['cursorx']
-   data["Y"]    = request.form['cursory']
-   data["Text"] = request.form['sign_text']
-   data["cmd"]  = "SetText"
+   data["cmd"]   = "SetText"
+   data["X"]     = request.form['cursorx']
+   data["Y"]     = request.form['cursory']
+   data["Size"]  = request.form['textsize']
+   data["Red"]   = request.form['red']
+   data["Green"] = request.form['green']
+   data["Blue"]  = request.form['blue']
+   data["Text"]  = request.form['sign_text']
 
    json_obj     = json.dumps(data)
    print(json_obj)
@@ -126,18 +137,102 @@ def Delete_All():
    mySerial.serOpen()
    mySerial.serWrite('{"cmd":"DeleteAll"}');
    mySerial.serClose()
-
    return json.dumps({'Command Received':'Delete_All'})
 
-# ====================== Test Connection =======================
+# ====================== Save Pixels ============================
 
-@app.route('/Test_Connection', methods=['POST'])
-def Test_Connection():
-   print("Test Connection")
-   print(mySerial.findPort())
-   # mySerial.serClose()
+@app.route('/SavePixels', methods=['POST'])
+def savepixel():
+   pixelcolors = []
+   mySerial.serOpen()
+   mySerial.serWrite('{"cmd":"SavePixel"}');
+   fp = open("lastPixels.json", "w")
+   readsave = mySerial.serReadline()
+   while len(readsave):
+      pixelcolors.append(int(readsave.decode()))
+      readsave = mySerial.serReadline()
+   mySerial.serClose()
+   pixeljson = {}
+   pixeljson["Pixels"] = pixelcolors
+   json.dump(pixeljson, fp)
+   fp.close()
+   return json.dumps({'Command Received':'Save'})
 
-   return json.dumps({'Test Connection':'Failed'})
+# ====================== Load Saved Pixels ============================
+
+@app.route('/Load_SavePixels', methods=['POST'])
+def loadpixel():
+   try:
+      fp = open("lastPixels.json", "r")
+      print("Load")
+      pixdata = json.load(fp) 
+      fp.close()
+
+      data = {}
+      #data["Pixels"] = "\"" + str(pixdata["Pixels"]) + "\""
+      data["Pixels"] = str(pixdata["Pixels"]) 
+
+      data["cmd"]   = "SetPixels"
+      json_obj     = json.dumps(data)
+      print(json_obj)
+      mySerial.serOpen()
+      mySerial.serWrite( json_obj )
+      mySerial.serClose()
+   except:
+      print("Cannot open lastPixels.json file") 
+   return json.dumps({'Command Received':'Load Saved File'})
+
+# ====================== Undo ============================
+
+@app.route('/Undo', methods=['POST'])
+def undo():
+   data = {}
+   data["cmd"]   = "SetText"
+   data["X"]     = request.form['cursorx']
+   data["Y"]     = request.form['cursory']
+   data["Red"]   = 0
+   data["Green"] = 0
+   data["Blue"]  = 0
+   data["Text"]  = request.form['sign_text']
+
+   json_obj     = json.dumps(data)
+   print(json_obj)
+   mySerial.serOpen()
+   mySerial.serWrite( json_obj )
+   mySerial.serClose()
+
+   return json.dumps({'Command Received':'Undo'})
+
+# ====================== Set Brightness =======================
+
+@app.route('/Set_Brightness', methods=['POST'])
+def brightness():
+   data = {}
+   data["cmd"]    = "SetBrightness"
+   data["Bright"] = request.form['brightness']
+
+   json_obj       = json.dumps(data)
+   print(json_obj)
+   mySerial.serOpen()
+   mySerial.serWrite( json_obj )
+   mySerial.serClose()
+
+   return json.dumps({'Command Received':'Set_Brightness'})
+
+# ===================== Set Text =====================
+
+@app.route('/Set_Pixels', methods=['POST'])
+def setpixel():
+   data = {}
+   data["cmd"]    = "SetPixels"
+   data["Pixels"] = request.form['pixels']
+
+   json_obj       = json.dumps(data)
+   print(json_obj)
+   mySerial.serOpen()
+   mySerial.serWrite( json_obj )
+   mySerial.serClose()
+   return json.dumps({'Command Received':'Set_Pixels'})
 
 # ====================== Web IP and Port ============================
 

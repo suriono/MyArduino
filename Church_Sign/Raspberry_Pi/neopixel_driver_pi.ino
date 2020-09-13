@@ -18,11 +18,11 @@ JSONVar jsonObject;
  
 void setup() {
   Serial.begin(57600);
-  SerialUSB.begin(57600);
+  SerialUSB.begin(115200);
   matrix.begin();
   matrix.setTextWrap(false); 
   matrix.setBrightness(5);  // from 0 to 255
-  matrix.setTextSize(1);
+  //matrix.setTextSize(1);
   //matrix.fillScreen(0); 
   matrix.setTextColor(matrix.Color(0, 0, 200));
   //matrix.print(F("St"));
