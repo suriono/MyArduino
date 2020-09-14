@@ -21,10 +21,10 @@ void setup() {
   SerialUSB.begin(115200);
   matrix.begin();
   matrix.setTextWrap(false); 
-  matrix.setBrightness(5);  // from 0 to 255
+  matrix.setBrightness(255);  // from 0 to 255
   //matrix.setTextSize(1);
   //matrix.fillScreen(0); 
-  matrix.setTextColor(matrix.Color(0, 0, 200));
+  matrix.setTextColor(matrix.Color(0, 0, 10));
   //matrix.print(F("St"));
   //matrix.show();
 }

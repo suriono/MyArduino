@@ -13,7 +13,7 @@
    function Delete_All() {
 		
       $.ajax({
-         url: 'http://192.168.0.186:5002/Delete_All',
+         url: 'http://192.168.0.186:5000/Delete_All',
          type: 'POST'
       });		
    }
@@ -22,7 +22,7 @@
 
    function Set_Cursor() {
       $.ajax({
-         url: 'http://192.168.0.186:5002/Set_Cursor',
+         url: 'http://192.168.0.186:5000/Set_Cursor',
 	 type: 'POST',
          data: $('form').serialize(),
          success: function(response){ console.log(response);
@@ -38,7 +38,7 @@
 
    function Set_Text() {
       $.ajax({
-         url: 'http://192.168.0.186:5002/Set_Text',
+         url: 'http://192.168.0.186:5000/Set_Text',
          type: 'POST',
          data: $('form').serialize()
       });
@@ -49,7 +49,7 @@
 
    function Set_Brightness() {
       $.ajax({
-         url: 'http://192.168.0.186:5002/Set_Brightness',
+         url: 'http://192.168.0.186:5000/Set_Brightness',
          type: 'POST',
          data: $('form').serialize()
       });
@@ -59,7 +59,7 @@
 
    function Undo() {
       $.ajax({
-         url: 'http://192.168.0.186:5002/Undo',
+         url: 'http://192.168.0.186:5000/Undo',
          type: 'POST',
          data: $('form').serialize()
       });
@@ -75,7 +75,7 @@
 
    function Pixels() {
       $.ajax({
-         url: 'http://192.168.0.186:5002/Set_Pixels',
+         url: 'http://192.168.0.186:5000/Set_Pixels',
          type: 'POST',
          data: $('form').serialize()
       });
@@ -85,7 +85,7 @@
 
    function SavePixels() {
       $.ajax({
-         url: 'http://192.168.0.186:5002/SavePixels',
+         url: 'http://192.168.0.186:5000/SavePixels',
          type: 'POST'
       });
    }
@@ -94,7 +94,16 @@
 
    function Load_SavePixels() {
       $.ajax({
-         url: 'http://192.168.0.186:5002/Load_SavePixels',
+         url: 'http://192.168.0.186:5000/Load_SavePixels',
+         type: 'POST'
+      });
+   }
+
+   // ================================================================
+
+   function Test_NightBrightness() {
+      $.ajax({
+         url: 'http://192.168.0.186:5000/Test_NightBrightness',
          type: 'POST'
       });
    }
@@ -121,18 +130,19 @@
             </tr>
             <tr>
                <td bgcolor="red">Red</td><td>
-               <input name=red type="range" min="0" max="255" onchange="Set_Text()" id="Red1" oninput="red1OutId.value = this.value" value="230">
-               <output id="red1OutId">230</output></td>
+               <input name=red type="range" min="0" max="180" onchange="Set_Text()" id="Red1" oninput="red1OutId.value = this.value" value="100">
+               <output id="red1OutId">100</output></td>
+               <td rowspan="3"><input type="button" value="Test Night Brightness (3 sec dim)" onclick="Test_NightBrightness()" style="font-size:x-medium"></td> 
             </tr>
 
             <tr>
                <td bgcolor="green">Green</td>
-               <td><input name="green" type="range" min="0" max="255" onchange="Set_Text()" id="Green1" oninput="green1OutId.value = this.value" value="0">
+               <td><input name="green" type="range" min="0" max="180" onchange="Set_Text()" id="Green1" oninput="green1OutId.value = this.value" value="0">
                    <output id="green1OutId">0</output></td>
             </tr>
             <tr>
                <td bgcolor="Blue">Blue</td>
-               <td><input name="blue" type="range" min="0" max="255" onchange="Set_Text()" id="Blue1" oninput="blue1OutId.value = this.value" value="0">
+               <td><input name="blue" type="range" min="0" max="180" onchange="Set_Text()" id="Blue1" oninput="blue1OutId.value = this.value" value="0">
 <output id="blue1OutId">0</output></td>
             </tr>
 <!--            <tr>
@@ -143,7 +153,7 @@
 
             <tr>
                <td colspan="2">
-                  <textarea type="text" rows="10" cols="35" name="pixels">[10,9109504]</textarea>
+                  <textarea type="text" rows="8" cols="35" name="pixels">[10,9109504]</textarea>
                </td>
                <td><button type="button" onClick=Pixels()>Send Pixels</button></td>
             </tr>

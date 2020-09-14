@@ -169,7 +169,6 @@ def loadpixel():
       fp.close()
 
       data = {}
-      #data["Pixels"] = "\"" + str(pixdata["Pixels"]) + "\""
       data["Pixels"] = str(pixdata["Pixels"]) 
 
       data["cmd"]   = "SetPixels"
@@ -203,21 +202,15 @@ def undo():
 
    return json.dumps({'Command Received':'Undo'})
 
-# ====================== Set Brightness =======================
+# ================== Test Night Time Brightness ========
 
-@app.route('/Set_Brightness', methods=['POST'])
-def brightness():
-   data = {}
-   data["cmd"]    = "SetBrightness"
-   data["Bright"] = request.form['brightness']
-
-   json_obj       = json.dumps(data)
-   print(json_obj)
+@app.route('/Test_NightBrightness', methods=['POST'])
+def nightbrightness():
    mySerial.serOpen()
-   mySerial.serWrite( json_obj )
+   mySerial.serWrite('{"cmd":"Test_NightBrightness"}');
    mySerial.serClose()
 
-   return json.dumps({'Command Received':'Set_Brightness'})
+   return json.dumps({'Command Received':'Test_NightBrightness'})
 
 # ===================== Set Text =====================
 
@@ -237,7 +230,7 @@ def setpixel():
 # ====================== Web IP and Port ============================
 
 if __name__=="__main__":
-   app.run(host= '0.0.0.0',port=5002,debug=True)
+   app.run(host= '0.0.0.0',port=5000,debug=True)
 
 # ===================== General Initialization ======================
 

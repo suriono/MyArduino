@@ -12,8 +12,8 @@ void Command_Run() {
      Set_Cursor();
   } else if (Cmd.equals("SetText")) {
      Set_Text();
-  } else if (Cmd.equals("SetBrightness")) {
-     Set_Brightness();
+  } else if (Cmd.equals("Test_NightBrightness")) {
+     Test_Dimmer(70);
   } else if (Cmd.equals("SetPixels")) {
      Set_Pixels();
   } else if (Cmd.equals("SavePixel")) {
@@ -27,9 +27,27 @@ void Delete_All() {
   matrix.show();
 }
 
-// ============== Set Brightness ===============
-void Set_Brightness() {
-  matrix.setBrightness(Json_parse_int("Bright"));
+// ============== Test Dimmer ===============
+void Test_Dimmer(int bright) {
+  uint32_t pixcol[256*TILE_COLUMNS*TILE_COLUMNS], pixcolor,pixnight;
+  uint32_t r, g, b;
+  for (int nn=0; nn < 256*TILE_COLUMNS*TILE_COLUMNS ; nn++) {
+    pixcol[nn] = matrix.getPixelColor(nn);
+    
+    if (pixcol[nn] > 0) {
+      b = (pixcol[nn] & 255  ) * bright / 255;
+      g = int(((pixcol[nn]>>8)&255) * bright / 255)<<8;
+      r = int((pixcol[nn]>>16) * bright / 255)<<16;
+      matrix.setPixelColor(nn, b+g+r);
+    }
+  }
+  matrix.show();
+  delay(3000);
+  for (int nn=0; nn < 256*TILE_COLUMNS*TILE_COLUMNS ; nn++) {
+    if (pixcol[nn] > 0) {
+      matrix.setPixelColor(nn, pixcol[nn]);
+    }
+  }
   matrix.show();
 }
 
@@ -70,8 +88,13 @@ void Set_Pixels() {
 
 // ============== Get Pixels ===============
 void Get_Pixels() {
-  for (int nn=0; nn < 80 ; nn++) {
-    SerialUSB.println(nn);
-    SerialUSB.println(matrix.getPixelColor(nn));
+  uint32_t pixcolor;
+  for (int nn=0; nn < 256*TILE_COLUMNS*TILE_COLUMNS ; nn++) {
+    pixcolor = matrix.getPixelColor(nn);
+    Serial.println(pixcolor);
+    if (pixcolor > 0) {
+       SerialUSB.println(nn);
+       SerialUSB.println(pixcolor);
+    }
   }
 }
