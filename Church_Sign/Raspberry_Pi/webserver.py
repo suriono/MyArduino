@@ -1,5 +1,8 @@
 from flask import Flask, render_template, request, json
-import serial, time
+import serial, time, requests
+from datetime import datetime
+from datetime import timedelta
+import threading 
 
 # ===================== Serial class ===================
 
@@ -173,7 +176,6 @@ def loadpixel():
 
       data["cmd"]   = "SetPixels"
       json_obj     = json.dumps(data)
-      print(json_obj)
       mySerial.serOpen()
       mySerial.serWrite( json_obj )
       mySerial.serClose()
@@ -227,9 +229,54 @@ def setpixel():
    mySerial.serClose()
    return json.dumps({'Command Received':'Set_Pixels'})
 
+# ====================== Get Dusk and Dawn =========================
+
+def get_Dusk_Dawn(lat, long):
+   link = "http://api.sunrise-sunset.org/json?lat=%f&lng=%f&formatted=0" % (lat, long)
+   f = requests.get(link)
+   data = f.text
+   dawn_h, dawn_m, dawn_s = data[34:42].split(':')
+   dusk_h, dusk_m, dusk_s = data[71:79].split(':')
+   # CST is 5+UTC
+   dusk_h = (int(dusk_h) + 24 - 5) % 24
+   sunrise = (int(dawn_h)-5) *60 + int(dawn_m)
+   sunset  = dusk_h * 60 + int(dusk_m)
+
+   now = datetime.now()
+   midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+   now_minutes = int((now - midnight).seconds / 60)
+
+   print("Now = %s, Sunrise = %s, Sunset = %s minutes" % (now_minutes, sunrise, sunset))
+
+   return now_minutes > sunset or now_minutes < sunrise
+
+# ================ Stop watch to record real-time timecard ============
+
+class TimerDim():
+   def __init__(self, interval):
+      self.lasttime = time.time()
+      self.interval = interval
+      thread = threading.Thread(target=self.run, args=())
+      thread.daemon = True                            # Daemonize thread
+      thread.start()                                  # Start the execution
+
+   def run(self):
+      while True:
+         isDark = get_Dusk_Dawn(44.74683,-93.193575)
+         if isDark:
+            print("It is dark outside")
+
+         elapsed = time.time() - self.lasttime
+         #print("timer======")
+         print(elapsed)
+         time.sleep(self.interval)
+
 # ====================== Web IP and Port ============================
 
 if __name__=="__main__":
+
+   testtimer = TimerDim(10)
+
    app.run(host= '0.0.0.0',port=5000,debug=True)
 
 # ===================== General Initialization ======================
