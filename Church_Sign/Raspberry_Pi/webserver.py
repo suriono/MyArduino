@@ -4,6 +4,8 @@ from datetime import datetime
 from datetime import timedelta
 import threading 
 
+DataJson = {}
+
 # ===================== Serial class ===================
 
 class MySerial:
@@ -137,6 +139,8 @@ def settext():
 
 @app.route('/Delete_All', methods=['POST'])
 def Delete_All():
+   dimTimer.stop() 
+
    mySerial.serOpen()
    mySerial.serWrite('{"cmd":"DeleteAll"}');
    mySerial.serClose()
@@ -146,6 +150,8 @@ def Delete_All():
 
 @app.route('/SavePixels', methods=['POST'])
 def savepixel():
+   dimTimer.stop() 
+
    pixelcolors = []
    mySerial.serOpen()
    mySerial.serWrite('{"cmd":"SavePixel"}');
@@ -157,31 +163,77 @@ def savepixel():
    mySerial.serClose()
    pixeljson = {}
    pixeljson["Pixels"] = pixelcolors
+   DataJson["Pixels"]  = pixelcolors
+   # print(DataJson["Pixels"])
    json.dump(pixeljson, fp)
    fp.close()
+
+   dimTimer.restart() 
    return json.dumps({'Command Received':'Save'})
+
+# ===================== Open Saved Pixels file ========================
+
+def openSavedFile():
+   try:
+      global DataJson
+      fp = open("lastPixels.json", "r")
+      print("Load lastPixels.json file")
+      DataJson = json.load(fp) 
+      fp.close()
+      return True
+   except:
+      print("Cannot open lastPixels.json file") 
+      return False
 
 # ====================== Load Saved Pixels ============================
 
 @app.route('/Load_SavePixels', methods=['POST'])
 def loadpixel():
-   try:
-      fp = open("lastPixels.json", "r")
-      print("Load")
-      pixdata = json.load(fp) 
-      fp.close()
-
+   if openSavedFile():
+      global DataJson
+      dimTimer.stop() 
       data = {}
-      data["Pixels"] = str(pixdata["Pixels"]) 
+      data["Pixels"] = str(DataJson["Pixels"]) 
 
       data["cmd"]   = "SetPixels"
       json_obj     = json.dumps(data)
       mySerial.serOpen()
       mySerial.serWrite( json_obj )
       mySerial.serClose()
-   except:
-      print("Cannot open lastPixels.json file") 
+      dimTimer.restart() 
+
    return json.dumps({'Command Received':'Load Saved File'})
+
+# ===================== Set Brightness =====================
+
+def set_Brightness(bright):
+   if openSavedFile():
+      global DataJson
+      newData = {}
+      newp = []
+      #print(DataJson["Pixels"])
+      #print(len(DataJson["Pixels"]))
+      count = 0
+      for eachp in DataJson["Pixels"]:
+         if count % 2:
+            b = int((eachp & 255) * bright / 255)
+            g = int(((eachp >> 8) & 255) * bright / 255) << 8
+            r = int((eachp >> 16) * bright / 255) << 16 
+            newcolor = b + g + r
+            newp.append(newcolor)
+            #newp.append(eachp)
+         else:
+            newp.append(eachp)
+
+         count = count + 1
+      
+      data = {}
+      data["Pixels"] = str(newp)
+      data["cmd"]   = "SetPixels"
+      json_obj     = json.dumps(data)
+      mySerial.serOpen()
+      mySerial.serWrite( json_obj )
+      mySerial.serClose()
 
 # ====================== Undo ============================
 
@@ -246,36 +298,63 @@ def get_Dusk_Dawn(lat, long):
    midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
    now_minutes = int((now - midnight).seconds / 60)
 
-   print("Now = %s, Sunrise = %s, Sunset = %s minutes" % (now_minutes, sunrise, sunset))
+   print("Now = %s, Sunrise = %s, Sunset = %s minutes" % (now_minutes, sunrise, sunset), end ='')
 
    return now_minutes > sunset or now_minutes < sunrise
 
-# ================ Stop watch to record real-time timecard ============
+# ================ Background whether to dim at night ============
 
 class TimerDim():
    def __init__(self, interval):
-      self.lasttime = time.time()
-      self.interval = interval
-      thread = threading.Thread(target=self.run, args=())
-      thread.daemon = True                            # Daemonize thread
-      thread.start()                                  # Start the execution
+      self.isDim          = False
+      self.isCheckSunTime = True
+      self.lasttime       = time.time()
+      self.interval       = interval
+      self.thread = threading.Thread(target=self.run, args=())
+      self.thread.daemon  = True         # Daemonize thread
+      self.thread.start()                # Start the execution
 
    def run(self):
       while True:
-         isDark = get_Dusk_Dawn(44.74683,-93.193575)
-         if isDark:
-            print("It is dark outside")
-
          elapsed = time.time() - self.lasttime
-         #print("timer======")
-         print(elapsed)
-         time.sleep(self.interval)
+
+         if elapsed > self.interval and self.isCheckSunTime:
+            isDark = get_Dusk_Dawn(44.74683,-93.193575)
+            if isDark:
+               print(" Nighttime, ", end = "")
+               if not self.isDim:  # has not been dimmed yet
+                  set_Brightness(15)
+                  self.isDim = True
+                  print("     =======   Time to dim =====")
+            else:
+               print(", Daytime, ", end = "")
+               if self.isDim:  # has not been dimmed yet
+                  set_Brightness(80)
+                  self.isDim = False
+                  print("     =======   Time to NOT to dim ====")
+
+            # self.lasttime = time.time()
+            print("Elapsed: %.1f" % (elapsed))
+            time.sleep(self.interval)
+         else:
+            print("== Not checking Sun Time ====")
+            time.sleep(4)
+      print("========Exiting Sun Time Thread ====")
+
+   def stop(self):
+      self.isCheckSunTime = False  # global to stop dimTimer thread
+      self.lasttime       = time.time()
+      print("========Stop Sun Time Dimmer Thread ====")
+
+   def restart(self):
+      self.isCheckSunTime = True  # global to stop dimTimer thread
+      print("========Restart Sun Time Dimmer Thread ====")
 
 # ====================== Web IP and Port ============================
 
 if __name__=="__main__":
 
-   testtimer = TimerDim(10)
+   imTimer = TimerDim(10)
 
    app.run(host= '0.0.0.0',port=5000,debug=True)
 
