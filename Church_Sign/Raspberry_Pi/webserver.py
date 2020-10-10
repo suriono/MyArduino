@@ -294,13 +294,11 @@ def get_Dusk_Dawn(lat, long):
    sunrise = (int(dawn_h)-5) *60 + int(dawn_m)
    sunset  = dusk_h * 60 + int(dusk_m)
 
-   now = datetime.now()
-   midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
-   now_minutes = int((now - midnight).seconds / 60)
+   print("====== Getting Sunrise and Sunset from internet =======")
+   print("Sunrise = %s, Sunset = %s minutes\n" % (sunrise, sunset), end ='')
+   print("=======================================================")
+   return sunrise , sunset
 
-   print("Now = %s, Sunrise = %s, Sunset = %s minutes" % (now_minutes, sunrise, sunset), end ='')
-
-   return now_minutes > sunset or now_minutes < sunrise
 
 # ================ Background whether to dim at night ============
 
@@ -313,22 +311,30 @@ class TimerDim():
       self.thread = threading.Thread(target=self.run, args=())
       self.thread.daemon  = True         # Daemonize thread
       self.thread.start()                # Start the execution
+      self.sunrise , self.sunset = get_Dusk_Dawn(44.74683,-93.193575)
 
    def run(self):
       while True:
          elapsed = time.time() - self.lasttime
 
          if elapsed > self.interval and self.isCheckSunTime:
-            isDark = get_Dusk_Dawn(44.74683,-93.193575)
-            if isDark:
+            now = datetime.now()
+            midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            now_minutes = int((now - midnight).seconds / 60)
+
+            print("Interval checking: Now = %s, Sunrise = %s, Sunset = %s minutes" % (now_minutes, self.sunrise, self.sunset), end ='')
+
+            if now_minutes > self.sunset or now_minutes < self.sunrise:
                print(" Nighttime, ", end = "")
                if not self.isDim:  # has not been dimmed yet
+                  self.sunrise , self.sunset = get_Dusk_Dawn(44.74683,-93.193575)
                   set_Brightness(15)
                   self.isDim = True
                   print("     =======   Time to dim =====")
             else:
                print(", Daytime, ", end = "")
-               if self.isDim:  # has not been dimmed yet
+               if self.isDim:  # has not been undimmed yet
+                  self.sunrise , self.sunset = get_Dusk_Dawn(44.74683,-93.193575)
                   set_Brightness(80)
                   self.isDim = False
                   print("     =======   Time to NOT to dim ====")
@@ -338,11 +344,12 @@ class TimerDim():
             time.sleep(self.interval)
          else:
             print("== Not checking Sun Time ====")
-            time.sleep(4)
+            time.sleep(10)
       print("========Exiting Sun Time Thread ====")
 
    def stop(self):
       self.isCheckSunTime = False  # global to stop dimTimer thread
+      self.isDim          = False
       self.lasttime       = time.time()
       print("========Stop Sun Time Dimmer Thread ====")
 
@@ -354,7 +361,7 @@ class TimerDim():
 
 if __name__=="__main__":
 
-   imTimer = TimerDim(10)
+   dimTimer = TimerDim(60)
 
    app.run(host= '0.0.0.0',port=5000,debug=True)
 
