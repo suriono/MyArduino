@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, json
 import serial, time, requests
 from datetime import datetime
 from datetime import timedelta
-import threading 
+import threading , math, astral
+from astral.sun import sun
 
 DataJson = {}
 
@@ -281,43 +282,42 @@ def setpixel():
    mySerial.serClose()
    return json.dumps({'Command Received':'Set_Pixels'})
 
-# ====================== Get Dusk and Dawn =========================
+# ====================== Calculate Dusk and Dawn =========================
 
-def get_Dusk_Dawn(lat, long):
-   link = "http://api.sunrise-sunset.org/json?lat=%f&lng=%f&formatted=0" % (lat, long)
-   f = requests.get(link)
-   data = f.text
-   dawn_h, dawn_m, dawn_s = data[34:42].split(':')
-   dusk_h, dusk_m, dusk_s = data[71:79].split(':')
-   # CST is 5+UTC
-   dusk_h = (int(dusk_h) + 24 - 5) % 24
-   sunrise = (int(dawn_h)-5) *60 + int(dawn_m)
-   sunset  = dusk_h * 60 + int(dusk_m)
-
-   print("====== Getting Sunrise and Sunset from internet =======")
-   print("Sunrise = %s, Sunset = %s minutes\n" % (sunrise, sunset), end ='')
-   print("=======================================================")
-   return sunrise , sunset
-
+def get_Calc_Dusk_Dawn():
+   city = astral.LocationInfo('Minneapolis', 'US', 'US/Central', 44.74683 , -93.193575)
+   sunloc = sun(city.observer, date=datetime.now())
+   sunrise , sunset = sunloc["sunrise"], sunloc["sunset"]
+   sunrisemin = (int(sunrise.hour)-5) *60 + int(sunrise.minute)
+   sunsetmin  = (int(sunset.hour)-5)  *60 + int(sunset.minute)
+   #sunrisemin = (int(sunrise.hour)-5) *60 + int(sunrise.minute)
+   print("\n====== Getting Sunrise and Sunset from internet =======")
+   print("        Sunrise = %s, Sunset = %s minutes\n" % (sunrisemin, sunsetmin), end ='')
+   print("=======================================================\n")
+   return sunrisemin , sunsetmin
 
 # ================ Background whether to dim at night ============
 
 class TimerDim():
    def __init__(self, interval):
       self.isDim          = False
-      self.isCheckSunTime = True
+      self.isCheckSunTime = False
       self.lasttime       = time.time()
       self.interval       = interval
       self.thread = threading.Thread(target=self.run, args=())
       self.thread.daemon  = True         # Daemonize thread
       self.thread.start()                # Start the execution
-      self.sunrise , self.sunset = get_Dusk_Dawn(44.74683,-93.193575)
+      try:
+         self.sunrise , self.sunset = get_Calc_Dusk_Dawn()
+      except:
+         self.sunrise , self.sunset = 360 , 1080  # default sunrise/set
 
    def run(self):
       while True:
          elapsed = time.time() - self.lasttime
 
-         if elapsed > self.interval and self.isCheckSunTime:
+#         if elapsed > self.interval and self.isCheckSunTime:
+         if self.isCheckSunTime:
             now = datetime.now()
             midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
             now_minutes = int((now - midnight).seconds / 60)
@@ -327,14 +327,17 @@ class TimerDim():
             if now_minutes > self.sunset or now_minutes < self.sunrise:
                print(" Nighttime, ", end = "")
                if not self.isDim:  # has not been dimmed yet
-                  self.sunrise , self.sunset = get_Dusk_Dawn(44.74683,-93.193575)
+                  try:
+                     self.sunrise , self.sunset = get_Calc_Dusk_Dawn()
+                  except:
+                     pass
                   set_Brightness(15)
                   self.isDim = True
                   print("     =======   Time to dim =====")
             else:
                print(", Daytime, ", end = "")
                if self.isDim:  # has not been undimmed yet
-                  self.sunrise , self.sunset = get_Dusk_Dawn(44.74683,-93.193575)
+                  self.sunrise , self.sunset = get_Calc_Dusk_Dawn()
                   set_Brightness(80)
                   self.isDim = False
                   print("     =======   Time to NOT to dim ====")
@@ -343,7 +346,7 @@ class TimerDim():
             print("Elapsed: %.1f" % (elapsed))
             time.sleep(self.interval)
          else:
-            print("== Not checking Sun Time ====")
+            print("== Not checking Sun Time ==== Elapsed: %f" %(elapsed))
             time.sleep(10)
       print("========Exiting Sun Time Thread ====")
 
