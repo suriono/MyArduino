@@ -20,6 +20,18 @@ const boolean stPatrick[] = {       // Heart bitmap
   0, 1, 1, 0, 0, 1, 1, 1, 0
 };
 
+const boolean star[] = {       // Heart bitmap
+  0, 0, 0, 0, 1, 0, 0, 0, 0,
+  0, 0, 0, 1, 1, 1, 0, 0, 0,
+  1, 1, 1, 1, 1, 1, 1, 1, 1,
+  0, 0, 1, 1, 1, 1, 1, 0, 0,
+  0, 0, 0, 0, 1, 0, 0, 0, 0,
+  0, 0, 0, 1, 1, 1, 0, 0, 0,
+  0, 1, 1, 0, 0, 0, 1, 1, 0,
+  1, 0, 0, 0, 0, 0, 0, 0, 1
+};
+
+
 // =============== Draw Bitmap =============
 
 void Draw_Bitmap(boolean* bitmap, int col, int xoffset, uint16_t colorm) {
@@ -46,6 +58,10 @@ void Neomatrix_scrollbitmap(char pic[], boolean isBlink) {
     bitmap_width = 9;
     bitmap_source = stPatrick;
     mcolor = matrix.Color(0,250,0);
+  } else if (strcmp(pic, "star") == 0) {
+    bitmap_width = 9;
+    bitmap_source = star;
+    mcolor = matrix.Color(19,50,230);
   }
 
   //matrix.fillScreen(0); 

@@ -23,9 +23,15 @@ void setup() {
 // ============== Loop ===========================
 
 void loop() {
-  Neomatrix_scrolltext("Happy Saint Patrick's Day" , 0, 250, 0);
-  Neomatrix_scrollbitmap("stPatrick", false);
+  Neomatrix_scrolltext("Merry Christmas" , 0, 250, 0);
+  Neomatrix_scrolltext("Happy Diwali" , 232, 142, 19);
+  Neomatrix_scrolltext("Happy New Year" , 232, 19, 213);
+  Neomatrix_scrolltext("Happy Hanukkah" , 0, 0, 250);
+  Neomatrix_scrolltext("Las Posadas" , 60, 180, 56);
+  Neomatrix_scrolltext("Happy Kwanzaa" , 232, 71, 19);
+  
+  Neomatrix_scrollbitmap("star", false);
 
-  Neomatrix_scrolltext("Brought to you by" , 0, 0, 250);
+  Neomatrix_scrolltext("Brought to you by" , 32, 232, 20);
   Neomatrix_scrolltext("Design Enablement" , 250, 0, 250);
 }

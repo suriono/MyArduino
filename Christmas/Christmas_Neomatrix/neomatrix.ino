@@ -2,7 +2,7 @@ void Neopixel_Initial() {
   delay(2000);   // so no big surge of current at the beginning
   matrix.begin(); 
   matrix.setTextWrap(true); 
-  matrix.setBrightness(10);  // from 0 to 255
+  matrix.setBrightness(30);  // from 0 to 255
   matrix.setTextColor(matrix.Color(155, 0, 0));
   matrix.fillScreen(0);
   matrix.setCursor(0, 0);
