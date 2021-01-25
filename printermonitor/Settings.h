@@ -69,7 +69,7 @@ String PrinterAuthPass = "5239612";      // only used with haproxy or basic auth
 
 // Weather Configuration
 boolean DISPLAYWEATHER = true; // true = show weather when not printing / false = no weather
-String WeatherApiKey = "2bf2372c7a935f7a5f5dd432ab3cda46"; // Your API Key from http://openweathermap.org/
+//String WeatherApiKey = "see password tab"; // Your API Key from http://openweathermap.org/
 // Default City Location (use http://openweathermap.org/find to find city ID)
 int CityIDs[] = { 5016494 }; //Only USE ONE for weather marquee
 boolean IS_METRIC = false; // false = Imperial and true = Metric
