@@ -5,13 +5,16 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 */
 
 #include <ESP8266WiFi.h>
-#include <FirebaseArduino.h>
+//#include <FirebaseArduino.h>
+#include <FirebaseESP8266.h>
 #include <WiFiUdp.h>       // used for network Epoch
 #include <SoftwareSerial.h>
 
 SoftwareSerial TempSerial(13, 0); // D7,  RX, TX for read temp
 
 WiFiUDP udp;
+//Define FirebaseESP8266 data object
+FirebaseData firebaseData;
 
 #define DEBUG_INTERVAL 60000          // Firebase debug update
 

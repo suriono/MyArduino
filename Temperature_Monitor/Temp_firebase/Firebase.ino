@@ -1,7 +1,7 @@
 
 // ------------------------------------------------------
 void Firebase_debug(String debug_msg) {
-  Firebase.setString("hometemp/debug/", debug_msg);
+  Firebase.setString(firebaseData, "hometemp/debug/", debug_msg);
 }
 
 // ------------------------------------------------
@@ -18,7 +18,7 @@ bool Firebase_Send_Temperature(float new_temp) {
   //}
 
   String sendstr = "Temp:" + String(new_temp) + "&time:" + String(get_server_epoch());
-  Firebase.pushString("hometemp/data/", sendstr);
+  Firebase.pushString(firebaseData, "hometemp/data/", sendstr);
   //time_firebase_update = millis();
   return true;
 }

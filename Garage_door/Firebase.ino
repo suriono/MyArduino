@@ -1,9 +1,14 @@
 // ---------------------------------------------------
 
 long Firebase_getResetTime(int new_distance, String inpstr) {
+  long resettime;
   //delay(1000);
   yield();
-  long resettime = Firebase.getString("garagedoor/resetTime").toInt();
+  if (Firebase.getString(firebaseData, "garagedoor/resetTime")) {
+    resettime = firebaseData.stringData().toInt();
+  }
+  
+  //long resettime = Firebase.getString("garagedoor/resetTime").toInt();
   yield();
   delay(1000);
   
@@ -15,11 +20,11 @@ long Firebase_getResetTime(int new_distance, String inpstr) {
     //Serial.println("====");
     if (last_resettime > 0) {  // not the first time
       if (resettime > last_resettime) {  // new reset time
-        Firebase.remove("garagedoor/data/"); // remove data
-        delay(1000);
-        Firebase_debug("fail-remove_data");
+        if (Firebase.deleteNode(firebaseData, "garagedoor/data/")) { // remove data
+          delay(1000);
+          Firebase_debug("fail-remove_data");
         
-        if (Firebase.success()) {
+        //if (Firebase.success()) {
           delay(1000);
           Firebase_debug("success-remove-data");
           last_resettime = resettime;
@@ -27,8 +32,8 @@ long Firebase_getResetTime(int new_distance, String inpstr) {
           Firebase_Send_Distance(new_distance);
         } else {
           delay(1000);
-          Firebase.remove("garagedoor/data/"); // try again
-          if (Firebase.success()) {
+          if(Firebase.deleteNode(firebaseData, "garagedoor/data/")) {
+          // if (Firebase.success()) {
             delay(1000);
             Firebase_debug("success-remove-data");
             last_resettime = resettime;
@@ -70,7 +75,7 @@ bool Firebase_Send_Distance(int new_distance) {
       
   //String sendstr = "dist:" + String(new_distance) + "&time:" + String(time_from_reset);
   String sendstr = "dist:" + String(new_distance) + "&time:" + String(server_epoch);
-  Firebase.pushString("garagedoor/data/", sendstr);
+  Firebase.pushString(firebaseData, "garagedoor/data/", sendstr);
   //Serial.println("==== Updating Firebase");
   //if (Firebase.failed()) {
     // Firebase_fail("Send_Distance");
@@ -97,19 +102,27 @@ void Firebase_fail(String function_name) {
 int Firebase_Door_Pin_Number(int);
 
 bool Firebase_getPushButtonRemote() {  // whether to push the wall remote button to open/close
-  int wall_pin = Firebase.getString("garagedoor/pushButtonWallRemote").toInt();
+  
+  int wall_pin, reset_wall_pin;
+  if (Firebase.getString(firebaseData, "garagedoor/pushButtonWallRemote")) {
+    wall_pin = firebaseData.stringData().toInt();
+  }
   //Serial.print("garage door pin read: "); Serial.println(wall_pin);
   //digitalWrite(RELAY_OPENER, LOW);
 
-  if ( wall_pin > 1) Firebase.setString("garagedoor/pushButtonWallRemote", "1");
- 
-  int reset_wall_pin = Firebase.getString("garagedoor/pushButtonWallRemote").toInt();
+  if ( wall_pin > 1) Firebase.setString(firebaseData, "garagedoor/pushButtonWallRemote", "1");
+
+  if (Firebase.getString(firebaseData, "garagedoor/pushButtonWallRemote")) {
+    
+    reset_wall_pin = firebaseData.stringData().toInt();
+  }
+  
   if ( reset_wall_pin == 1) { // make sure it has been reset so it does not open/close continuously
      if (Firebase_Door_Pin_Number(wall_pin)) {  // pin number to open the garage
          digitalWrite(RELAY_OPENER, HIGH);
          delay(500);
          digitalWrite(RELAY_OPENER, LOW);
-         Firebase.setString("garagedoor/pushButtonWallRemote", "1");
+         Firebase.setString(firebaseData, "garagedoor/pushButtonWallRemote", "1");
         
       }
   }
@@ -118,7 +131,7 @@ bool Firebase_getPushButtonRemote() {  // whether to push the wall remote button
 
 // ------------------------------------------------------
 void Firebase_debug(String debug_msg) {
-  Firebase.setString("garagedoor/debug/", debug_msg);
+  Firebase.setString(firebaseData, "garagedoor/debug/", debug_msg);
 }
 
 

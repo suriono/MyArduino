@@ -5,7 +5,7 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 */
 
 #include <ESP8266WiFi.h>
-#include <FirebaseArduino.h>
+#include <FirebaseESP8266.h>
 // #include <ArduinoOTA.h>
 #include <WiFiUdp.h>       // used for network Epoch
 #include <SoftwareSerial.h>
@@ -13,6 +13,8 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 SoftwareSerial SerialSonar(5, 4); // RX TX only transmit 13 needed
 
 WiFiUDP udp;
+//Define FirebaseESP8266 data object
+FirebaseData firebaseData;
 
 // === garage door opener relay
 #define RELAY_OPENER 14                // D5 of NodeMCU
@@ -34,7 +36,7 @@ void Firebase_debug(String); void WiFi_begin(); void Firebase_begin();
 // ====================== setup ===============================
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(57600);
   SerialSonar.begin(9600);
 
   // connect to wifi.
