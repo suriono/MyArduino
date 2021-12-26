@@ -121,14 +121,15 @@ function updateColorTwoRows() {
 
 function SendPixel() {
 	var params = document.getElementById("pixeltext").value;
+	var delaypix = document.getElementById("pixelDelay").value;
 	var jsonpix = JSON.parse(params);
 	for (nn=0 ; nn<jsonpix["pix"].length/2 ; nn++) {
-	    var newparam = '"pix":[' + jsonpix["pix"][nn*2] + ',' + jsonpix["pix"][nn*2+1] + ']'
+	    var newparam = '"pix":[' + jsonpix["pix"][nn*2] + ',' + jsonpix["pix"][nn*2+1] + ']' + delaypix
 		PutHTML(newparam);
 		
 		var ms = new Date().getTime();
 		console.log(nn);
-		while (new Date().getTime() < (ms+1000)){}
+		while (new Date().getTime() < (ms+parseInt(delaypix))){}
 
 	}
 	//PutHTML(params.replace(/\s/g,''));
@@ -244,6 +245,9 @@ Copy and paste pixel text from Excel to generate a picture<br>
          678
 
       ]}</textarea>
+
+<input type="number" id="pixelDelay" value="500" maxlength="4" size="2" style="font-size:x-large" size="5">
+
 <input type="submit" value="Send Pixels" onclick="SendPixel()" style="font-size:x-large" size="15">
 
 <h4>The light sensor runs every 10 seconds, the brightness setting changes is therefore observed within 10 seconds.</h4>

@@ -48,20 +48,23 @@ void Draw_Bitmap(boolean* bitmap, int col, int xoffset, uint16_t colorm) {
 void Neomatrix_scrollbitmap(char pic[], boolean isBlink) {
   boolean* bitmap_source;
   byte bitmap_width;
-  uint16_t mcolor;
+  uint16_t mcolor1, mcolor2;
 
   if (strcmp(pic, "heart") == 0) {
     bitmap_width = 9;
     bitmap_source = heart;
-    mcolor = matrix.Color(0,200,0);
+    mcolor1 = matrix.Color(0,200,0);
+    mcolor2 = matrix.Color(0,200,0);
   } else if (strcmp(pic, "stPatrick") == 0) {
     bitmap_width = 9;
     bitmap_source = stPatrick;
-    mcolor = matrix.Color(0,250,0);
+    mcolor1 = matrix.Color(0,250,0);
+    mcolor2 = matrix.Color(0,250,0);
   } else if (strcmp(pic, "star") == 0) {
     bitmap_width = 9;
     bitmap_source = star;
-    mcolor = matrix.Color(19,50,230);
+    mcolor1 = matrix.Color(10,10,230);
+    mcolor2 = matrix.Color(240,0,0);
   }
 
   //matrix.fillScreen(0); 
@@ -75,7 +78,7 @@ void Neomatrix_scrollbitmap(char pic[], boolean isBlink) {
       matrix.show(); delay(100);     // blinking
     }
 
-    Draw_Bitmap(bitmap_source, bitmap_width, -x+32-bitmap_width, mcolor);
+    Draw_Bitmap(bitmap_source, bitmap_width, -x+32-bitmap_width, mcolor1);
     matrix.show();
     delay(20);
   }
@@ -85,7 +88,7 @@ void Neomatrix_scrollbitmap(char pic[], boolean isBlink) {
       matrix.show(); delay(100);     // blinking
     }
 
-    Draw_Bitmap(bitmap_source, bitmap_width, -x+32-bitmap_width, mcolor);
+    Draw_Bitmap(bitmap_source, bitmap_width, -x+32-bitmap_width, mcolor2);
     matrix.show();
     delay(20);
   }
@@ -97,7 +100,7 @@ void Neomatrix_scrollbitmap(char pic[], boolean isBlink) {
       matrix.show(); delay(100);     // blinking
     }
 
-    Draw_Bitmap(bitmap_source, bitmap_width, -x+32-bitmap_width, mcolor);
+    Draw_Bitmap(bitmap_source, bitmap_width, -x+32-bitmap_width, mcolor1);
     matrix.show();
     delay(20);
   }
@@ -107,9 +110,10 @@ void Neomatrix_scrollbitmap(char pic[], boolean isBlink) {
       matrix.show(); delay(100);     // blinking
     }
 
-    Draw_Bitmap(bitmap_source, bitmap_width, -x+32-bitmap_width, mcolor);
+    Draw_Bitmap(bitmap_source, bitmap_width, -x+32-bitmap_width, mcolor2);
     matrix.show();
     delay(20);
   }
-  
 }
+
+// =================================================
