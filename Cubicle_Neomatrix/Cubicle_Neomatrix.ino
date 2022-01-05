@@ -34,7 +34,7 @@ void loop() {
 
   //Neomatrix_scrolltext("Happy Halloween" , 32, 232, 20);
   //Neomatrix_scrolltext("Happy ThanksGiving" , 175, 40, 120);
-  //Neomatrix_scrolltext("Design Enablement" , 250, 0, 250);
+  Neomatrix_scrolltext("skywater" , 17, 2, 200);
 
   //static byte count = 0;
   Neomatrix_scroll_picture(0);
