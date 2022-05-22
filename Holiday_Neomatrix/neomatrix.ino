@@ -15,7 +15,6 @@ void Neopixel_Initial() {
 void Neomatrix_scrolltext(String instr, byte R, byte G, byte B) {
 
   matrix.setTextColor(matrix.Color(R,G,B));
-  //matrix.setFont(&FreeSerif9pt7b);
 
   Serial.println(instr.length());
   for (int x=0 ; x < (instr.length()*6+32); x++) {
@@ -25,7 +24,7 @@ void Neomatrix_scrolltext(String instr, byte R, byte G, byte B) {
     matrix.print(instr);
 
     matrix.show();
-    delay(30);
+    delay(15);
   }
   //x = (x-1) % 50;
 }

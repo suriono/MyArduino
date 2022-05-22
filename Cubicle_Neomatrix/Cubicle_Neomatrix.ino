@@ -1,5 +1,6 @@
 #include <Adafruit_NeoMatrix.h>
 #include <Adafruit_GFX.h>
+//#include <Fonts/FreeSerif9pt7b.h>
 
 
 #define NEOPIXEL_PIN    4  // D2 for NodeMCU
@@ -23,26 +24,81 @@ void setup() {
 // ============== Loop ===========================
 
 void loop() {
-//  Neomatrix_scrolltext("Merry Christmas" , 0, 250, 0);
-//  Neomatrix_scrolltext("Happy Diwali" , 232, 142, 19);
- // Neomatrix_scrolltext("Happy New Year" , 232, 19, 213);
- // Neomatrix_scrolltext("Happy Hanukkah" , 0, 0, 250);
-  //Neomatrix_scrolltext("Las Posadas" , 60, 180, 56);
-  //Neomatrix_scrolltext("Happy Kwanzaa" , 232, 71, 19);
-  
-  //Neomatrix_scrollbitmap("star", false);
+  int randn = random(0,767);
+  byte red = 0;
+  byte green = 0;
+  byte blue = 0;
+  byte comb;
 
-  //Neomatrix_scrolltext("Happy Halloween" , 32, 232, 20);
-  //Neomatrix_scrolltext("Happy ThanksGiving" , 175, 40, 120);
-  Neomatrix_scrolltext("skywater" , 17, 2, 200);
+  if (randn < 256) {
+      red = 255 - randn;
+      green = randn;
+  } else if (randn < 511) {
+      green = 511 - randn;
+      blue = randn - 256;
+  } else {
+      red = 767 - randn;
+      blue = randn - 512;
+  }
+  
+  Neomatrix_scrolltext("Welcome" ,red, green, blue);
+ // colorcombination = !colorcombination;
+  /*
+  byte red = random(0,255);
+  byte green = random(0,255);
+  byte blue = random(0,255);
+  byte combination = random(0,4);
+
+  switch (combination) {
+    case 0:
+      Neomatrix_scrolltext("Welcome to 13934 Fallbrook Way" ,red, green, blue);
+      break;
+    case 1:
+       Neomatrix_scrolltext("Welcome to 13934 Fallbrook Way" ,red, green, 0);
+       break;
+    case 2:
+       Neomatrix_scrolltext("Welcome to 13934 Fallbrook Way" ,red, 0, blue);
+       break;
+    case 3:
+       Neomatrix_scrolltext("Welcome to 13934 Fallbrook Way", 0, green, blue);
+       break;
+    default:
+       Neomatrix_scrolltext("Welcome to 13934 Fallbrook Way", red/2, green, blue/2);
+  }
+  */
+
+  /*
+ 
+  Neomatrix_scrolltext("O say, can you see", 200, 0, 0);
+  Neomatrix_scrolltext("By the dawn's early light", 0, 0, 200);
+  Neomatrix_scrolltext("What so proudly we hail", 200, 0, 0);
+  Neomatrix_scrolltext("At the twilight's last gleaming", 0, 0, 200);
 
   //static byte count = 0;
-  Neomatrix_scroll_picture(0);
-  //for(byte nn = 0; nn < 3; nn++) {
-   //  
-  //}
+  Neomatrix_scroll_picture(0, 13, 30);
 
-  //Neomatrix_scrolltext("Bite me ---- " , 175, 40, 10);
-  //count = (count + 1) % 3;
-  //Serial.println(count);
+  Neomatrix_scrolltext("Whose broad stripes and bright stars", 200, 0, 0);
+  Neomatrix_scrolltext("Through the perilous fight", 0, 0, 200);
+  Neomatrix_scrolltext("O'er the ramparts we watch", 200, 0, 0);
+  Neomatrix_scrolltext("Were so gallantly streaming", 0, 0, 200);
+
+  Neomatrix_scroll_picture(0, 13, 30);
+
+  Neomatrix_scrolltext("And the rocket's red glare", 200, 0, 0);
+  Neomatrix_scrolltext("The bombs bursting in air", 0, 0, 200);
+  Neomatrix_scrolltext("Gave proof through the night", 200, 0, 0);
+  Neomatrix_scrolltext("That our flag was still there", 0, 0, 200);
+
+  Neomatrix_scroll_picture(0, 13, 30);
+
+  Neomatrix_scrolltext("O say, does that star-spangled banner yet wave", 200, 0, 0);
+  Neomatrix_scrolltext("O'er the land of the free", 0, 0, 200);
+  Neomatrix_scrolltext(".........................", 200, 0, 0);
+  Neomatrix_scrolltext("And the home of the brave", 0, 0, 200);
+
+  Neomatrix_scroll_picture(0, 13, 30);
+  */
+  //Neomatrix_scroll_picture(0, 35, 32);
+  
+  
 }
