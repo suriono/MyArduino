@@ -43,7 +43,55 @@ void setup() {
   
 }
 
+// =============== Loop ======================
+
 void loop() {
+
+  Send_Text("Welcome to");
+  Send_Text("13934 Fallbrook Way");
+
+  /*
+  Send_Text("O say, can you see");
+  Send_Text("By the dawn's early light");
+  Send_Text("What so proudly we hail");
+  Send_Text("At the twilight's last gleaming");
+
+  //static byte count = 0;
+  Neomatrix_scroll_picture(0, 13, 30);
+
+  Send_Text("Whose broad stripes and bright stars");
+  Send_Text("Through the perilous fight");
+  Send_Text("O'er the ramparts we watch");
+  Send_Text("Were so gallantly streaming");
+
+  Neomatrix_scroll_picture(0, 13, 30);
+
+  Send_Text("And the rocket's red glare");
+  Send_Text("The bombs bursting in air");
+  Send_Text("Gave proof through the night");
+  Send_Text("That our flag was still there");
+
+  Neomatrix_scroll_picture(0, 13, 30);
+
+  Send_Text("O say, does that star-spangled banner yet wave");
+  Send_Text("O'er the land of the free");
+  Send_Text("And the home of the brave");
+
+  Neomatrix_scroll_picture(0, 13, 30);
+  Neomatrix_scroll_picture(0, 13, 30);
+  Neomatrix_scroll_picture(0, 13, 30);
+
+  Send_Text("Happy Independence Day ......");
+
+  Neomatrix_scroll_picture(0, 13, 30);
+  Neomatrix_scroll_picture(0, 13, 30);
+  Neomatrix_scroll_picture(0, 13, 30);
+  */
+}
+
+// ============== Send Text =================
+
+void Send_Text(String inputstr) {
   ArduinoOTA.handle();
 
   int randn = random(0,767);
@@ -62,15 +110,6 @@ void loop() {
       blue = randn - 512;
   }
   
-  Neomatrix_scrolltext("Happy Armed Forces Day (May 21)" ,red, green, blue);
-   
-   //Neomatrix_scrolltext("Happy Easter", 200, 200, 0);
-
-  //static byte count = 0;
-  //Neomatrix_scroll_picture(0, 42, 31);
-
-  //Neomatrix_scrolltext("Happy Easter", 66, 164, 230);
-  
- // Neomatrix_scroll_picture2(0, 34, 29);
+  Neomatrix_scrolltext(inputstr ,red, green, blue);
   
 }
