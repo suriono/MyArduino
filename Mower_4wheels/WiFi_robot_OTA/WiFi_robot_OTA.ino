@@ -51,9 +51,9 @@ void setup() {
 //  ST.motor(1, 100);
   delay(1000);
 //  ST.motor(1, 0);
-  motorRun(30, 0, 2000);
+  motorRun(40, 0, 2000);
   delay(1000);
-  //motorRun(40,180, 2000);
+  motorRun(40,180, 2000);
   motorStop();
 }
 
