@@ -3,7 +3,7 @@
 void motorStop() {
   ST.stop();
   //last_motor_run = millis();
-  #ifdef DEBUG
+  #ifdef DEBUGGING
     Serial.println("Motor Stop");
   #endif
 }
@@ -30,16 +30,24 @@ void motorRun(int pow_mot, int degree, unsigned long delaytime) {
   int motor1 = round(-(y-x) * norm_f);
   int motor2 = round(-(y+x) * norm_f);
 
-  #ifdef DEBUG
+  #ifdef DEBUGGING
     
-    Serial.print(" X="); Serial.print(String(x));
-    Serial.print(" Y="); Serial.print(String(y));
-    Serial.print(" Max speed="); Serial.print(max_speed);
-    Serial.print(" Power="); Serial.print(pow_mot);
-    Serial.print(" Degree="); Serial.print(degree);
-    Serial.print(" M1="); Serial.print(motor1); 
-    Serial.print(" M2=");  Serial.print(motor2);
+    //Serial.print(" X="); Serial.print(String(x));
+    //Serial.print(" Y="); Serial.print(String(y));
+   
+    //Serial.print(" Max speed="); Serial.print(max_speed);
+    
+    Serial.print(" Power: "); Serial.print(pow_mot);
+    Serial.print(" Degree: "); Serial.print(degree);
+    //Serial.print(" ML: "); Serial.print(motor2); 
+    //Serial.print(" MR: "); Serial.print(motor1);
+
+    if (IMU_Ready) {
+       Serial.print(" Yaw:"); Serial.print(Yaw);
+    }
     Serial.println();
+    
+    
   #endif
 
   ST.motor(1, motor1); delay(15);
