@@ -17,6 +17,7 @@ void setup() {
   digitalWrite(BREAK_PIN, LOW);
   Serial.begin(57600);
   analogWrite(PWM_PIN, 0);
+  delay(2000);
   WiFi.softAP("Ripstick", "hello5239612");
   Serial.print("AP IP: "); Serial.println(WiFi.softAPIP());
   server.begin();
@@ -71,6 +72,7 @@ void loop() {
   } else {
     if ( (millis()-last_no_signal) > 500) {
        analogWrite(PWM_PIN, 0);  // no power when no signal
+       last_no_signal = millis();
     }
   }
 }

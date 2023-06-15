@@ -27,6 +27,7 @@ bool IMU_Ready = false;     // set true if DMP init was successful
 // ========================== Set up =======================
 
 void setup() {
+  delay(5000);
   SerialRobot.begin(38400);
   Serial.begin(57600);
   WiFi.enableAP(false);
