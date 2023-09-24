@@ -60,9 +60,13 @@ void setup() {
   Serial.print("connected: ");
   Serial.println(WiFi.localIP());
 
-  // OTA_Setup();
+  // Firebase_begin() contains credentials not shown for privacy
+  // auth.user.email = "xxxxxxxxxxxxxxxxxxxx";
+  // auth.user.password = "xxxxxxxxxxxxxxxxx";
+  // config.api_key = "xxxxxxxxxxxxxxx";
+  // config.database_url = "xxxxxxxxxxxxxxxxxxxxxxxx";
+  // Firebase.begin(&config, &auth);
   Firebase_begin();
-  //Firebase_getResetTime(0,"Initial");
 
   Udp_begin();
 
