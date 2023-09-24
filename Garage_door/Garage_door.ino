@@ -6,15 +6,21 @@ D7   = 13;    D8   = 15;    D9   = 3;     D10  = 1;
 
 #include <ESP8266WiFi.h>
 #include <FirebaseESP8266.h>
+// Provide the token generation process info.
+#include <addons/TokenHelper.h>
+// Provide the RTDB payload printing info and other helper functions.
+#include <addons/RTDBHelper.h>
 // #include <ArduinoOTA.h>
 #include <WiFiUdp.h>       // used for network Epoch
 #include <SoftwareSerial.h>
 
-SoftwareSerial SerialSonar(5, 4); // RX TX only transmit 13 needed
+SoftwareSerial SerialSonar(5, 4); // RX TX only RX 14 needed
 
 WiFiUDP udp;
 //Define FirebaseESP8266 data object
 FirebaseData firebaseData;
+FirebaseAuth auth;
+FirebaseConfig config;
 
 // === garage door opener relay
 #define RELAY_OPENER 14                // D5 of NodeMCU
@@ -71,7 +77,9 @@ void loop() {
   // ArduinoOTA.handle();     // if any OTA update
   
   int new_distance = Get_Sonic_Distance();
+  Serial.print("Read distance : "); Serial.println(new_distance);
   if (new_distance == 400) new_distance = last_distance;
+
   Serial.print(new_distance); Serial.print(",");
   
   //Firebase_getPushButtonRemote(); // check whether to open/close garage

@@ -1,7 +1,7 @@
 #include <NewPing.h>
 #include <SoftwareSerial.h>
 
-SoftwareSerial SerialSonar(8, 13); // RX TX only transmit 13 needed
+SoftwareSerial SerialSonar(8, 13); // RX TX only transmit 13 needed to NodeMCU
 
 // 3.3V MiniPro
 
