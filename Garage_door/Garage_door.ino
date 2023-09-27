@@ -49,7 +49,7 @@ void setup() {
   //ESP.eraseConfig(); delay(1000);
   WiFi.setOutputPower(20.0); 
   WiFi.enableAP(false);
-  WiFi_begin();
+  WiFi_begin(); // contain WiFi.begin("SSID","wifi password"); hidden for privacy
   
   Serial.print("connecting");
   while (WiFi.status() != WL_CONNECTED) {
