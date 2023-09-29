@@ -65,6 +65,9 @@ void setup() {
   // auth.user.password = "xxxxxxxxxxxxxxxxx";
   // config.api_key = "xxxxxxxxxxxxxxx";
   // config.database_url = "xxxxxxxxxxxxxxxxxxxxxxxx";
+  //config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
+  //Firebase.reconnectNetwork(true);
+  //firebaseData.setBSSLBufferSize(4096 /* Rx buffer size in bytes from 512 - 16384 */, 1024 /* Tx buffer size in bytes from 512 - 16384 */);
   // Firebase.begin(&config, &auth);
   Firebase_begin();
 
