@@ -1,0 +1,16 @@
+1. Save a picture into "picture-original.png"
+2. Click the "black-background.py" file:
+		This will create "picture-black-background.png" file.
+		This new file changes white background into black.
+3. Use Paint, or Paint 3D, or any software to resize the picture:
+		Set the resize vertical pixel to 40.
+		Save the file to file name of "picture-pixel-adjust.png"
+4. Click the "picture-to-excel.py" file:
+		This will create "picture-to-excel.xlsx" file
+		Open this Excel file.
+5. Open the "pixel-generator.xlsm" file
+		Copy the pixels from the "picture-to-excel.xlsx" file to the "pixel-generator.xlsm" file.
+		Click the "Generate Pixel" button
+		Copy the text below it.
+		Paste the text into the chuck sign browser picture box.
+		Click the "Send Pixels" button from the browser.

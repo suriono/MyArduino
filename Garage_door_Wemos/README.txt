@@ -1,0 +1,3 @@
+Previously I used ESP8266 (NodeMCU) with Arduiono Pro Mini for the microcontrollers. The reason I used the Arduino because the Ultrasonic sensor instruction says it required an AVR microcontroller which ESP8266 nor ESP32 posses.
+
+In this version, I switch to Wemos, an ESP32 microcontroller, it is cheaper. I ran a test, even though I received a warning that ESP32 does not have AVR, it still works with the Ultrasonic. Therefore I connect the ESP32 Wemos directly into the Ultrasonic sensor. Note: the "Echo" pin from the Ultrasonic needs to step down from 5V to 3.3V into the Wemos digital pin. One easy way to do it is by using a voltage-divider (or use Level-shifter).

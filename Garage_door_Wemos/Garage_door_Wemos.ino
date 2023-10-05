@@ -86,9 +86,9 @@ void loop() {
   //Firebase_getPushButtonRemote(); // check whether to open/close garage
   
   if ( ( (millis() - time_firebase_update) > CLOUD_SEND_INTERVAL || 
-         ( last_distance < 80 && new_distance > 120) ||
-         ( last_distance > 120 && new_distance < 80)
-        ) && new_distance > 0) {  // big distance change
+         ( last_distance < 120 && new_distance > 140) ||
+         ( last_distance > 140 && new_distance < 120)
+        ) && new_distance > 0) {  // big distance change so it does not update nonstop, only when the garage door is open or close
  
         Firebase_Send_Distance(new_distance);
         last_distance = new_distance;
