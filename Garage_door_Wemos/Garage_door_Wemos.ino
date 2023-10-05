@@ -86,8 +86,8 @@ void loop() {
   //Firebase_getPushButtonRemote(); // check whether to open/close garage
   
   if ( ( (millis() - time_firebase_update) > CLOUD_SEND_INTERVAL || 
-         ( last_distance < 80 && new_distance > 100) ||
-         ( last_distance > 100 && new_distance < 80)
+         ( last_distance < 80 && new_distance > 120) ||
+         ( last_distance > 120 && new_distance < 80)
         ) && new_distance > 0) {  // big distance change
  
         Firebase_Send_Distance(new_distance);
@@ -110,13 +110,13 @@ void loop() {
         last_debug_time = millis();
   }
   digitalWrite(LED_BUILTIN, HIGH);
-  delay(1500);
+  delay(1000);
   digitalWrite(LED_BUILTIN, LOW);
-  delay(1500);
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(1500);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(1500);
+  delay(1000);
+  //digitalWrite(LED_BUILTIN, HIGH);
+  //delay(1000);
+  //digitalWrite(LED_BUILTIN, LOW);
+  //delay(1000);
   
 }
 
