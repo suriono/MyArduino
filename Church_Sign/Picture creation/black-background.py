@@ -1,5 +1,5 @@
 import cv2, math, openpyxl
-from openpyxl.styles import PatternFill
+#from openpyxl.styles import PatternFill
 
 # ========= Modify below ================
 Filepath = "picture-original.png"
