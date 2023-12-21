@@ -22,7 +22,7 @@ void setup() {
   Serial.println("Booting");
   WiFi.mode(WIFI_STA);
 
-  wifi_begin();
+  wifi_begin(); // contain WiFi.begin("xxx","xxxx"); but hidden for security
 
   ArduinoOTA.setHostname(host);
   ArduinoOTA.onStart([]() { // switch off all the PWMs during upgrade
@@ -49,9 +49,9 @@ void setup() {
 void loop() {
 
   //Send_Text("Merry Christmas");
-  Send_Text("Joy to the world"); delay(500);
-  Send_Text("Let us receive the King"); delay(500);
-  Neomatrix_scroll_picture(0, 45, 64); delay(500);
+  Send_Text("  Joy to the world   "); 
+  Send_Text("Let us receive the King   "); 
+  Neomatrix_scroll_picture(0, 45, 64);
 }
 
 // ============== Send Text =================
