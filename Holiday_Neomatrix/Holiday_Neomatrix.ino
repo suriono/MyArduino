@@ -21,6 +21,8 @@ byte red_random = 0;
 byte green_random = 0;
 byte blue_random = 0;
 
+String Scroll_Text[2] = {"13934 Fallbrook Way", " ... "}; // for two words
+
 // ============================== setup ============================================
 
 void setup() {
@@ -52,23 +54,128 @@ void setup() {
 }
 
 // =============== Loop ======================
-String Scroll_Text[2] = {"Happy Chinese New Year", "The year of the Dragon"};
+
 void loop() {
 
-  //Send_Text("Merry Christmas");
-  //Send_Text("Joy to the world"); 
-  //Send_Text("Let us receive the King");
-  Send_Text();
+  Send_Text("O say, can you see");
+  Send_Text("By the dawn's early light");
+  Send_Text("What so proudly we hail");
+  Send_Text("At the twilight's last gleaming");
+
+  Send_Text("Whose broad stripes and bright stars");
+  Send_Text("Through the perilous fight");
+  Send_Text("O'er the ramparts we watch");
+  Send_Text("Were so gallantly streaming");
+
+  Send_Text("And the rocket's red glare");
+  Send_Text("The bombs bursting in air");
+  Send_Text("Gave proof through the night");
+  Send_Text("That our flag was still there");
+
+  Send_Text("O say, does that star-spangled banner yet wave");
+  Send_Text("O'er the land of the free");
+  Send_Text("And the home of the brave");
+ 
+  //Send_Text();
 
   //Neomatrix_scrolltext_random_eachstep("Merry Christmas");
   
-  Neomatrix_scroll_picture2(0, 45, 64);
-  
+  Neomatrix_scroll_picture2(0, 13, 30); // (row, column)
+  Neomatrix_scroll_picture2(32, 13, 30); // (row, column)
 }
 
 // ============== Send Text =================
 
-void Send_Text() {
+void Send_Text(String inputstr) {
+
+  ArduinoOTA.handle();
+
+  int randn = random(0,767);
+  byte red = 0;
+  byte green = 0;
+  byte blue = 0;
+
+  if (randn < 256) {
+      red = 255 - randn;
+      green = randn;
+  } else if (randn < 511) {
+      green = 511 - randn;
+      blue = randn - 256;
+  } else {
+      red = 767 - randn;
+      blue = randn - 512;
+  }
+  
+  Neomatrix_scrolltext(inputstr ,red, green, blue);
+  
+}
+
+// ============== Send Text Two words random =================
+
+void Send_Text_two_words_random() {
+  bool Toggle_Color;
+  byte r1,g1,b1, r2,g2,b2;
+  ArduinoOTA.handle();
+
+  
+  r1 = 205  ; r2 = 0;
+  g1 = 0  ; g2 = 0;
+  b1 = 0   ; b2 = 255;
+  
+  for (int x=0 ; x < ((Scroll_Text[0].length()+Scroll_Text[1].length())*CHAR_WIDTH+NCOLUMNS); x++) {
+     if ( (x % (CHAR_WIDTH*8)) == 0 ) {
+     //if ( (x % 3) == 0 ) {
+        //Toggle_Color = !Toggle_Color;
+        //if (Toggle_Color) {
+        //  g1 = 60; g2 = 0;
+        //} else {
+        //  g1 = 0; g2=60;
+        //}
+        Neomatrix_random_color();
+        r1 = red_random;
+        g1 = green_random;
+        b1 = blue_random;
+        Neomatrix_random_color();
+        r2 = red_random;
+        g2 = green_random;
+        b2 = blue_random;
+     }
+     
+     matrix.fillScreen(0);
+
+     Neomatrix_text(Scroll_Text[0], r1, g1, b1, -x+NCOLUMNS-1);
+     Neomatrix_text(Scroll_Text[1], r2, g2, b2, -x+NCOLUMNS-1 + (Scroll_Text[0].length() + 3)*CHAR_WIDTH);
+   
+     matrix.show();
+     delay(10);
+  }
+}
+
+
+// ==================================================================================================
+
+void Send_Text_two_words() {
+  bool Toggle_Color;
+  byte r1,g1,b1, r2,g2,b2;
+  ArduinoOTA.handle();
+
+  
+  r1 = 205  ; r2 = 0;
+  g1 = 0  ; g2 = 0;
+  b1 = 0   ; b2 = 255;
+  
+  for (int x=0 ; x < ((Scroll_Text[0].length()+Scroll_Text[1].length())*CHAR_WIDTH+NCOLUMNS); x++) {
+     matrix.fillScreen(0);
+     Neomatrix_text(Scroll_Text[0], r1, g1, b1, -x+NCOLUMNS-1);
+     Neomatrix_text(Scroll_Text[1], r2, g2, b2, -x+NCOLUMNS-1 + (Scroll_Text[0].length() + 3)*CHAR_WIDTH);
+     matrix.show();
+     delay(10);
+  }
+}
+
+// ===================================================================================================
+
+void Send_Text_Random() {
   byte r1,g1,b1, r2,g2,b2;
   ArduinoOTA.handle();
   
@@ -93,6 +200,8 @@ void Send_Text() {
      delay(5);
   }
 }
+
+
 
 void Send_Text2(String inputstr) {
   ArduinoOTA.handle();

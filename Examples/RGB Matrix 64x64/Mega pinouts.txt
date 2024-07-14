@@ -1,0 +1,18 @@
+Pin	Label		Mega
+====================
+1	R1	 	24 
+2	G1		25 
+3	B1		26
+4	GND		GND
+5	R2		27 
+6	G2		28 
+7	B2		29
+8	LE		A4
+9	LA		A0
+10 	LB		A1 
+11	LC		A2 
+12	LD		A3
+13	CLK		11
+14	LAT		10
+15	OE		9
+16	GND		GND 

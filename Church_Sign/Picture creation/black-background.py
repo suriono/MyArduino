@@ -11,7 +11,9 @@ assert img is not None, "file could not be read, check with os.path.exists()"
 for nrow in range(img.shape[0]):
    for ncol in range(img.shape[1]):   
       red, green, blue = img[nrow,ncol]
-      if blue > 80 and green > 80 and red > 80:
+      print(red,green,blue)
+#      if blue > 80 and green > 80 and red > 80:
+      if blue > 180 and green > 180 and red > 180:
          for i in range(3): 
             img.itemset((nrow,ncol,i),0)
 
