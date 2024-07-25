@@ -1,7 +1,7 @@
-#define FORWARD_PIN    16
-#define REVERSE_PIN    14
-#define RIGHT_PIN      12
-#define LEFT_PIN       13
+#define FORWARD_PIN    14
+#define REVERSE_PIN    16
+#define RIGHT_PIN      13
+#define LEFT_PIN       12
 #define MOW_C_PIN      0
 #define MOW_BLADE_PIN  2
 
@@ -48,21 +48,21 @@ void Motor_Reverse(unsigned long delaytime, unsigned long afterdelay) {
 // ================ Motor Left ===================================
 
 void Motor_Left(unsigned long delaytime, unsigned long afterdelay) {
-   digitalWrite(LEFT_PIN, LOW); delay(delaytime); digitalWrite(LEFT_PIN, HIGH);
-   delay(afterdelay);
+   digitalWrite(LEFT_PIN, LOW); delay(delaytime); //digitalWrite(LEFT_PIN, HIGH);
+   //delay(afterdelay);
 }
 
 // ================ Motor Right ===================================
 
 void Motor_Right(unsigned long delaytime, unsigned long afterdelay) {
-   digitalWrite(RIGHT_PIN, LOW); delay(delaytime); digitalWrite(RIGHT_PIN, HIGH);
-   delay(afterdelay);
+   digitalWrite(RIGHT_PIN, LOW); delay(delaytime);// digitalWrite(RIGHT_PIN, HIGH);
+   //delay(afterdelay);
 }
 
 // ================ Mow Blade ===================================
 
 void Motor_Mow(unsigned long delaytime, unsigned long afterdelay) {
-   digitalWrite(MOW_C_PIN, LOW); delay(1000); digitalWrite(MOW_BLADE_PIN, LOW);
-   delay(delaytime); digitalWrite(MOW_C_PIN, HIGH); digitalWrite(MOW_BLADE_PIN, HIGH);
-   delay(afterdelay);
+   digitalWrite(MOW_C_PIN, LOW); delay(10); digitalWrite(MOW_BLADE_PIN, LOW);
+   delay(delaytime); //digitalWrite(MOW_C_PIN, HIGH); //digitalWrite(MOW_BLADE_PIN, HIGH);
+   //delay(afterdelay);
 }

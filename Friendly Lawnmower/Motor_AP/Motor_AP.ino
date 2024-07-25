@@ -18,12 +18,15 @@ void setup() {
   //pinMode(LED_PIN, OUTPUT);
   Motor_Init();
   Serial.begin(57600);
-  WiFi.enableAP(false);
-  WiFi.mode(WIFI_STA);
+
+  WiFi.softAP("FriendlyRobotics", "hello5239612");
+  Serial.print("AP IP: "); Serial.println(WiFi.softAPIP());
+  //WiFi.enableAP(false);
+  //WiFi.mode(WIFI_STA);
  
-  wifi_begin();
-  WiFi.setAutoReconnect(true);
-  WiFi.persistent(true);
+  //wifi_begin();
+ // WiFi.setAutoReconnect(true);
+  //WiFi.persistent(true);
   wificlient.setTimeout(200);
 
   ArduinoOTA.setHostname(host);
