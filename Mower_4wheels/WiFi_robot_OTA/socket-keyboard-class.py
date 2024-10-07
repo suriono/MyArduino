@@ -1,7 +1,7 @@
 import socket, time, select, os
 from pynput import keyboard
 #socket.setdefaulttimeout(1)
-HOST = "192.168.0.33"
+HOST = "192.168.4.1"
 
   
 class Motor:

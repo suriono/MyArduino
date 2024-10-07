@@ -1,6 +1,6 @@
 import socket, time, select, os
 #socket.setdefaulttimeout(1)
-HOST = "192.168.0.33"
+HOST = "192.168.4.1"
 def test_run():
   
    

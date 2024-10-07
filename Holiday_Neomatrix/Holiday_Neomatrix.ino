@@ -57,31 +57,33 @@ void setup() {
 
 void loop() {
 
-  Send_Text("O say, can you see");
-  Send_Text("By the dawn's early light");
-  Send_Text("What so proudly we hail");
-  Send_Text("At the twilight's last gleaming");
-
-  Send_Text("Whose broad stripes and bright stars");
-  Send_Text("Through the perilous fight");
-  Send_Text("O'er the ramparts we watch");
-  Send_Text("Were so gallantly streaming");
-
-  Send_Text("And the rocket's red glare");
-  Send_Text("The bombs bursting in air");
-  Send_Text("Gave proof through the night");
-  Send_Text("That our flag was still there");
-
-  Send_Text("O say, does that star-spangled banner yet wave");
-  Send_Text("O'er the land of the free");
-  Send_Text("And the home of the brave");
+//  Send_Text("O say, can you see");
+//  Send_Text("By the dawn's early light");
+//  Send_Text("What so proudly we hail");
+//  Send_Text("At the twilight's last gleaming");
+//
+//  Send_Text("Whose broad stripes and bright stars");
+//  Send_Text("Through the perilous fight");
+//  Send_Text("O'er the ramparts we watch");
+//  Send_Text("Were so gallantly streaming");
+//
+//  Send_Text("And the rocket's red glare");
+//  Send_Text("The bombs bursting in air");
+//  Send_Text("Gave proof through the night");
+//  Send_Text("That our flag was still there");
+//
+//  Send_Text("O say, does that star-spangled banner yet wave");
+//  Send_Text("O'er the land of the free");
+//  Send_Text("And the home of the brave");
  
   //Send_Text();
 
   //Neomatrix_scrolltext_random_eachstep("Merry Christmas");
+
+  Send_Text("13934 Fallbrook Way");
   
-  Neomatrix_scroll_picture2(0, 13, 30); // (row, column)
-  Neomatrix_scroll_picture2(32, 13, 30); // (row, column)
+  //Neomatrix_scroll_picture2(0, 31, 64); // (row, column)
+ // Neomatrix_scroll_picture2(32, 13, 30); // (row, column)
 }
 
 // ============== Send Text =================
