@@ -82,7 +82,8 @@ void loop() {
 
   Send_Text("13934 Fallbrook Way");
   
-  //Neomatrix_scroll_picture2(0, 31, 64); // (row, column)
+  Neomatrix_scroll_picture2(0, 40, 35); // (row, column)
+  Neomatrix_scroll_picture2(29, 40, 35); // (row, column)
  // Neomatrix_scroll_picture2(32, 13, 30); // (row, column)
 }
 

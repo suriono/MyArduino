@@ -3,7 +3,7 @@
 #include "EasyNextionLibrary.h"  // Include EasyNextionLibrary
 
 #define DEBUGGING
-#define HOST_IP        "192.168.4.1"
+#define HOST_IP        "192.168.11.200"
 #define HOST_PORT      8000
 #define WIFI_INTERVAL  250
 

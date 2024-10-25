@@ -13,10 +13,13 @@ class GPS_Coordinate:
       del_lat, del_lon = lat - self.lat_ref, lon - self.lon_ref
       del_X = self.X_scale * math.sin(math.radians(del_lon))
       del_Y = self.Radius * math.sin(math.radians(del_lat))
-      #del_Y = self.Radius * math.sin(del_lat)
-      #print("Delta: ", del_lat, del_lon)
       return del_X, del_Y
-      
+   
+   def get_Lat_Lon_from_X_Y(self, x=0, y=0):
+      lat = math.degrees(math.asin(y / self.Radius)) + self.lat_ref
+      lon = math.degrees(math.asin(x/self.X_scale))  + self.lon_ref
+     # print("lat, Lon: ", lat, lon)
+      return lat, lon
    
 if __name__ == "__main__":
    

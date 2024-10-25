@@ -2,7 +2,7 @@ import socket, json
 
 class wifi_class:
    
-   def __init__(self, host="192.168.0.27", port=8000):
+   def __init__(self, host="192.168.11.200", port=8000):
       self.host, self.port = host, port
    
    def connect_Wifi(self):
@@ -16,7 +16,7 @@ class wifi_class:
    def listen_Wifi(self, maxBytes=64):
       data = self.sock.recv(maxBytes)
       try:
-         self.read_json = json.loads(data.decode('utf-8'))
+         self.read_json = json.loads(data.decode('utf-8').replace('<',''))
          return True
       except:
          return False

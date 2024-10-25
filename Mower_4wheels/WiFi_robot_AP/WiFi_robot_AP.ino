@@ -30,17 +30,22 @@ void setup() {
   delay(5000);
   SerialRobot.begin(38400);
   Serial.begin(57600);
-  //WiFi.enableAP(false);
-  //WiFi.mode(WIFI_STA);
+  WiFi.enableAP(false);
+  WiFi.mode(WIFI_STA);
 
   Wire.begin();    // for IMU
   Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
 
   motorStop();
 
-  //wifi_begin();
-  WiFi.softAP("PlowerRobotics", "hello12345");
-  Serial.print("AP IP: "); Serial.println(WiFi.softAPIP());
+  IPAddress ip(192, 168, 11, 200); 
+  IPAddress gateway(192, 168, 11, 1); // set gateway to match your network
+  IPAddress subnet(255, 255, 255, 0); // set subnet mask to match your
+  WiFi.config(ip, gateway, subnet);
+  wifi_begin(); 
+  
+  //WiFi.softAP("PlowerRobotics", "hello12345");
+  //Serial.print("AP IP: "); Serial.println(WiFi.softAPIP());
   wificlient.setTimeout(200);
 
   ArduinoOTA.setHostname(host);
