@@ -25,6 +25,10 @@ void setup()
 
   WiFi.enableAP(false);
   WiFi.mode(WIFI_STA);
+  IPAddress ip(192, 168, 11, 201); 
+  IPAddress gateway(192, 168, 11, 1); // set gateway to match your network
+  IPAddress subnet(255, 255, 255, 0); // set subnet mask to match your
+  WiFi.config(ip, gateway, subnet);
   wifi_begin();
   server.begin();
   
@@ -76,6 +80,8 @@ void loop() {
    // last_gps = millis();
     get_Coordinates(); 
   }
-
+  if ( Serial.available() ) {
+    Serial.println(Serial.read());
+  }
   
 }

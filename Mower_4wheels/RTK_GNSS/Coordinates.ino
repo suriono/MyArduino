@@ -15,4 +15,7 @@ void get_Coordinates() {
     d_lat += ((double) myGNSS.getHighResLatitudeHp() ) / 1000000000.0; // Now add the high resolution component (degrees * 10^-9 )
     d_lon =  ((double) myGNSS.getHighResLongitude()) / 10000000.0; // Convert longitude from degrees * 10^-7 to degrees
     d_lon += ((double) myGNSS.getHighResLongitudeHp()) / 1000000000.0; // Now add the high resolution component (degrees * 10^-9 )
+    
+    
+    //Serial.println(d_lat);
 }

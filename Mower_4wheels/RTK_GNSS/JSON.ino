@@ -9,9 +9,8 @@ void json_Process() {
 void json_cmd(String msg) {
   //Serial.print("JSON cmd: "); Serial.println(msg);
   if (msg == "get_gps") {
-    //Serial.print(d_lat, 9);
-    //Serial.print(",");
-    //Serial.println(d_lon, 9);
-    send_wifi();
+    send_coordinates();
+  } else if (msg == "get_rtk") {
+    send_rtk();
   }
 }
