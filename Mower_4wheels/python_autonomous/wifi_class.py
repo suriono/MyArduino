@@ -27,7 +27,7 @@ class wifi_class:
 # ==================== Testing ====================
 if __name__ == "__main__":
    wifi_obj = wifi_class("192.168.11.201", 8000)
-   for i in range(100):
+   for i in range(10):
       wifi_obj.send_Message('{"cmd":"get_gps"}')
       if wifi_obj.listen_Wifi(64): 
          in_json = wifi_obj.read_json

@@ -8,6 +8,19 @@ int    Yaw_offset    = 0;
 int    Yaw_target;
 bool   Yaw_enable = false;
 unsigned long Yaw_expire_time;
+int last_theta_delta  = 0;
+int PID_I_theta_delta = 0;
+
+// ==================== -180 < angle < 180 ================
+int wrap_Angle(int nag) {
+  int ag = nag;
+  if (ag < -180) {  // wrap around 360
+     ag += 360;
+  } else if (ag > 180) {
+     ag -= 360;
+  }
+  return ag;
+}
 
 // ===================== process_JSON =====================
 void process_JSON() {
@@ -15,7 +28,7 @@ void process_JSON() {
   static bool LedOnOff;
   int theta_delta, yaw_mag;
   String outstr;
-
+  
   if ( (millis()-lasttime) > 1000) {
      lasttime = millis();
      digitalWrite(LED_BUILTIN, LedOnOff);
@@ -56,21 +69,28 @@ void process_JSON() {
        
         if ( Yaw_enable && IMU_Ready ) {
            IMU_Yaw();    
-           theta_delta = Yaw - Yaw_offset - Yaw_target;
+           
+           theta_delta = wrap_Angle( Yaw - Yaw_offset - Yaw_target);
+
+           if ( (theta_delta * last_theta_delta) < 0 ) { // changing direction, prevent oscillation
+              PID_I_theta_delta = 0;
+           } else if ( abs( wrap_Angle(theta_delta -last_theta_delta)) > 10) { // large spin, reset to prevent oscillation or overshoot
+              PID_I_theta_delta = 0;
+           } else if (PID_I_theta_delta < 30) {
+              PID_I_theta_delta += 1;
+           }
            //theta_delta += (Yaw - last_yaw)/2; // anticipate continuous movement
          
-           if (theta_delta < -180) {  // wrap around 360
-              theta_delta += 360;
-           } else if (theta_delta > 180) {
-              theta_delta -= 360;
-           }
-           //Serial.print(" Yaw: "); Serial.print(Yaw);
-           //Serial.print(" Yaw_offset: "); Serial.print(Yaw_offset);
-           //Serial.print(" Yaw target: "); Serial.print(Yaw_target);
-           Serial.print(" Delta theta: "); Serial.print (theta_delta);
+           // if (theta_delta < -180) {  // wrap around 360
+           //    theta_delta += 360;
+           // } else if (theta_delta > 180) {
+           //    theta_delta -= 360;
+           // }
+           // theta_delta = wrap_Angle(theta_delta);
+           //Serial.print(" Delta theta: "); Serial.print (theta_delta);
 
            if ( abs(theta_delta) > 5) {  // tolerate to stop auto orientation
-              yaw_mag = map(abs(theta_delta),0,180,YAW_MIN_POWER,YAW_MAX_POWER); // limit by max power
+              yaw_mag = map(abs(theta_delta) + PID_I_theta_delta,0,180,YAW_MIN_POWER,YAW_MAX_POWER); // limit by max power
               if (theta_delta > 0) {
                  motorRun(yaw_mag, 90, 100);
               } else {
@@ -83,6 +103,8 @@ void process_JSON() {
               Serial.println("     Orientation reached");
               motorStop();
            }
+
+           last_theta_delta = theta_delta;
         } 
      }
   }

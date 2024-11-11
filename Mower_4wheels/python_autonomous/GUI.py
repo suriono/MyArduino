@@ -1,4 +1,4 @@
-import cv2, math, GPS_coordinate, Robot, time, gps_class
+import cv2, math, json, GPS_coordinate, Robot, time, gps_class
 import tkinter as tk
 from tkinter import PhotoImage
 from numpy import sign
@@ -10,6 +10,7 @@ class GUI:
    PID_rad_D_coef, PID_rad_I_coef, PID_rad_I = 0.2, 0.01, 0.0
    delta_angle = 0.0
    robot_obj, gps_obj = Robot.Robot(), gps_class.gps_class()
+   Data = {}
    
    # ---- Frames ------------
    root = tk.Tk()
@@ -29,7 +30,7 @@ class GUI:
    entryLat, entryLon, entrySpeed, entryAngle, labelCoord, is_Simulation = tk.DoubleVar(), tk.DoubleVar(), tk.IntVar(), tk.IntVar(), tk.StringVar(), tk.BooleanVar()
    labelCommand, labelDistance, entryTarget_angle, labelYaw, entryOffsetYaw = tk.StringVar(), tk.StringVar(), tk.IntVar(), tk.StringVar(), tk.IntVar()
    
-   # ----------- init ---------------
+   # ----------------------------- init ---------------
    
    def __init__(self, img_width=440, img_height=600, ref_Xpixel=100, ref_Ypixel=400, pixel_scale=19.8, lat_ref=0.0, lon_ref=0.0, waypoints=[]):
       self.img_width, self.img_height, self.ref_Xpixel, self.ref_Ypixel, self.pixel_scale = img_width, img_height, ref_Xpixel, ref_Ypixel, pixel_scale
@@ -74,7 +75,7 @@ class GUI:
       tk.Label(self.robotcmdframe, textvariable=self.labelCommand).pack(side=tk.LEFT)
       
       # ----- Angle command ----------------------------
-      tk.Button(self.angleframe, text="Offset Yaw:", command= lambda: self.set_Offset_Yaw(self.entryOffsetYaw.get())).pack(side=tk.LEFT)
+      tk.Button(self.angleframe, text="Set Current Angle:", command= lambda: self.set_Current_Angle(self.entryOffsetYaw.get())).pack(side=tk.LEFT)
       tk.Entry (self.angleframe, textvariable=self.entryOffsetYaw, width=4).pack(side=tk.LEFT)
       tk.Label (self.angleframe, textvariable=self.labelYaw). pack(side=tk.LEFT)
       tk.Label (self.angleframe, text="Target angle"). pack(side=tk.LEFT)
@@ -84,6 +85,16 @@ class GUI:
       
       self.show_Current_Location()
       
+      # ------ read previously save state file: data.json -----
+      try:
+         with open('data.json', 'r') as file:
+            self.Data = json.load(file)
+            self.set_Current_Angle(self.Data['offset_yaw'])
+      except:  # no file, create and initialize
+         self.Data = {'angle': 0, 'offset_yaw': 0}
+         with open('data.json', 'w') as f:
+            json.dump(self.Data, f)
+      
       # ---- default entry values --------------
       self.labelCoord.set('Current (Lattitude,Longitude): ' + str(self.lat_ref) + ' , ' + str(self.lon_ref))
       self.entryLat.set(44.74713533018441)
@@ -92,7 +103,11 @@ class GUI:
       self.entryAngle.set(170)
       self.entryTarget_angle.set(45)
       self.is_Simulation.set(True)
-      self.entryOffsetYaw.set(63)
+      self.entryOffsetYaw.set(self.Data['offset_yaw'])
+      
+     
+   
+   # ---------- End of __init__ ----------------------------------------------------------
       
    # ---------- Radian rounding ----------------------------------------------------------
    
@@ -126,7 +141,7 @@ class GUI:
       lat, lon = self.waypoints[self.waypoint_count]
       print("=====================waypoint", lat, lon)
       for i in range(1000):
-         if self.step_to_Location() < 0.3: break
+         if self.step_to_Location() < 0.7: break
          self.root.update()
          time.sleep(0.01)
          print("-----", i)
@@ -178,6 +193,7 @@ class GUI:
    # --------------------------------------------------------------
       
    def move_Robot(self, del_X, del_Y, speed): # del_rad=0, speed=0):
+      dest_angle = self.normalize_angle( self.rad_to_angle(math.atan2(del_X, del_Y)))
       del_angle = self.normalize_angle( self.rad_to_angle(math.atan2(del_X, del_Y)) - self.angle) 
       del_rad   = math.radians(del_angle)
       if self.is_Simulation.get():
@@ -201,14 +217,17 @@ class GUI:
             self.labelCommand.set(cmd)
             self.show_Current_Location()
       else:
-         if abs(del_angle) > 45:       # rotate 45-degree
-            self.robot_obj.move_theta(mag=20, theta=90*sign(del_angle), delay=1000, is_Simulation=False)
+         print("Delta angle: ", self.delta_angle, "Dest Angle: ", dest_angle, "Cur Angle: ", self.angle )
+         if abs(del_angle) > 75:       # rotate 45-degree
+            self.robot_obj.move_theta(mag=30, theta=90*sign(del_angle), delay=1000, is_Simulation=False)
+         elif abs(del_angle) > 10:
+            self.spin_Target(dest_angle)
          else:
             self.PID(del_X, del_Y) 
             
             self.robot_obj.move_theta(mag=30, theta=self.delta_angle, delay=2000, is_Simulation=False)
          self.angle = self.normalize_angle( self.robot_obj.Yaw + self.robot_obj.Offset_Yaw)
-         print("Delta angle:   ", self.delta_angle)
+        # print("Delta angle:   ", self.delta_angle)
          
       
    # -------------------------------------------------------------
@@ -265,14 +284,17 @@ class GUI:
 #         print("Lat, Lon, Prec(mm), Yaw:", self.gps_obj.lat, self.gps_obj.lon, self.gps_obj.prec, self.angle)
          print("Prec(mm), Yaw, Angle:", self.gps_obj.prec, self.robot_obj.Yaw, self.angle)
     
-   def set_Offset_Yaw(self, offset_theta):
+   def set_Current_Angle(self, offset_theta):
       self.robot_obj.yaw_Offset(theta=offset_theta, is_Simulation=False)
       
       print("offset yaw: ", offset_theta)
+      self.Data['angle'], self.Data['offset_yaw'] = offset_theta, offset_theta
+      with open('data.json', 'w') as f:
+         json.dump(self.Data, f)
    #def get_Yaw(self):
     #  self.labelYaw.set()
    
-   # --------- Test -------------------
+   # ----------- Test -------------------
    
    def move_Test(self):
       self.angle = self.entryAngle.get()
@@ -284,7 +306,7 @@ class GUI:
          print("Move test", self.X, self.Y)
       
       
-   # ---------------- Show Location -------------------
+   # -------------------------------- Show Location -------------------
    
    def show_Current_Location(self):
       self.draw_Arrow_Location_Meters(self.angle, self.X, self.Y)
@@ -305,7 +327,7 @@ class GUI:
       pixelX, pixelY = self.X_Y_to_Pixel(X,Y)
       self.draw_Arrow(angle=angle, origX=pixelX, origY=pixelY)
     
-   # ---------- Arrow ---------------
+   # ----------------------------------- Drawings ------------------------------
    
    def draw_Arrow(self, angle=10, origX=150, origY=120):
      radian = math.radians(angle)
@@ -334,12 +356,14 @@ if __name__ == "__main__":
    #current_loc = []
 #   lat_ref, lon_ref = 44.747035800, -93.1937129634583
    lat_ref, lon_ref = 44.7470, -93.1937
-   img_width, img_height, ref_Xpixel, ref_Ypixel, pixel_scale =560, 500, 260, 375, 19.0
+#   img_width, img_height, ref_Xpixel, ref_Ypixel, pixel_scale =560, 500, 260, 375, 19.0
+   img_width, img_height, ref_Xpixel, ref_Ypixel, pixel_scale =560, 500, 240, 390, 21.6
    #WayPoints = [(44.74713533018441,-93.19377913074761), (44.747154, -93.19373), (44.74711,-93.19366), (44.747065, -93.19362), (44.747035800, -93.1937129634583)]
    #WayPoints = [(44.74711,-93.19366), (44.74713533018441,-93.19377913074761), (44.747065, -93.19362), (44.747154, -93.19373), (44.747035800, -93.1937129634583)]
   # WayPoints = [(44.74705,-93.193656), (44.747035800, -93.1937129634583)]
    #WayPoints = [(44.74705,-93.193656)]
-   WayPoints = [(44.747035800, -93.1937129634583)]
+   #WayPoints = [(44.747035800, -93.19369)]
+   WayPoints = [(44.74705,-93.193656), (44.747078,-93.19367),(44.747078,-93.19372),(44.747035800, -93.19369)]
 
    gui_obj = GUI(img_width=img_width, img_height=img_height, ref_Xpixel=ref_Xpixel, ref_Ypixel=ref_Ypixel, pixel_scale=pixel_scale, lat_ref=lat_ref,lon_ref=lon_ref, waypoints=WayPoints)
    gui_obj.root.mainloop()

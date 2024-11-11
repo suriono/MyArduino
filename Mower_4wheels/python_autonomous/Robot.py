@@ -41,11 +41,11 @@ class Robot:
          self.send_Command('{"YawEnable":1}<') 
          cmd = '{"YawGo":' + str(self.normalize_angle(-theta)) + '}<'
          for i in range(10):
-            if self.send_Command(cmd):
-               print("Yaw: ", self.Yaw)
-            else:
+            if not self.send_Command(cmd):
+             #  print("Yaw: ", self.Yaw)
+            #else:
                break
-            print("JSON returned: ", self.in_json)
+            #print("JSON returned: ", self.in_json)
             time.sleep(1)
       
         # time.sleep(10)
