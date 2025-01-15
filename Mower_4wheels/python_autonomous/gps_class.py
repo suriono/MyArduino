@@ -1,9 +1,13 @@
-import wifi_class
+import wifi_class, math
 
-class gps_class:
+class gps:
+   Radius   = 6378137    # Earth radius a given local geographic location
+   rtk, rtk_type, prec = 0, "No Solution", 0.0
    
-   def __init__(self, host="192.168.11.201", port=8000):
+   def __init__(self, host="192.168.11.201", port=8000,lat_ref=0.0, lon_ref=0.0):
       self.wifi_obj = wifi_class.wifi_class(host, port)
+      self.lat_ref, self.lon_ref, self.lat, self.lon = lat_ref, lon_ref, lat_ref, lon_ref  # reference GPS for X,Y=0,0
+      self.X_scale = self.Radius * math.cos(math.radians(self.lat_ref))
       
    def get_GPS(self):
       self.wifi_obj.send_Message('{"cmd":"get_gps"}')
@@ -30,9 +34,22 @@ class gps_class:
    def close_Connection(self):
       self.wifi_obj.close_Connection()
       
+   # --------------- Conversion X,Y and Lattitude, Longitude   
+   
+   def get_X_Y(self,lat,lon):
+      del_lat, del_lon = lat - self.lat_ref, lon - self.lon_ref
+      del_X = self.X_scale * math.sin(math.radians(del_lon))
+      del_Y = self.Radius * math.sin(math.radians(del_lat))
+      return del_X, del_Y
+
+   def get_Lat_Lon_from_X_Y(self, x=0, y=0):
+      lat = math.degrees(math.asin(y / self.Radius)) + self.lat_ref
+      lon = math.degrees(math.asin(x/self.X_scale))  + self.lon_ref
+      return lat, lon
+      
 # ==================== Testing ====================
 if __name__ == "__main__":
-   gps_obj = gps_class("192.168.11.201", 8000)
+   gps_obj = gps("192.168.11.201", 8000)
    
    for i in range(10):
       if gps_obj.get_GPS():

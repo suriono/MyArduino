@@ -22,7 +22,11 @@ ws = wb.worksheets[0]
 for nrow in range(img.shape[0]):
    for ncol in range(img.shape[1]):   
       red, green, blue = img[nrow,ncol]
-      if blue > 200 and green > 200 and red > 200: blue, green, red = 0,0,0
+      
+      #if blue > 200 and green > 200 and red > 200: blue, green, red = 0,0,0
+      if blue > 200 and green > 200 and red > 200: blue, green, red = 0,95,125
+      if blue < 50 and green < 50 and red < 70: blue, green, red = 0,0,0
+      print(red,green,blue)
       bluehex  = hex(blue)[2:]  if blue  > 15 else '0' + hex(blue)[2:]
       greenhex = hex(green)[2:] if green > 15 else '0' + hex(green)[2:]
       redhex   = hex(red)[2:]   if red   > 15 else '0' + hex(red)[2:]

@@ -60,11 +60,11 @@ void Neomatrix_random_color() {
 // ==============================================
 
 void Neomatrix_scrolltext_random_eachstep(String instr) {
-
+  ArduinoOTA.handle();
   //Serial.println(instr.length());
   for (int x=0 ; x < (instr.length()*CHAR_WIDTH+NCOLUMNS); x++) {
 
-    if ( (x % 2) == 0 ) {
+    if ( (x % 16) == 0 ) {
         Neomatrix_random_color();
     }
     //Neomatrix_random_color();

@@ -26,7 +26,7 @@ String Scroll_Text[2] = {"13934 Fallbrook Way", " ... "}; // for two words
 // ============================== setup ============================================
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(57600);
 
   Serial.println("Booting");
   WiFi.mode(WIFI_STA);
@@ -78,21 +78,20 @@ void loop() {
  
   //Send_Text();
 
-  //Neomatrix_scrolltext_random_eachstep("Merry Christmas");
+  Neomatrix_scrolltext_random_eachstep("Happy Chinese New Year");
 
-  Send_Text("13934 Fallbrook Way");
+//  Send_Text("Merry Christmas");
   
-  Neomatrix_scroll_picture2(0, 40, 35); // (row, column)
-  Neomatrix_scroll_picture2(29, 40, 35); // (row, column)
+  Neomatrix_scroll_picture2(0, 63, 76); // (row, column)
+ // Neomatrix_scroll_picture2(25, 40, 37); // (row, column)
+ // Neomatrix_scroll_picture2(29, 40, 35); // (row, column)
  // Neomatrix_scroll_picture2(32, 13, 30); // (row, column)
 }
 
 // ============== Send Text =================
 
 void Send_Text(String inputstr) {
-
   ArduinoOTA.handle();
-
   int randn = random(0,767);
   byte red = 0;
   byte green = 0;
@@ -108,9 +107,7 @@ void Send_Text(String inputstr) {
       red = 767 - randn;
       blue = randn - 512;
   }
-  
   Neomatrix_scrolltext(inputstr ,red, green, blue);
-  
 }
 
 // ============== Send Text Two words random =================

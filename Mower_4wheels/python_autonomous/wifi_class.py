@@ -8,10 +8,14 @@ class wifi_class:
    def connect_Wifi(self):
       self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
       self.sock.connect((self.host, self.port))  
+      #self.sock.settimeout(0.5)
    
    def send_Message(self, msg='hello'):
       self.connect_Wifi()
       self.sock.send(bytes(msg + '<', 'utf-8'))
+      
+   def set_Timeout(self, timeout=1.0):
+      self.sock.settimeout(timeout)
       
    def listen_Wifi(self, maxBytes=64):
       data = self.sock.recv(maxBytes)
@@ -26,7 +30,7 @@ class wifi_class:
    
 # ==================== Testing ====================
 if __name__ == "__main__":
-   wifi_obj = wifi_class("192.168.11.201", 8000)
+   wifi_obj = wifi_class("192.168.11.201", 8000) # from GPS
    for i in range(10):
       wifi_obj.send_Message('{"cmd":"get_gps"}')
       if wifi_obj.listen_Wifi(64): 
