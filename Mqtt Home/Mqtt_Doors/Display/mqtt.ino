@@ -13,8 +13,9 @@ void onConnectionEstablished()
 {
   // Subscribe to "mytopic/test" and display received message to Serial
     client.subscribe("door/basement/freezer", [](const String & door_Basement_Freezer) { 
-    Serial.println(door_Basement_Freezer);
-    tft_message(door_Basement_Freezer);  });
+       Serial.println(door_Basement_Freezer);
+       tft_basement_freezer(door_Basement_Freezer);  
+    });
 
 
   // Publish a message to "mytopic/test"

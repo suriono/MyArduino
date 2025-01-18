@@ -1,10 +1,11 @@
+#include <Arduino_JSON.h>
 #include "EspMQTTClient.h"
 #include "password.h"
 
+JSONVar myJSON;
 EspMQTTClient client( WIFI_SSID, WIFI_PASSWD, "192.168.0.122", MQTT_USER, MQTT_PASSWD, "uzbasementfreezer",1883); // passwords are hidden
 
-#define MAGNETIC_PIN 14 // D5 RXD0
-
+#define MAGNETIC_PIN 5 // D1
 
 void setup() {
     pinMode(MAGNETIC_PIN, INPUT_PULLUP);
@@ -12,34 +13,28 @@ void setup() {
 
 void loop() {
   static unsigned long last_time = millis();
-  static String last_String = "";
-  String new_String;
   uint16_t color_text;
+  static boolean last_state = true;
+  boolean new_state = false;
 
   client.loop();
 
-  if ( (millis() - last_time) > 2000) {
+  if ( (millis() - last_time) > 200) {
     last_time = millis();
 
-    if ( digitalRead(MAGNETIC_PIN) ) {
-      new_String = "OPEN";
-//      color_text = tft.color565(250, 0 , 0);
-    } else {
-      new_String = "CLOSE";
-//      color_text = tft.color565(0, 250 , 0);
-    }
-//
-//    if (new_String != last_String) {
-      client.publish("door/basement/freezer", new_String); // You can activate the retain flag by setting the third parameter to true
+    new_state = digitalRead(MAGNETIC_PIN);
 
-//      tft.setCursor(150, 0);
-//      tft.setTextColor(ILI9341_BLACK);
-//      tft.print(last_String);
-//      tft.setCursor(150, 0);
-//      tft.setTextColor(color_text);    
-//      tft.print(new_String);
-      last_String = new_String;
-  //  }
+    if ( new_state != last_state) {
+      last_state = new_state;
+      if ( new_state ) {
+        // myJSON["open"] = 1;
+         myJSON["countDown_Alarm"] = 6;
+      } else {
+        // myJSON["open"] = 0;
+         myJSON["countDown_Alarm"] = 0;
+      }
+      client.publish("door/basement/freezer", JSON.stringify(myJSON)); 
+    }
   }
 }
 
