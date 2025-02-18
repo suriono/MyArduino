@@ -86,7 +86,7 @@ void tft_countDown() {
   } else {
     new_String = String(countDown_Alarm);
     color_text = tft.color565(168, 50 , 121); 
-    tft_message(last_String, new_String, color_text, 190, 150, 10);
+    tft_message(last_String, new_String, color_text, 140, 160, 10);
     
     if (countDown_Alarm == 2) {
       isFirst_Alarm = true;

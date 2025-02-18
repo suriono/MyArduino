@@ -1,3 +1,4 @@
+
 #include <Arduino_JSON.h>
 #include "EspMQTTClient.h"
 #include "password.h"
@@ -5,10 +6,13 @@
 JSONVar myJSON;
 EspMQTTClient client( WIFI_SSID, WIFI_PASSWD, "192.168.0.122", MQTT_USER, MQTT_PASSWD, "uzbasementfreezer",1883); // passwords are hidden
 
-#define MAGNETIC_PIN 5 // D1
+#define MAGNETIC_PIN 5   // D1
+#define TIMER_TIME   120 // number of countdown before sending alerts
 
 void setup() {
     pinMode(MAGNETIC_PIN, INPUT_PULLUP);
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
@@ -16,6 +20,8 @@ void loop() {
   uint16_t color_text;
   static boolean last_state = true;
   boolean new_state = false;
+  static bool LED_OnOff;
+  static unsigned long LED_last_time = millis();
 
   client.loop();
 
@@ -27,14 +33,18 @@ void loop() {
     if ( new_state != last_state) {
       last_state = new_state;
       if ( new_state ) {
-        // myJSON["open"] = 1;
-         myJSON["countDown_Alarm"] = 6;
+         myJSON["countDown_Alarm"] = TIMER_TIME;
       } else {
-        // myJSON["open"] = 0;
          myJSON["countDown_Alarm"] = 0;
       }
       client.publish("door/basement/freezer", JSON.stringify(myJSON)); 
     }
+  }
+
+  if ( (millis()-LED_last_time) > 500 && new_state) { // LED blinks when door is open
+     LED_last_time = millis();
+     LED_OnOff = !LED_OnOff;
+     digitalWrite(LED_BUILTIN, LED_OnOff);
   }
 }
 
