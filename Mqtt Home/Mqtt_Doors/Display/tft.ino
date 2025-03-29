@@ -74,7 +74,7 @@ void tft_countDown() {
   static boolean isFirst_Alarm = false;
 
   if (countDown_Alarm == 1) {
-    if ( !last_String.equals("Close the freezer !!!")) tft_erase_message(last_String, 190, 150, 10);
+    if ( !last_String.equals("Close the    freezer !!!")) tft_erase_message(last_String, 140, 160, 10);
     new_String = "Close the    freezer !!!";
     color_text = tft.color565(250, 0 , 250); 
     tft_message(last_String, new_String, color_text, 0, 160, 4);

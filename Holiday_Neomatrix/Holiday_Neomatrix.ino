@@ -78,13 +78,15 @@ void loop() {
  
   //Send_Text();
 
-  Neomatrix_scrolltext_random_eachstep("Happy Chinese New Year");
+  // Neomatrix_scrolltext_random_eachstep("13934 Fallbrook Way");
 
-//  Send_Text("Merry Christmas");
+  Send_Text("Happy Easter");
   
-  Neomatrix_scroll_picture2(0, 63, 76); // (row, column)
- // Neomatrix_scroll_picture2(25, 40, 37); // (row, column)
- // Neomatrix_scroll_picture2(29, 40, 35); // (row, column)
+  //Neomatrix_scroll_picture2(20, 63, 76); // (row, column)
+  Neomatrix_scroll_picture2(1,  32, 13); // (xoffset, row, column)
+  //Neomatrix_scroll_picture2(15, 32, 13); // (xoffset, row, column)
+  //Neomatrix_scroll_picture2(20, 30, 31); // (xoffset, row, column)
+  //Neomatrix_scroll_picture2(30, 30, 31); // (xoffset, row, column)
  // Neomatrix_scroll_picture2(32, 13, 30); // (row, column)
 }
 
@@ -92,11 +94,11 @@ void loop() {
 
 void Send_Text(String inputstr) {
   ArduinoOTA.handle();
-  int randn = random(0,767);
-  byte red = 0;
-  byte green = 0;
+  //int randn = random(0,767);
+  byte red = 200;
+  byte green = 200;
   byte blue = 0;
-
+/*
   if (randn < 256) {
       red = 255 - randn;
       green = randn;
@@ -107,6 +109,7 @@ void Send_Text(String inputstr) {
       red = 767 - randn;
       blue = randn - 512;
   }
+  */
   Neomatrix_scrolltext(inputstr ,red, green, blue);
 }
 

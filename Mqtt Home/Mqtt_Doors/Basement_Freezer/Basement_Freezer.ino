@@ -3,6 +3,12 @@
 #include "EspMQTTClient.h"
 #include "password.h"
 
+// Comment not used MQTT Topic
+//#define MQTT_Topic    "door/basement/freezer"        // Uncomment this for different MQTT topic, for the basement freezer
+//#define MQTT_Topic    "door/basement/topfridge"    // Uncomment this for different MQTT topic, for the basement top fridge (freezer) 
+#define MQTT_Topic    "door/basement/bottomfridge" // Uncomment this for different MQTT topic, Bottom fridge
+
+
 JSONVar myJSON;
 EspMQTTClient client( WIFI_SSID, WIFI_PASSWD, "192.168.0.122", MQTT_USER, MQTT_PASSWD, "uzbasementfreezer",1883); // passwords are hidden
 
@@ -37,7 +43,7 @@ void loop() {
       } else {
          myJSON["countDown_Alarm"] = 0;
       }
-      client.publish("door/basement/freezer", JSON.stringify(myJSON)); 
+      client.publish(MQTT_Topic, JSON.stringify(myJSON)); 
     }
   }
 
