@@ -3,7 +3,7 @@
 #include "EspMQTTClient.h"
 #include "password.h"
 
-// Comment not used MQTT Topic
+// Comment not used MQTT Topic, uncomment which door to upload
 //#define MQTT_Topic    "door/basement/freezer"        // Uncomment this for different MQTT topic, for the basement freezer
 //#define MQTT_Topic    "door/basement/topfridge"    // Uncomment this for different MQTT topic, for the basement top fridge (freezer) 
 #define MQTT_Topic    "door/basement/bottomfridge" // Uncomment this for different MQTT topic, Bottom fridge
