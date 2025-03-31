@@ -6,18 +6,18 @@
 
 
 // Comment not used MQTT Topic, uncomment which door to upload
-#define MQTT_Topic    "door/basement/freezer"      // Uncomment this for different MQTT topic, for the basement freezer
-const char* ota_host = "OTA-FREEZER";              // Over-The-Air code upload/update
+//#define MQTT_Topic    "door/basement/freezer"      // Uncomment this for different MQTT topic, for the basement freezer
+//const char* ota_host = "OTA-FREEZER";              // Over-The-Air code upload/update
 
-//#define MQTT_Topic    "door/basement/topfridge"  // Uncomment this for different MQTT topic, for the basement top fridge (freezer) 
-//const char* ota_host = "OTA-TOP-FRIDGE";         // Over-The-Air code upload/update
+#define MQTT_Topic    "door/basement/topfridge"  // Uncomment this for different MQTT topic, for the basement top fridge (freezer) 
+const char* ota_host = "OTA-TOP-FRIDGE";         // Over-The-Air code upload/update
 
 //#define MQTT_Topic    "door/basement/bottomfridge" // Uncomment this for different MQTT topic, Bottom fridge
 //const char* ota_host = "OTA-BOTTOM-FRIDGE";      // Over-The-Air code upload/update
 
 
 JSONVar myJSON, statusJSON;
-EspMQTTClient client( WIFI_SSID, WIFI_PASSWD, "192.168.0.122", MQTT_USER, MQTT_PASSWD, "uzbasementfreezer",1883); // passwords are hidden
+EspMQTTClient client( WIFI_SSID, WIFI_PASSWD, "192.168.0.122", MQTT_USER, MQTT_PASSWD, ota_host,1883); // passwords are hidden
 boolean isPublished = true;
 boolean last_state = true;
 boolean new_state = false;
@@ -31,7 +31,7 @@ void setup() {
     digitalWrite(LED_BUILTIN, HIGH);
 
     client.enableMQTTPersistence();
-    client.setMqttReconnectionAttemptDelay(4660);
+    //client.setMqttReconnectionAttemptDelay(4660);
     //client.setKeepAlive(60);
     //client.enableLastWillMessage(MQTT_Topic, "{\"status\":\"offline\"}",true);
 
@@ -68,9 +68,10 @@ void publish_MQTT(bool new_state) {
 
 void loop() {
   static unsigned long last_time = millis();
-  uint16_t color_text;
   static bool LED_OnOff;
   static unsigned long LED_last_time = millis();
+  static bool last_connected;
+  bool isconnected = false;
 
   ArduinoOTA.handle();
   client.loop();
@@ -91,7 +92,14 @@ void loop() {
         LED_OnOff = !LED_OnOff;
         digitalWrite(LED_BUILTIN, LED_OnOff);
      } else {         // if door is closed, check if connected
-        digitalWrite(LED_BUILTIN, !client.isConnected()); // LED solid ON when connected
+        isconnected = client.isConnected();
+        if (isconnected != last_connected) {
+           digitalWrite(LED_BUILTIN, isconnected); // LED solid ON when connected
+           last_connected = isconnected;
+        } else if (isconnected && !LED_OnOff) {  // connected by was On from opening the door
+           LED_OnOff = !LED_OnOff;
+           digitalWrite(LED_BUILTIN, LED_OnOff);
+        }
      }
   }
 }
