@@ -1,27 +1,6 @@
 import win32com.client, datetime, time, serial
 from tkinter import *
-import firebase_admin, time
-from firebase_admin import credentials, db
-
-# =================================================
-
-class Firebase_Python():  
-   def set_Credential(self):
-      try:
-         cred = credentials.Certificate("C:/Users/UZMN/OneDrive - SkyWater Technology/Documents/GitHub/home0-90616-firebase-adminsdk-kafvj-eb40a1993f.json")
-         firebase_admin.initialize_app(cred, {
-            'databaseURL': "https://home0-90616.firebaseio.com"
-         })
-      except:
-         pass
-      
-   def get_Json_value(self):
-      ref = db.reference('officewhereabout')
-      print(ref.get())
-      
-   def put_Message(self, key, msg):
-      firebase_ref = db.reference('officewhereabout')
-      firebase_ref.update({key:msg})
+import time
       
 # =================================================
 
@@ -184,14 +163,6 @@ myOutlook = MyOutlook()
 myserial = MySerial(myGUI.PortName.get())
 myserial.serOpen()
 
-# -------- Firebase -----------
-myFirebase = Firebase_Python()
-myFirebase.set_Credential()
-myFirebase.get_Json_value()
-now_hour = datetime.datetime.fromtimestamp(time.time()).hour
-second_to_6PM = 18 - now_hour 
-myFirebase.put_Message("expiration",(int(time.time())+3600*second_to_6PM)*1000)
-myFirebase.put_Message("location",'"In the Building"')
 # -----------------------------
 
 counter = 0
