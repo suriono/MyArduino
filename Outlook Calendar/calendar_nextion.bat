@@ -1,0 +1,1 @@
+"C:\Python38\python.exe" "C:\Users\UZMN\OneDrive - SkyWater Technology\Documents\GitHub\python\outlook_calendar_nextion\calendar_nextion.py" "C:\Users\UZMN\OneDrive - SkyWater Technology\Documents\GitHub\python\outlook_calendar_nextion"
