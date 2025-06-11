@@ -92,7 +92,7 @@ void tft_water(String msg) {
       last_Today = new_String;
     }
     if ( myJSON.hasOwnProperty("hours_continuous_flow")) {
-      int tmp = (int) myJSON["hours_continuous_flow"];
+      double tmp = (double) myJSON["hours_continuous_flow"];
       new_String = String(tmp);
       tft.setCursor(170, 210); tft.setTextColor(ILI9341_BLACK); tft.print(last_Continous); // erase first
       tft.setCursor(170, 210); tft.setTextColor(tft.color565(0, 250 , 0)); tft.print(new_String);
@@ -109,11 +109,11 @@ void tft_message(int door_num, String upstr, String downstr, uint16_t color_text
    tft.setTextSize(3); // fontsize);
 
    if ( upstr.length() > 0 ) {   // For OPEN or CLOSE
-      tft.setCursor(0, door_num*80+50);
+      tft.setCursor(0, door_num*80+30);
       tft.setTextColor(ILI9341_BLACK);  // erase first
       tft.print(last_uppestr[door_num]);
   
-      tft.setCursor(0, door_num*80+50);
+      tft.setCursor(0, door_num*80+30);
       tft.setTextColor(color_text);    
       tft.print(upstr);
       last_uppestr[door_num] = upstr;
@@ -126,10 +126,10 @@ void tft_message(int door_num, String upstr, String downstr, uint16_t color_text
   
       tft.setCursor(100, door_num*80+50);
       tft.setTextColor(color_text);    
-      tft.print("100"); // tft.print(downstr);
+      tft.print(downstr);
       last_downstr[door_num] = downstr;
    } else if ( last_downstr[door_num].length() > 0) { // erase the last counter if any
-      tft.setCursor(160, door_num*90+33);
+      tft.setCursor(100, door_num*80+50);
       tft.setTextColor(ILI9341_BLACK);
       tft.print(last_downstr[door_num]);
       last_downstr[door_num] = "";
