@@ -97,6 +97,9 @@ void tft_water(String msg) {
       tft.setCursor(170, 210); tft.setTextColor(ILI9341_BLACK); tft.print(last_Continous); // erase first
       tft.setCursor(170, 210); tft.setTextColor(tft.color565(0, 250 , 0)); tft.print(new_String);
       last_Continous = new_String;
+      if ( int(tmp) == WATER_ALERT_CONTINUOUS_HOURS) {
+        smtp_send("\nATTENTION: Potential continuous water leak\n");  // Email after continuous water flow
+      }
     }
   }
 }
@@ -151,8 +154,7 @@ void tft_countDown() {
     tft_message(Door_Number, "Fridge", "open!!", color_text);
     if (isFirst_Alarm) {
       isFirst_Alarm = false;
-      smtp_send();  // Email just before beeping
-      //smtp_send();  // Email just before beepin
+      smtp_send("\nATTENTION: your freezer door is open.\n");  // Email just before beeping
     }
   } else {
     if (countDown_Alarm != 0) {

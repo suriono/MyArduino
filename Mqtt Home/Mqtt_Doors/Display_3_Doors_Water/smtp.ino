@@ -15,7 +15,7 @@ void smtp_init() {
 
 // =============================================================
 
-void smtp_send() {
+void smtp_send(String textMsg) {
   //delay(1000);    // to prevent crashing
   //smtp.debug(1);
   /* Set the callback function to get the sending results */
@@ -37,10 +37,10 @@ void smtp_send() {
   /* Set the message headers */
   message.sender.name = F("Me Uz");
   message.sender.email = AUTHOR_EMAIL;
-  String subject = "ALERT: Freezer door is open !!!";
+  String subject = "ALERT: Freezer door or water leak !!!";
   message.subject = subject;
   message.addRecipient(F("Uz or myself"), RECIPIENT_EMAIL);
-  String textMsg = "\nATTENTION: your freezer door is open.\n";
+  //String textMsg = "\nATTENTION: your freezer door is open.\n";
   
   message.text.content = textMsg;
   message.text.transfer_encoding = "base64"; // recommend for non-ASCII words in message.

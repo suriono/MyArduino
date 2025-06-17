@@ -5,6 +5,8 @@
 #include <Arduino_JSON.h>
 #include "password.h"
 
+#define WATER_ALERT_CONTINUOUS_HOURS 24    // how manu hours of continuous water flow
+
 #include <Arduino.h>
 #if defined(ESP32) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
 #include <WiFi.h>
