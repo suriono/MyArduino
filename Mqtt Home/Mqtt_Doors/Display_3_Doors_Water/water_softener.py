@@ -48,10 +48,6 @@ class Water_Monitor:
         self.mqtt_client.disconnect()
 
     def ecowater_publish(self):
-        now = datetime.now()
-        formatted_datetime = now.strftime("%Y-%m-%d %H:%M:%S")
-        print("Current date and time:", formatted_datetime)
-
         client = EcowaterClient(self.ecow_username, self.ecow_password)
         #devices = client.get_devices()
         #profile = client.get_user_profile()
@@ -92,31 +88,34 @@ class Water_Monitor:
             if len(time_list) > 0 and (now_epoch - time_list[0]) > retention:  # e.g.only keep the last 24-hours
                 del time_list[0]
                 del usage_list[0]    # remove data more than e.g. 24-hours ago
-            time_list.append(now_epoch)         # add the latest data
+            time_list.append(now_epoch)         # add the latest time
 
             if len(usage_list) == 0 or self.water_today < usage_today_last:  # new day
                 usage_today_total += self.water_today
             else:
-                usage_today_total += self.water_today - usage_today_last #increment from previous time
+                usage_today_total += (self.water_today - usage_today_last) #increment from previous time
             usage_list.append(usage_today_total)
+            rel_usage_list = [x - usage_list[0] for x in usage_list]   # relative to the first, easier to read
 
             usage_today_last = self.water_today   # for next time, previous time usage
 
             # When date switch, reset to 0 for daily usage, need adjustment for usage the past period
             last_usage, last_time, last_ind = usage_list[-1], time_list[-1], len(time_list)-1
 
-            ind1, self.streak_usage, self.last_hourly_usages, streak = last_ind - 1, 0, [], True
-            self.last_hourly_usages.append(last_usage)
+            ind1, self.streak_usage, self.last_hourly_usages, streak = last_ind - 1, 0, [rel_usage_list[-1]], True
+            #self.last_hourly_usages.append(last_usage)
             while ind1 > 0:
                 time_ind1 = time_list[ind1]
                 if last_time - time_ind1 >= leak_period:  # time period to check for usage increase, hourly
-                    if len(self.last_hourly_usages) < 25: # only the last 24 hours to report
-                        self.last_hourly_usages.append(usage_list[ind1])
+                    if len(self.last_hourly_usages) < 26: # only the last 24 hours to report
+                        self.last_hourly_usages.append(rel_usage_list[ind1])
+#                        tmpdict = {"time": time_ind1,"usage": usage_list[ind1]}
+ #                       self.last_hourly_usages.append(tmpdict)
                     if streak:     # still increasing usage hourly
                         usage_change = last_usage - usage_list[ind1]
                         if usage_change < 0:   # date change
                             usage_change += usage_list[last_ind-1]
-                        if usage_change > 0:
+                        if usage_change > 0:       # increment hours of usage streak
                             self.streak_usage = time_list[-1] - time_ind1
                             #print("    Period usage: ", ind1, time_ind1, usage_list[ind1], usage_change,",Streak: ", self.streak_usage)
                         elif usage_change == 0:    # no longer has usage increase streak
@@ -129,7 +128,7 @@ class Water_Monitor:
             last_water_today = self.water_today
             time.sleep(self.interval)
             i += 1
-            if i > 100000: break
+#            if i > 100000: break # to put limit of iteration for debugging purpose
 
 # ==================== End of Water_Monitor class ===================
 
