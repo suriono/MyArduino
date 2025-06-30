@@ -7,27 +7,27 @@ void Neopixel_Initial() {
   matrix.setTextSize(1);
   matrix.setTextColor(matrix.Color(0, 255, 0));
 
-  Neopixel_Text("Wait");
+  Neopixel_Text("Wait", 0);
+  matrix.show();
   delay(5000);
- // matrix.setCursor(0,0);
-//  matrix.fillScreen(0); 
-//  matrix.print("cepk");
- // matrix.show();
 }
 
 // ==================== Text with mirror image =====================
 
-void Neopixel_Text(String msg) {
-  uint16_t pixno;
-  uint32_t tempL,tempR, r,g,b;
-
+void Neopixel_Text(String msg, int offsetx) {
   matrix.setBrightness(Neomatrix_Brightness); 
-  matrix.setCursor(0,0);
-  matrix.fillScreen(0); 
+  matrix.setCursor(offsetx,0);
+  //matrix.fillScreen(0); 
   matrix.print(msg);
   //matrix.show();
+}
+
+// =============== Mirror pixels for projection to windshield =======
     
+void Neopixel_Mirror() {
   // Mirror the display
+  uint16_t pixno;
+  uint32_t tempL,tempR, r,g,b;
     
   for (int x = 0; x < WIDTH/2; x++) {
     for (int y = 0; y < HEIGHT; y++) {
@@ -61,7 +61,7 @@ void Neopixel_Text(String msg) {
      
     }
   }
-  matrix.show();
+  //matrix.show();
 }
 
 // ========================= Blank =======================================
