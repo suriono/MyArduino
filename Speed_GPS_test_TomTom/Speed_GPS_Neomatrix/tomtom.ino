@@ -1,6 +1,4 @@
-void test_tomtom(char coord_char[]) {
-  Serial.print(" coord: "); Serial.print(coord_char);
-}
+
 
 int get_Speed_Limit(char coord_char[]) {
   int mph = 0;
@@ -37,8 +35,8 @@ int get_Speed_Limit(char coord_char[]) {
   }
 
  // String url = "api.tomtom.com/routing/1/calculateRoute/44.742127,-93.194999:44.745049,-93.194981/json?key=5oS0hZX2lCeGfmjVWxaAbvRvGKSSlSkB&travelMode=car&sectionType=traffic&sectionType=speedLimit&report=effectiveSettings&vehicleEngineType=combustion";
- String url = "/routing/1/calculateRoute/44.742127,-93.194999:44.745049,-93.194981/json?key=5oS0hZX2lCeGfmjVWxaAbvRvGKSSlSkB&travelMode=car&sectionType=traffic&sectionType=speedLimit&report=effectiveSettings&vehicleEngineType=combustion";
- //String url = "/routing/1/calculateRoute/" + String(coord_char) + "/json?key=5oS0hZX2lCeGfmjVWxaAbvRvGKSSlSkB&travelMode=car&sectionType=traffic&sectionType=speedLimit&report=effectiveSettings&vehicleEngineType=combustion";
+ //String url = "/routing/1/calculateRoute/44.742127,-93.194999:44.745049,-93.194981/json?key=5oS0hZX2lCeGfmjVWxaAbvRvGKSSlSkB&travelMode=car&sectionType=traffic&sectionType=speedLimit&report=effectiveSettings&vehicleEngineType=combustion";
+ String url = "/routing/1/calculateRoute/" + String(coord_char) + "/json?key=5oS0hZX2lCeGfmjVWxaAbvRvGKSSlSkB&travelMode=car&sectionType=traffic&sectionType=speedLimit&report=effectiveSettings&vehicleEngineType=combustion";
  
  // Serial.print("Requesting URL: ");
  // Serial.println(url);

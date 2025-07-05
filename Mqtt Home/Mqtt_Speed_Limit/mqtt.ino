@@ -2,11 +2,13 @@ void onConnectionEstablished()
 {
   // Subscribe to "mytopic/test" and display received message to Serial
 
-    client.subscribe("water/water_softener", [](const String & water_Softener) { 
-       Serial.print("Water Softener: "); Serial.println(water_Softener);
-       speed_Limit(water_Softener);
+    client.subscribe("gps/speedlimit", [](const String & speed_Limit) { 
+       Serial.print("Speed Limit: "); Serial.println(speed_Limit);
+       speedLimit_mph = speed_Limit.toInt();
+       //int speed_int = int(speed_Limit)
+       //TomTom_speed_Limit(speed_Limit);
     });
-    MQTT_publish();
+  //  MQTT_publish();
   // Publish a message to "mytopic/test"
  // client.publish("testTopic", "This is a message"); // You can activate the retain flag by setting the third parameter to true
 
@@ -21,5 +23,5 @@ void onConnectionEstablished()
 void MQTT_publish() {
   myJSON["waypoints"] = "44.742127,-93.194999:44.745049,-93.194981";
   client.publish(MQTT_Topic, JSON.stringify(myJSON), true); 
-  client.publish("gps/speedlimit", "39", true);
+ // client.publish("gps/speedlimit", "39", true);
 }

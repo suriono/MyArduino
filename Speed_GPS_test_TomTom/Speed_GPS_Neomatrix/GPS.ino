@@ -31,7 +31,8 @@ void GPS_refresh()
   if (speed_mph != TinyGPS::GPS_INVALID_F_SPEED) {
    // Neopixel_Blank();
     Serial.print("Speed: "); Serial.print(String(speed_mph));
-    Speed_increment = ((Speed_MPH + 2) / 5) * 5;  // only increment speed by 5 to reduce distraction
+    //Speed_increment = ((Speed_MPH + 2) / 5) * 5;  // only increment speed by 5 to reduce distraction
+    Speed_increment = Speed_MPH;
     matrix.setTextColor(matrix.Color(0, 255, 0));
     display_Number(Speed_increment,0);
      
