@@ -8,6 +8,7 @@ void onConnectionEstablished()
        //int speed_int = int(speed_Limit)
        //TomTom_speed_Limit(speed_Limit);
     });
+    client.publish("gps/speedlimit", "0", true);
   //  MQTT_publish();
   // Publish a message to "mytopic/test"
  // client.publish("testTopic", "This is a message"); // You can activate the retain flag by setting the third parameter to true

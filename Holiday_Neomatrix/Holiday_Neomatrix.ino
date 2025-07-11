@@ -56,35 +56,56 @@ void setup() {
 // =============== Loop ======================
 
 void loop() {
+    Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
+  Send_Text("O say, can you see");
+    Neomatrix_scroll_picture2(24, 13, 30, 100); // (xoffset, row, column, delay)
+  Send_Text("By the dawn's early light");
+    Neomatrix_scroll_picture2(8, 13, 30, 100); // (xoffset, row, column, delay)
+  Send_Text("What so proudly we hail");
+    Neomatrix_scroll_picture2(32, 13, 30, 100); // (xoffset, row, column, delay)
+  Send_Text("At the twilight's last gleaming");
+    Neomatrix_scroll_picture2(16, 13, 30, 100); // (xoffset, row, column, delay)
 
-//  Send_Text("O say, can you see");
-//  Send_Text("By the dawn's early light");
-//  Send_Text("What so proudly we hail");
-//  Send_Text("At the twilight's last gleaming");
-//
-//  Send_Text("Whose broad stripes and bright stars");
-//  Send_Text("Through the perilous fight");
-//  Send_Text("O'er the ramparts we watch");
-//  Send_Text("Were so gallantly streaming");
-//
-//  Send_Text("And the rocket's red glare");
-//  Send_Text("The bombs bursting in air");
-//  Send_Text("Gave proof through the night");
-//  Send_Text("That our flag was still there");
-//
-//  Send_Text("O say, does that star-spangled banner yet wave");
-//  Send_Text("O'er the land of the free");
-//  Send_Text("And the home of the brave");
+  Send_Text("Whose broad stripes and bright stars");
+    Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
+  Send_Text("Through the perilous fight");
+    Neomatrix_scroll_picture2(24, 13, 30, 100); // (xoffset, row, column, delay)
+  Send_Text("O'er the ramparts we watch");
+    Neomatrix_scroll_picture2(8, 13, 30, 100); // (xoffset, row, column, delay)
+  Send_Text("Were so gallantly streaming");
+    Neomatrix_scroll_picture2(32, 13, 30, 100); // (xoffset, row, column, delay)
+
+  Send_Text("And the rocket's red glare");
+    Neomatrix_scroll_picture2(16, 13, 30, 100); // (xoffset, row, column, delay)
+  Send_Text("The bombs bursting in air");
+   Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
+  Send_Text("Gave proof through the night");
+    Neomatrix_scroll_picture2(24, 13, 30, 100); // (xoffset, row, column, delay)
+  Send_Text("That our flag was still there");
+    Neomatrix_scroll_picture2(8, 13, 30, 100); // (xoffset, row, column, delay)
+
+  Send_Text("O say, does that star-spangled banner yet wave");
+    Neomatrix_scroll_picture2(32, 13, 30, 100); // (xoffset, row, column, delay)
+  Send_Text("O'er the land of the free");
+    Neomatrix_scroll_picture2(16, 13, 30, 100); // (xoffset, row, column, delay)
+  Send_Text("And the home of the brave");
+   //Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
  
   //Send_Text();
 
-  // Neomatrix_scrolltext_random_eachstep("13934 Fallbrook Way");
+  // Neomatrix_scrolltext_random_eachstep("Happy Father's Day");
 
-  Send_Text("Happy Easter");
+  //Send_Text("Happy Memorial Day");
   
   //Neomatrix_scroll_picture2(20, 63, 76); // (row, column)
-  Neomatrix_scroll_picture2(1,  32, 13); // (xoffset, row, column)
-  //Neomatrix_scroll_picture2(15, 32, 13); // (xoffset, row, column)
+
+  // Flags
+  Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
+  Neomatrix_scroll_picture2(24, 13, 30, 100); // (xoffset, row, column, delay)
+  Neomatrix_scroll_picture2(8, 13, 30, 100); // (xoffset, row, column, delay)
+  Neomatrix_scroll_picture2(32, 13, 30, 100); // (xoffset, row, column, delay)
+  Neomatrix_scroll_picture2(16, 13, 30, 100); // (xoffset, row, column, delay)
+  
   //Neomatrix_scroll_picture2(20, 30, 31); // (xoffset, row, column)
   //Neomatrix_scroll_picture2(30, 30, 31); // (xoffset, row, column)
  // Neomatrix_scroll_picture2(32, 13, 30); // (row, column)
@@ -94,11 +115,11 @@ void loop() {
 
 void Send_Text(String inputstr) {
   ArduinoOTA.handle();
-  //int randn = random(0,767);
+  int randn = random(0,767);
   byte red = 200;
   byte green = 200;
   byte blue = 0;
-/*
+
   if (randn < 256) {
       red = 255 - randn;
       green = randn;
@@ -109,7 +130,7 @@ void Send_Text(String inputstr) {
       red = 767 - randn;
       blue = randn - 512;
   }
-  */
+  
   Neomatrix_scrolltext(inputstr ,red, green, blue);
 }
 

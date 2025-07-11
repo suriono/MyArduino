@@ -1,6 +1,7 @@
 void GPS_refresh()
 {
   static float last_flat, last_flon;
+  static bool  blink_speed;
   static unsigned long last_speed_limit;
   float flat, flon, speed_mph;
   unsigned long age, date, time, chars = 0;
@@ -33,11 +34,25 @@ void GPS_refresh()
     Serial.print("Speed: "); Serial.print(String(speed_mph));
     //Speed_increment = ((Speed_MPH + 2) / 5) * 5;  // only increment speed by 5 to reduce distraction
     Speed_increment = Speed_MPH;
-    matrix.setTextColor(matrix.Color(0, 255, 0));
-    display_Number(Speed_increment,0);
+    //matrix.setTextColor(matrix.Color(0, 255, 0));
+    //display_Number(Speed_increment,0);
     if (speedLimit_mph > 0) {
       matrix.setTextColor(matrix.Color(255, 0, 0));
-      display_Number(speedLimit_mph,14); 
+      display_Number(speedLimit_mph,13);            // display speed limit
+      if (Speed_increment > (speedLimit_mph+7)) {
+        if (blink_speed) {
+          matrix.setTextColor(matrix.Color(255, 0, 0));
+        }
+        blink_speed = !blink_speed;
+      } else if (Speed_increment > speedLimit_mph)  {
+        matrix.setTextColor(matrix.Color(255, 0, 255));
+      } else {
+        matrix.setTextColor(matrix.Color(0, 255, 0));
+      }
+      display_Number(Speed_increment,0);
+    } else {
+      matrix.setTextColor(matrix.Color(0, 255, 0));
+      display_Number(Speed_increment,0);
     }
      
     if (flat != TinyGPS::GPS_INVALID_F_ANGLE) {        // to get speed limit from MQTT which is from TomTom
