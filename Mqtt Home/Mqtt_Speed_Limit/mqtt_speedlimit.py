@@ -1,4 +1,4 @@
-import random, requests, json
+import random, requests, json,time
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
 import password              # the file I save my MQTT user name and password
@@ -15,11 +15,15 @@ class GPS_Speed_Limit:
         self.mqtt_client.on_publish = self.mqtt_on_publish
         self.mqtt_client.on_connect = self.mqtt_on_connect
         self.mqtt_client.on_message = self.mqtt_on_message
-        if self.mqtt_client.connect(self.HOST, 1883, 6) != 0:
+        if self.mqtt_client.connect(self.HOST, 1883, 60) != 0:
             print("Couldn't connect to the mqtt broker")
             sys.exit(1)
         #self.thread = threading.Thread(target=self.mqtt_client.loop_forever)
         #self.thread.daemon = True
+
+    def reconnect(self):
+        self.mqtt_client.connect(self.HOST, 1883, 60)
+
     def mqtt_on_publish(self,client,userdata,flag, mid,rc):
         print("publish status: " + str(mid))
 
@@ -29,9 +33,9 @@ class GPS_Speed_Limit:
 
     # Callback when a message is receive
     def mqtt_on_message(self, client, userdata, msg):
-        print(f"Received message: {msg.payload.decode()} on topic: {msg.topic}")
+        #print(f"Received message: {msg.payload.decode()} on topic: {msg.topic}")
         tmpdict = json.loads( msg.payload.decode("utf-8"))
-        print("Way Points: " + tmpdict["waypoints"])
+        #print("Way Points: " + tmpdict["waypoints"])
         mph = self.speed_Limit(waypointstr=tmpdict["waypoints"])
         print("got MPH: " + str(mph))
         self.mqtt_publish(speedlimit=str(mph))
@@ -48,16 +52,24 @@ class GPS_Speed_Limit:
 
         try:
             data = response.json()
+            # print("  data json: ", data)
             kmh = data["routes"][0]["sections"][0]["maxSpeedLimitInKmh"]
             mph = int(round(kmh * 0.6214));
             return mph
-        except requests.exceptions.JSONDecodeError:
-            print("Response is not valid JSON.")
+        # except requests.exceptions.JSONDecodeError:
+        except:
+            print(" === Failed URL request")
             return 0
 
 # ==================== End of Speed Limit class ===================
 
 speed_obj = GPS_Speed_Limit()
-#speed_obj.mqtt_publish(speedlimit="43")
-#speed_obj.thread.start()
+while True:
+    try:
+        speed_obj.reconnect()
+        print("-- Reconnect--")
+        break
+    except ConnecctionRefusedError as e:
+        print(e)
+        pass
 speed_obj.mqtt_client.loop_forever()
