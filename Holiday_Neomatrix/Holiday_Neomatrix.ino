@@ -1,9 +1,15 @@
 #include <ESP8266WiFi.h>
+#include <WiFiClientSecure.h>
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 #include <Adafruit_NeoMatrix.h>
 #include <Adafruit_GFX.h>
+#include <Arduino_JSON.h>
+#include "certs.h"
+
+X509List cert(cert_DigiCert_Global_Root_CA);
+String   weather_message;
 
 #define NEOPIXEL_PIN    4  // D2 for NodeMCU
 #define NCOLUMNS        64 // number of pixel columns
@@ -51,47 +57,64 @@ void setup() {
 
   Neopixel_Initial();
   
+  weather_message = get_Weather();
+  delay(10000);
+  
 }
 
 // =============== Loop ======================
 
 void loop() {
-    Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
-  Send_Text("O say, can you see");
-    Neomatrix_scroll_picture2(24, 13, 30, 100); // (xoffset, row, column, delay)
-  Send_Text("By the dawn's early light");
-    Neomatrix_scroll_picture2(8, 13, 30, 100); // (xoffset, row, column, delay)
-  Send_Text("What so proudly we hail");
-    Neomatrix_scroll_picture2(32, 13, 30, 100); // (xoffset, row, column, delay)
-  Send_Text("At the twilight's last gleaming");
-    Neomatrix_scroll_picture2(16, 13, 30, 100); // (xoffset, row, column, delay)
+   static unsigned long last_time = millis();
 
-  Send_Text("Whose broad stripes and bright stars");
-    Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
-  Send_Text("Through the perilous fight");
-    Neomatrix_scroll_picture2(24, 13, 30, 100); // (xoffset, row, column, delay)
-  Send_Text("O'er the ramparts we watch");
-    Neomatrix_scroll_picture2(8, 13, 30, 100); // (xoffset, row, column, delay)
-  Send_Text("Were so gallantly streaming");
-    Neomatrix_scroll_picture2(32, 13, 30, 100); // (xoffset, row, column, delay)
+   String update_time;
 
-  Send_Text("And the rocket's red glare");
-    Neomatrix_scroll_picture2(16, 13, 30, 100); // (xoffset, row, column, delay)
-  Send_Text("The bombs bursting in air");
-   Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
-  Send_Text("Gave proof through the night");
-    Neomatrix_scroll_picture2(24, 13, 30, 100); // (xoffset, row, column, delay)
-  Send_Text("That our flag was still there");
-    Neomatrix_scroll_picture2(8, 13, 30, 100); // (xoffset, row, column, delay)
+   update_time = "Updated " + String((millis()-last_time)/1000) + " seconds ago from api.weather.gov : ";
 
-  Send_Text("O say, does that star-spangled banner yet wave");
-    Neomatrix_scroll_picture2(32, 13, 30, 100); // (xoffset, row, column, delay)
-  Send_Text("O'er the land of the free");
-    Neomatrix_scroll_picture2(16, 13, 30, 100); // (xoffset, row, column, delay)
-  Send_Text("And the home of the brave");
+    Send_Text(update_time + weather_message);
+
+   //if ( (millis()-last_time) > 3600000) {
+   if ( (millis()-last_time) >    900000) {
+      weather_message = get_Weather();
+      last_time = millis();
+   }
+
+  
+   //Send_Text("13934 Fallbrook Way");
+//    Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
+//  Send_Text("O say, can you see");
+//    Neomatrix_scroll_picture2(24, 13, 30, 100); // (xoffset, row, column, delay)
+//  Send_Text("By the dawn's early light");
+//    Neomatrix_scroll_picture2(8, 13, 30, 100); // (xoffset, row, column, delay)
+//  Send_Text("What so proudly we hail");
+//    Neomatrix_scroll_picture2(32, 13, 30, 100); // (xoffset, row, column, delay)
+//  Send_Text("At the twilight's last gleaming");
+//    Neomatrix_scroll_picture2(16, 13, 30, 100); // (xoffset, row, column, delay)
+//
+//  Send_Text("Whose broad stripes and bright stars");
+//    Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
+//  Send_Text("Through the perilous fight");
+//    Neomatrix_scroll_picture2(24, 13, 30, 100); // (xoffset, row, column, delay)
+//  Send_Text("O'er the ramparts we watch");
+//    Neomatrix_scroll_picture2(8, 13, 30, 100); // (xoffset, row, column, delay)
+//  Send_Text("Were so gallantly streaming");
+//    Neomatrix_scroll_picture2(32, 13, 30, 100); // (xoffset, row, column, delay)
+//
+//  Send_Text("And the rocket's red glare");
+//    Neomatrix_scroll_picture2(16, 13, 30, 100); // (xoffset, row, column, delay)
+//  Send_Text("The bombs bursting in air");
+//   Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
+//  Send_Text("Gave proof through the night");
+//    Neomatrix_scroll_picture2(24, 13, 30, 100); // (xoffset, row, column, delay)
+//  Send_Text("That our flag was still there");
+//    Neomatrix_scroll_picture2(8, 13, 30, 100); // (xoffset, row, column, delay)
+//
+//  Send_Text("O say, does that star-spangled banner yet wave");
+//    Neomatrix_scroll_picture2(32, 13, 30, 100); // (xoffset, row, column, delay)
+//  Send_Text("O'er the land of the free");
+//    Neomatrix_scroll_picture2(16, 13, 30, 100); // (xoffset, row, column, delay)
+//  Send_Text("And the home of the brave");
    //Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
- 
-  //Send_Text();
 
   // Neomatrix_scrolltext_random_eachstep("Happy Father's Day");
 
@@ -100,11 +123,11 @@ void loop() {
   //Neomatrix_scroll_picture2(20, 63, 76); // (row, column)
 
   // Flags
-  Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
-  Neomatrix_scroll_picture2(24, 13, 30, 100); // (xoffset, row, column, delay)
-  Neomatrix_scroll_picture2(8, 13, 30, 100); // (xoffset, row, column, delay)
-  Neomatrix_scroll_picture2(32, 13, 30, 100); // (xoffset, row, column, delay)
-  Neomatrix_scroll_picture2(16, 13, 30, 100); // (xoffset, row, column, delay)
+//  Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
+//  Neomatrix_scroll_picture2(24, 13, 30, 100); // (xoffset, row, column, delay)
+//  Neomatrix_scroll_picture2(8, 13, 30, 100); // (xoffset, row, column, delay)
+//  Neomatrix_scroll_picture2(32, 13, 30, 100); // (xoffset, row, column, delay)
+//  Neomatrix_scroll_picture2(16, 13, 30, 100); // (xoffset, row, column, delay)
   
   //Neomatrix_scroll_picture2(20, 30, 31); // (xoffset, row, column)
   //Neomatrix_scroll_picture2(30, 30, 31); // (xoffset, row, column)

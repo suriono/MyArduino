@@ -1,6 +1,7 @@
  
 #include <Servo.h>
 #include <Arduino.h>
+#include "password.h"   // hidden for security
 #ifdef ESP32
 #include <WiFi.h>
 #include <AsyncTCP.h>
@@ -11,11 +12,12 @@
 #include <ESPAsyncWebServer.h>
 
 Servo myservo;  // create servo object to control a servo
+#define CENTER_ANGLE 85
 
 AsyncWebServer server(80);
 
-const char* ssid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-const char* password = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+//const char* ssid     = "xxxxxxxxxxxxxxxxxxxx";
+//const char* password = "xxxxxxxxxxxxxxxxxxxx";
 
 //const char* PARAM_MESSAGE = "angle";
 
@@ -30,11 +32,12 @@ void notFound(AsyncWebServerRequest *request) {
 
 // =============================== Setup =======================================
 void setup() {
-    myservo.attach(4,544, 2600);  // attaches the servo on pin 9 to the servo object
+//    myservo.attach(4,544, 2600);  // attaches the servo on pin 9 to the servo object
+   // myservo.attach(0,600,2600);  // attaches the servo on pin 9 to the servo object
 
     Serial.begin(57600);
     WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
+    WiFi.begin(SSID_NAME, WIFI_PASSWORD);
     if (WiFi.waitForConnectResult() != WL_CONNECTED) {
         Serial.printf("WiFi Failed!\n");
         return;
@@ -42,6 +45,7 @@ void setup() {
 
     Serial.print("IP Address: ");
     Serial.println(WiFi.localIP());
+    Servo_Run(CENTER_ANGLE);       // initial angle in the center
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(200, "text/plain", "angle=" + String(last_angle));
@@ -55,7 +59,7 @@ void setup() {
         } else {
             message = "Failed http get with request";
         }
-        Serial.println(message);
+        Serial.print("HTTP_GET:"); Serial.println(message);
         request->send(200, "text/plain", "Hello, GET: " + message);
     });
 
@@ -66,6 +70,7 @@ void setup() {
             String angle = request->getParam("angle", true)->value();
             Servo_Run(angle.toInt());
             message = "Received command angle : " + angle + " degree";
+            last_angle = angle.toInt();
         //} else if (request->hasParam("getangle", true)) {
          //   message = "angle=" + String(last_angle);
         } else {

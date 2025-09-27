@@ -73,8 +73,8 @@ void loop() {
   int lux = int(lightMeter.readLightLevel());
   int lux_limit = constrain(lux, 0, 8000);
   Neomatrix_Brightness = map(lux_limit, 0, 8000, 3,255);
-  Serial.print("Light: "); Serial.print(lux); Serial.print(" lx "); 
-  Serial.print("Brightness: "); Serial.print( Neomatrix_Brightness); Serial.print(",");
+  //Serial.print("Light: "); Serial.print(lux); Serial.print(" lx "); 
+  //Serial.print("Brightness: "); Serial.print( Neomatrix_Brightness); Serial.print(",");
   matrix.setBrightness(Neomatrix_Brightness); 
   
   //lightMeter.configure(BH1750::ONE_TIME_HIGH_RES_MODE);

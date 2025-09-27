@@ -15,6 +15,8 @@ WayPoints = [(44.74684019, -93.193508378)]
 
 #WayPoints = [(44.746852, -93.193487)]
 #WayPoints = [(44.746922, -93.193533)] # by pine tree
+#WayPoints = [(44.746922, -93.193533), (44.746852, -93.193487)]
+
 
 gui_obj = GUI(img_width=img_width, img_height=img_height, ref_Xpixel=Xpix_ref, ref_Ypixel=Ypix_ref,
               scale_xpix=scaleX,scale_ypix=scaleY, lat_ref=lat_ref, lon_ref=lon_ref, waypoints=WayPoints)

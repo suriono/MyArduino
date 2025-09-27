@@ -110,18 +110,23 @@ void trigger0() {
 // ====================== Servo move back and forth ========================
 
 void servo_wave() {
-   myservo.attach(SERVO_PIN);
-   delay(100);
-   static int pos = 0  ;             // servo position
-   for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
-    // in steps of 1 degree
-    myservo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
+  static unsigned long last_wave = 0;
+  if ( (millis() - last_wave) > 50000) { // so it does not keep waving for every command
+      last_wave = millis();  
+  
+      myservo.attach(SERVO_PIN);
+      delay(100);
+      static int pos = 0  ;             // servo position
+      for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+          // in steps of 1 degree
+          myservo.write(pos);              // tell servo to go to position in variable 'pos'
+          delay(15);                       // waits 15ms for the servo to reach the position
+      }
+      for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
+          myservo.write(pos);              // tell servo to go to position in variable 'pos'
+          delay(15);                       // waits 15ms for the servo to reach the position
+      }
+      delay(100);
+      myservo.detach();
   }
-  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
-    myservo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
-  }
-  delay(100);
-  myservo.detach();
 }

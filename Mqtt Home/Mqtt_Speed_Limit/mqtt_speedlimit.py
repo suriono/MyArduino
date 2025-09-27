@@ -8,6 +8,7 @@ class GPS_Speed_Limit:
     mqtt_username = password.mqtt_credentials["username"]
     mqtt_password = password.mqtt_credentials["password"]
     tomtom_apikey = password.tomtom_credentials["apikey"]
+    waypoints     = []
 
     def __init__(self):
         self.mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
@@ -31,13 +32,11 @@ class GPS_Speed_Limit:
         print("Connected with result code " + str(rc))
         self.mqtt_client.subscribe("gps/waypoints")
 
-    # Callback when a message is receive
+    # Callback when a message is received
     def mqtt_on_message(self, client, userdata, msg):
-        #print(f"Received message: {msg.payload.decode()} on topic: {msg.topic}")
         tmpdict = json.loads( msg.payload.decode("utf-8"))
-        #print("Way Points: " + tmpdict["waypoints"])
         mph = self.speed_Limit(waypointstr=tmpdict["waypoints"])
-        print("got MPH: " + str(mph))
+        print("------- Speed limit: " + str(mph))
         self.mqtt_publish(speedlimit=str(mph))
 
     def mqtt_publish(self, speedlimit="22"):
@@ -46,7 +45,16 @@ class GPS_Speed_Limit:
         #self.mqtt_client.disconnect()
 
     def speed_Limit(self, waypointstr=""):
-        url = "https://api.tomtom.com/routing/1/calculateRoute/" + waypointstr + "/json?key=" + self.tomtom_apikey + "&travelMode=car&sectionType=traffic&sectionType=speedLimit&report=effectiveSettings&vehicleEngineType=combustion"
+        max_waypoints_num = 3       # max number of waypoints to check speed limit
+        #temporary:
+#        self.waypoints = waypointstr.split(":")
+
+        if len(self.waypoints) == max_waypoints_num: remove_elem = self.waypoints.pop()   # circular data
+        self.waypoints.insert(0,waypointstr)                                   # append new one, circularly
+#        self.waypoint_correction()       # correction if turn to a new street
+        new_waypointstr = ":".join(self.waypoints)
+        print("=== waypointstr: ", new_waypointstr)
+        url = "https://api.tomtom.com/routing/1/calculateRoute/" + new_waypointstr + "/json?key=" + self.tomtom_apikey + "&travelMode=car&sectionType=traffic&sectionType=speedLimit&report=effectiveSettings&vehicleEngineType=combustion"
 
         response = requests.get(url)
 
@@ -60,6 +68,11 @@ class GPS_Speed_Limit:
         except:
             print(" === Failed URL request")
             return 0
+
+    #def waypoint_correction(self):
+    #    if len(self.waypoints) > 2:   # if > 3 points to check turning to a new street
+    #        print("hello")
+
 
 # ==================== End of Speed Limit class ===================
 

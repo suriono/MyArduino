@@ -33,6 +33,10 @@ void Neomatrix_scrolltext(String instr, byte R, byte G, byte B) {
     matrix.print(instr);
     matrix.show();
     delay(5);
+
+    if ( (x % 64) == 0 ) {
+      ArduinoOTA.handle();
+    }
   }
 }
 

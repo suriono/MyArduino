@@ -1,5 +1,13 @@
-
 void Servo_Run(int pan_angle) {
+    myservo.attach(0,600,2600);  // attaches the servo on pin 9 to the servo object
+    myservo.write(pan_angle);
+    delay(300);
+    myservo.detach();
+}
+
+void Old_Servo_Run(int pan_angle) {
+   myservo.attach(0,600,2600);  // attaches the servo on pin 9 to the servo object
+
   int pos;
   if (pan_angle > last_angle) {
     for (pos = last_angle; pos <= pan_angle; pos += 5) { // goes from 0 degrees to 180 degrees
@@ -13,6 +21,7 @@ void Servo_Run(int pan_angle) {
     }
   }
   last_angle = pos;
+  myservo.detach();
 }
 
 void Servo_test() {

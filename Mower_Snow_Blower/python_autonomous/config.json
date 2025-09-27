@@ -1,0 +1,12 @@
+{
+    "img_width"  : 830,
+    "img_height" : 798,
+    "__ref_lat"    : 44.74715416,
+    "__ref_lon"    : -93.193725113,
+    "ref_lat"    : 44.7466522,
+    "ref_lon"    : -93.1931841,
+    "ref_xpix"   : 827,
+    "ref_ypix"   : 794,
+    "scale_xpix" : 13.5,
+    "scale_ypix" : 13.15
+}

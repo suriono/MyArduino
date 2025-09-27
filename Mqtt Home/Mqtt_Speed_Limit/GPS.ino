@@ -1,7 +1,7 @@
 void GPS_refresh()
 {
   static float last_flat, last_flon;
-  static bool  blink_speed;
+  bool  blink_speed = true;
   static unsigned long last_speed_limit;
   float flat, flon, speed_mph;
   unsigned long age, date, time, chars = 0;
@@ -31,49 +31,58 @@ void GPS_refresh()
   matrix.fillScreen(0);
   if (speed_mph != TinyGPS::GPS_INVALID_F_SPEED) {
    // Neopixel_Blank();
-    Serial.print("Speed: "); Serial.print(String(speed_mph));
+    //Serial.print("Speed: "); Serial.print(String(speed_mph));
     //Speed_increment = ((Speed_MPH + 2) / 5) * 5;  // only increment speed by 5 to reduce distraction
     Speed_increment = Speed_MPH;
     //matrix.setTextColor(matrix.Color(0, 255, 0));
     //display_Number(Speed_increment,0);
-    if (speedLimit_mph > 0) {
-      matrix.setTextColor(matrix.Color(255, 0, 0));
+    if (speedLimit_mph > 0) {                       // if speed limit available
+      matrix.setTextColor(matrix.Color(255, 0, 0)); // display speed limit in red
       display_Number(speedLimit_mph,13);            // display speed limit
-      if (Speed_increment > (speedLimit_mph+7)) {
-        if (blink_speed) {
-          matrix.setTextColor(matrix.Color(255, 0, 0));
-        }
-        blink_speed = !blink_speed;
-      } else if (Speed_increment > speedLimit_mph)  {
-        matrix.setTextColor(matrix.Color(255, 0, 255));
+
+      if (Speed_increment > speedLimit_mph)  {          // > speed limit: purple
+        matrix.setTextColor(matrix.Color(255, 0, 255)); 
       } else {
-        matrix.setTextColor(matrix.Color(0, 255, 0));
+        matrix.setTextColor(matrix.Color(0, 255, 0));   // < speed limit: green
       }
-      display_Number(Speed_increment,0);
-    } else {
+
+      if (Speed_increment > (speedLimit_mph+7)) {   // > speed limit + 7
+        for (int nn=0; nn<6; nn++) {
+          if (blink_speed) {
+            //matrix.setTextColor(matrix.Color(255, 0, 0)); // display speed limit in red
+            //display_Number(speedLimit_mph,13);            // display speed limit
+            matrix.setTextColor(matrix.Color(255, 0, 255));
+            display_Number(Speed_increment,0);
+            Neopixel_Mirror();                // mirrored to project into the windshield
+            matrix.show();
+          } else {
+            Neopixel_Blank();
+            matrix.setTextColor(matrix.Color(255, 0, 0)); // display speed limit in red
+            display_Number(speedLimit_mph,13);
+          }
+          blink_speed = !blink_speed;
+          
+          delay(150);
+        }
+
+      }
+    } else {                                        // not speed limit available
       matrix.setTextColor(matrix.Color(0, 255, 0));
-      display_Number(Speed_increment,0);
     }
+    display_Number(Speed_increment,0);
      
     if (flat != TinyGPS::GPS_INVALID_F_ANGLE) {        // to get speed limit from MQTT which is from TomTom
       //Serial.print(" Lat: "); Serial.print(flat,8);
       if (flon != TinyGPS::GPS_INVALID_F_ANGLE) {
-        if (speed_mph > MIN_SPEED_LIMIT) {
+        if (speed_mph > MIN_SPEED_LIMIT) {       // only check speed limit when speed > MIN_SPEED_LIMIT
         
            if ( (millis()-last_speed_limit) > PERIOD_SPEED_LIMIT) {           // periodic speed limit request from TomTom
-              snprintf (coordinate_chain, sizeof(coordinate_chain), "%f,%f:%f,%f", flat,flon,last_flat,last_flon);
+              //snprintf (coordinate_chain, sizeof(coordinate_chain), "%f,%f:%f,%f", flat,flon,last_flat,last_flon);
+              snprintf (coordinate_chain, sizeof(coordinate_chain), "%f,%f", flat,flon);
               Serial.print("   "); Serial.print(coordinate_chain);
               myJSON["waypoints"] = coordinate_chain;
               client.publish(MQTT_Topic, JSON.stringify(myJSON), true); 
-              
-          //   try_get_Speed_Limit(coordinate_chain);
-          //   if (speedLimit_mph == 0) {          // try again if fails the 1st time
-          //     try_get_Speed_Limit(coordinate_chain);
-          //   }
              last_speed_limit = millis();
-          // } else if ( speedLimit_mph > 0) {    // previously get speed limit
-          //   matrix.setTextColor(matrix.Color(255, 0, 0));
-          //   display_Number(speedLimit_mph,14); 
            }
         }
           
