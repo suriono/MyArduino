@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <Arduino_JSON.h>
-#define PWM_PIN          0     // D3
-#define BREAK_PIN        5     // D1
+#define PWM_PIN          5     // D1
+#define BREAK_PIN        0     // D3
 
 JSONVar        myJSON;
 WiFiServer     server(5001);

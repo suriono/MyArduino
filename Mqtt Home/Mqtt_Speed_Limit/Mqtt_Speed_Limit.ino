@@ -34,7 +34,7 @@ JSONVar myJSON;
 #define RXPIN_GPS    2    // 2=D4
 #define TXPIN_GPS   -1
 #define PERIOD_SPEED_LIMIT 5000    // period in mS to request speed limit from TomTom
-#define MIN_SPEED_LIMIT   0.5            // minimum speed to display speed limit
+#define MIN_SPEED_LIMIT   0.001            // minimum speed to display speed limit
  // Use Arduino Due because SRAM is high, 96KB, Mega is 8KB
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(WIDTH, HEIGHT, TILE_COLUMNS, TILE_ROWS, PIN_TOP_SIGN,
   NEO_TILE_TOP   + NEO_TILE_LEFT   + NEO_TILE_ROWS   + NEO_TILE_ZIGZAG +
@@ -70,10 +70,11 @@ void setup() {
   Wire.begin();
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWD);
- //  WiFi.begin("Uz-hotspot", "fern1487472");
-    while (WiFi.status() != WL_CONNECTED) {
+  int ncount = 0;
+  while (WiFi.status() != WL_CONNECTED && ncount < 5) {
     delay(500);
     Serial.print(".");
+    ncount++;
   }
 
   Serial.println("");
