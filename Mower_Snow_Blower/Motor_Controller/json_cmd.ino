@@ -76,7 +76,7 @@ void process_JSON() {
               PID_I_theta_delta = 0;
            } else if ( abs( wrap_Angle(theta_delta -last_theta_delta)) > 10) { // large spin, reset to prevent oscillation or overshoot
               PID_I_theta_delta = 0;
-           } else if (PID_I_theta_delta < 30) {
+           } else if (PID_I_theta_delta < 20) {
               PID_I_theta_delta += 1;
            }
            //theta_delta += (Yaw - last_yaw)/2; // anticipate continuous movement
@@ -88,9 +88,22 @@ void process_JSON() {
            // }
            // theta_delta = wrap_Angle(theta_delta);
            //Serial.print(" Delta theta: "); Serial.print (theta_delta);
+           if ( (abs(theta_delta)/2 + PID_I_theta_delta) > YAW_MAX_POWER) {
+              PID_I_theta_delta = 0;
+           } else if ((abs(theta_delta)/2 + PID_I_theta_delta) < YAW_MIN_POWER) {
+              PID_I_theta_delta = YAW_MIN_POWER;
+           }
 
            if ( abs(theta_delta) > 5) {  // tolerate to stop auto orientation
-              yaw_mag = map(abs(theta_delta) + PID_I_theta_delta,0,180,YAW_MIN_POWER,YAW_MAX_POWER); // limit by max power
+             
+              //yaw_mag = map(abs(theta_delta) + PID_I_theta_delta,0,180,YAW_MIN_POWER,YAW_MAX_POWER); // limit by max power
+              yaw_mag = min(abs(theta_delta)/2, YAW_MAX_POWER) + PID_I_theta_delta;
+              if ( yaw_mag > YAW_MAX_POWER) {
+                 yaw_mag = YAW_MAX_POWER;
+                 PID_I_theta_delta = 0;
+              } else if (yaw_mag < YAW_MIN_POWER) {
+                 yaw_mag = YAW_MIN_POWER;
+              }
               if (theta_delta > 0) {
                  motorRun(yaw_mag, 90, 100);
               } else {

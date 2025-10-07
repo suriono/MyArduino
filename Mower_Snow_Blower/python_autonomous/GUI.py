@@ -9,7 +9,8 @@ class GUI (threading.Thread):
    # ---- PID ---------------
    PID_rad_D_coef, PID_rad_I_coef, PID_rad_I = 0.2, 0.01, 0.0
    delta_angle, gps_count, distance, dest_theta, run_Mode, is_new_waypoint = 0.0, 0, 100.0, 0, False, True
-   low_power_spin_count = 0
+   low_power_spin_count, new_waypoint_angle_align_count, target_angle, angle_check_count = 0,0,0,0
+   prev_angle = 0
 
    robot_obj = Robot.Robot()
    Data = {}
@@ -85,7 +86,7 @@ class GUI (threading.Thread):
       tk.Label (self.angleframe, textvariable=self.labelYaw). pack(side=tk.LEFT)
       tk.Label (self.angleframe, text="Target angle"). pack(side=tk.LEFT)
       tk.Entry (self.angleframe, textvariable=self.entryTarget_angle, width=4).pack(side=tk.LEFT)
-      tk.Button(self.angleframe, text="GO", command= lambda: self.spin_Target(self.entryTarget_angle.get())).pack(side=tk.LEFT)
+      tk.Button(self.angleframe, text="GO", command= lambda: self.test_spin_Target(self.entryTarget_angle.get())).pack(side=tk.LEFT)
       tk.Button(self.angleframe, text="Spin Right", command= lambda: self.spin_Robot(10)).pack(side=tk.LEFT)
       
       # ----- Data -----------------------------------
@@ -105,7 +106,7 @@ class GUI (threading.Thread):
       #self.labelCoord.set("Current (Lattitude ======== Longitude): " + str(self.lat_ref) + ' , ' + str(self.lon_ref))
       self.entryLat.set(44.74713533018441)
       self.entryLon.set(-93.19377913074761)
-      self.entrySpeed.set(40)
+      self.entrySpeed.set(30)
       self.entryAngle.set(170)
       self.entryTarget_angle.set(45)
       self.is_Simulation.set(True)
@@ -134,17 +135,18 @@ class GUI (threading.Thread):
          if self.gps_obj.get_GPS():
             self.X, self.Y = self.gps_obj.get_X_Y(lat=self.gps_obj.lat, lon=self.gps_obj.lon)
             #self.vector_obj.X, self.vector_obj.Y = self.gps_obj.get_X_Y(lat=self.gps_obj.lat, lon=self.gps_obj.lon)
-            if self.gps_count % 10 == 0:
-               self.gps_obj.get_RTK()
-               print("     RTK: ", self.gps_obj.rtk_type)
+           # if self.gps_count % 10 == 0:
+           #    self.gps_obj.get_RTK()
+           #    print("     RTK: ", self.gps_obj.rtk_type)
                
             self.gps_count += 1
 
       self.vector_obj.update_Location(self.X, self.Y)
-      del_X, del_Y   = X_dest - self.X, Y_dest - self.Y
-      self.distance = math.sqrt(del_X*del_X+del_Y*del_Y)
+      #del_X, del_Y   = X_dest - self.X, Y_dest - self.Y
+      #self.distance = math.sqrt(del_X*del_X+del_Y*del_Y)
+      #self.distance = self.vector_obj.distance
          
-      self.show_Current_Location()    # ==================== remove later to save graphic resources 
+      self.show_Current_Location()    # ================= may remove later to save graphic resources
       
       #print("GPS: ", self.gps_obj.lat, self.gps_obj.lon, self.gps_obj.prec, self.gps_count)
       self.root.after(250, self.loop_GPS)  # reschedule event in 2 seconds
@@ -156,50 +158,86 @@ class GUI (threading.Thread):
       
       if not self.is_Simulation.get():
          self.robot_obj.move_Robot()               # automatically move given robot_obj.mag, theta, and delay
-         
          self.angle = self.normalize_angle( self.robot_obj.Yaw + self.robot_obj.Offset_Yaw)
          
       del_X, del_Y   = X_dest - self.X, Y_dest - self.Y  # self.X,self.Y from loop_GPS() for not simulation
       self.dest_theta = self.rad_to_angle(math.atan2(del_X,del_Y))   # destination theta from 0-degree
             
-      self.root.after(200, self.loop_Move_Robot)  # reschedule event in 2 seconds
-      
-   # -------------------------- Run Motors loop ----------------------------------
+      self.root.after(300, self.loop_Move_Robot)  # reschedule event in 2 seconds
+
+   # -------------------------- Loop until angle target --------------------------
+
+   def loop_Target_Angle(self):
+      print("--- Loop Angle target: ", self.angle_check_count, self.target_angle, self.angle)
+      del_angle = self.target_angle - self.angle
+      min_mag, max_mag = 12,20         # min and max amplitude
+
+      if self.angle_check_count < 5:  # check after settling to check the angle if it overshoots
+         if abs(del_angle) > 10:     # tolerance angle to target
+            self.angle_check_count = 0
+            if ( (self.angle-self.target_angle)*(self.prev_angle-self.target_angle) < 0): # overshoot
+               self.robot_obj.mag, self.PID_rad_I = 0, min_mag
+            elif abs(self.angle - self.prev_angle) < 2: # not moving
+               self.PID_rad_I += 1
+            else:                                     # once move, decrease power to avoid overshoot
+               self.PID_rad_I -= 3    # slow down once it moves
+            self.PID_rad_I = max(min_mag, min(self.PID_rad_I, max_mag))  # mag integrate between min and max
+            self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = self.PID_rad_I, 90 * sign(del_angle), 50  # one wa
+            print("          spin mag: ", self.PID_rad_I) #, ", prev: ", self.prev_angle, self.angle)
+            self.prev_angle = self.angle
+            self.root.after(100, self.loop_Target_Angle)
+         else:                               # stop and check the angle, if it overshoots
+            self.angle_check_count += 1
+            self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = 0, 90 * sign(del_angle), 100
+            self.PID_rad_I = min_mag
+            self.root.after(500, self.loop_Target_Angle)
+      else:        # target angle reached, time to move on
+         self.angle_check_count = 0
+         self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = 0, 90 * sign(del_angle), 100
+         print("  !!!!!!!!!!!!!! ====== Target angle reached ")
+
+         if self.run_Mode:      # move the robot when it's ready.
+            self.vector_obj.set_Origin()  # x_orig=self.X, y_orig=self.Y)  # The 1st origin
+            #self.vector_obj.get_Destination(self.waypoints[self.waypoint_count])
+            self.vector_obj.update_Location(self.X, self.Y)
+            self.root.after(100, self.loop_Motor_Until_Tolerance)
+
+         # -------------------------- Run Motors loop ----------------------------------
       
    def loop_Motor_Until_Tolerance(self):
-      #print("Distance: ", f"{self.distance:.2f}", ", to path: ", f"{self.vector_obj.path_distance:.2f}",
-      #      ", Angle change: ", f"{self.delta_angle:.2f}")
-      print("Distance: ", f"{self.distance:.2f}", ", Waypoint angle: ", f"{self.vector_obj.waypoint_angle_deg:.2f}",
-            ", Angle: ", f"{self.angle:.2f}")
+
+      print("Dist: ", f"{self.vector_obj.distance:.2f}", ",(Wayp,Robot):(", f"{self.vector_obj.waypoint_angle_deg:.2f}",
+            ",", f"{self.angle:.2f}", ")")
       if self.is_Simulation.get():
-         if self.run_Mode and self.distance > 0.7:
+         if self.run_Mode and self.vector_obj.distance > 0.7:
             self.step_to_Location()
             self.root.after(100, self.loop_Motor_Until_Tolerance)  # reschedule event in 100mS
          else:
-            print("==== Tolerance reached", self.distance, self.run_Mode)
+            print("==== Tolerance reached", self.vector_obj.distance, self.run_Mode)
             self.next_WayPoint()
             if self.waypoint_count > 0:
-               self.distance = 10.0
+               self.vector_obj.distance = 10.0
                self.root.after(200, self.loop_Motor_Until_Tolerance)
             else:
                self.run_Mode = False
             
       else:  # NOT simulation, actual robot
 
-         if self.run_Mode and self.distance > 2.0:
+         if self.run_Mode and self.vector_obj.distance > 1.0:
             self.step_to_Location()
             #print("   Yaw:  ", self.robot_obj.Yaw, ", Offset:  ", self.robot_obj.Offset_Yaw)
-            self.root.after(200, self.loop_Motor_Until_Tolerance)  # reschedule event in 2 seconds
+            self.root.after(300, self.loop_Motor_Until_Tolerance)  # reschedule event in 2 seconds
          else:
-            print("==== Tolerance reached", self.distance, self.run_Mode)
+            print("==== Tolerance reached", self.vector_obj.distance, self.run_Mode)
+            #self.run_Mode = False
             self.next_WayPoint()
-            if self.waypoint_count > 0:
-               self.distance = 10.0
-               self.root.after(200, self.loop_Motor_Until_Tolerance)
-            else:
-               self.run_Mode = False
-               self.stop_Motor()
-               self.is_Simulation.set(True)
+            #if self.waypoint_count > 0:
+            #   self.vector_obj.distance = 10.0
+            #   self.root.after(300, self.loop_Motor_Until_Tolerance)
+            #else:
+            #   self.run_Mode = False
+            #   self.stop_Motor()
+            #   self.is_Simulation.set(True)
    
    # ---------- End of __init__ ----------------------------------------------------------
       
@@ -219,50 +257,33 @@ class GUI (threading.Thread):
 
    def WayPoints(self):
       self.vector_obj.set_Origin() #x_orig=self.X, y_orig=self.Y)  # The 1st origin
+      self.vector_obj.get_Destination()
+      self.vector_obj.update_Location(self.X, self.Y)
+      self.run_Mode = True  # spin to the waypoint first
+      self.vector_obj.distance, self.waypoint_count = 10.0, 0
+      self.spin_Target(self.vector_obj.waypoint_angle_deg)
 
-      self.run_Mode, self.distance, self.waypoint_count = True, 10.0, 0
-      self.root.after(100, self.loop_Motor_Until_Tolerance)
-   
-   def last_WayPoints(self):
-      #self.run_Mode, self.distance, self.waypoint_count = True, 10.0, 1
-   #   self.root.after(100, self.loop_Motor_Until_Tolerance)
-      for index, waypoint in enumerate(self.waypoints): # iterate through waypoints
-         self.run_Mode, self.distance, self.waypoint_count = True, 10.0, index
-#         self.run_Mode, self.distance = True, 10.0
-         print(" Way point number:  ", index, self.distance)
-         self.root.after(100, self.loop_Motor_Until_Tolerance)
-         #while self.run_Mode == True:
-
-         if index == 0:
-            self.root.after(100, self.loop_Motor_Until_Tolerance)
-         #self.next_WayPoint()
-      #self.waypoint_count = 0
-      self.is_Simulation.set(True)
-   
-   def WayPoints_old(self):
-      for index, wpoint in enumerate(self.waypoints): # iterate waypoints
-         self.run_Mode = True
-         self.distance = 10.0
-         print(" Way point number:  ", index)
-         print("=====================waypoint", self.waypoints[self.waypoint_count], ", Distance:  ", self.distance)
-         self.loop_Motor_Until_Tolerance()
-         #self.single_WayPoint()
-         self.next_WayPoint()
-      self.waypoint_count = 0
-   
-   def single_WayPoint(self): # (lat, lon)):
-      #self.run_Mode = True
-      print("=====================waypoint", self.waypoints[self.waypoint_count], ", Distance:  ", self.distance)
-      self.loop_Motor_Until_Tolerance()
+      #self.root.after(100, self.loop_Motor_Until_Tolerance)
    
    def next_WayPoint(self):
       self.waypoint_count = (self.waypoint_count + 1) % len(self.waypoints)
       #self.vector_obj.wayPoint_index = self.waypoint_count
-      self.vector_obj.set_Origin(self.waypoint_count)  # x_orig=self.X, y_orig=self.Y)
-      self.vector_obj.get_Destination(index=self.waypoint_count)
-      self.is_new_waypoint = True   # beginning of a new waypoint, spin to precision
 
-      
+      if self.waypoint_count > 0:  # not the end
+         self.vector_obj.set_Origin(self.waypoint_count)  # x_orig=self.X, y_orig=self.Y)
+         self.vector_obj.get_Destination(index=self.waypoint_count)
+         self.vector_obj.update_Location(self.X, self.Y)
+         self.spin_Target(self.vector_obj.waypoint_angle_deg)
+         self.is_new_waypoint = True  # beginning of a new waypoint, spin to precision
+         self.new_waypoint_angle_align_count = 0  # count until fully aligned to a new waypoint
+         self.vector_obj.distance = 10.0
+         #if self.run_Mode:
+         #   self.root.after(300, self.loop_Motor_Until_Tolerance)
+      else:
+         self.run_Mode = False
+         self.stop_Motor()
+         self.is_Simulation.set(True)
+
    # ================================= Robot ===================================================
    
    def step_to_Location(self):
@@ -324,35 +345,21 @@ class GUI (threading.Thread):
          #self.show_Current_Location()
 
       else:                          # actually moving the robot
-         
-         if abs(del_angle) > 45:       # rotate 45-degree
-            self.low_power_spin_count = 0
-            print("Spin when angle greater than 45 degrees, currently:  ", del_angle)
-            self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = 20, 90 * sign(del_angle), 500 # one way
-         elif abs(del_angle) > 30:
-            self.low_power_spin_count += 1
-            print("Spin when angle greater than 30 degrees, currently:  ", del_angle)
-            if self.low_power_spin_count > 1:
-               self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = 20, 90 * sign(del_angle), 100  # one way
-            else:
-               self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = 15, 90 * sign(del_angle), 100
-               self.low_power_spin_count = 0 # reset
 
-         elif abs(del_angle) > 15 and self.is_new_waypoint:
-            print("Spin when angle greater than 15 degrees, currently:  ", del_angle)
-            self.low_power_spin_count += 1
-            if self.low_power_spin_count > 1:
-               self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = 20, 90 * sign(del_angle), 10  # one way
-            else:
-               self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = 15, 90 * sign(del_angle), 10  # one way
-               self.low_power_spin_count = 0
+         if abs(del_angle) > 45:
+            print("            > 45 degrees, currently:  ", del_angle)
+            self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = 20, 90 * sign(del_angle), 100  # one way
+         elif abs(del_angle) > 30:
+            print("            > 30 degrees, currently:  ", del_angle)
+            self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = 20, 90 * sign(del_angle), 10  # one way
          else:
             self.low_power_spin_count = 0
             self.is_new_waypoint = False
-            self.PID_rad_D_coef, self.PID_rad_I_coef = 0.5, 0.1
+            self.PID_rad_D_coef, self.PID_rad_I_coef = 0.3, 0.1
             #del_waypoint_current = self.vector_obj.waypoint_angle_deg - self.angle
             if abs(self.vector_obj.path_distance) > 0.5:
-               self.delta_angle = self.normalize_angle(del_waypoint_current*self.PID_rad_D_coef - 10 * sign(self.vector_obj.path_distance))
+               self.delta_angle = self.normalize_angle(del_waypoint_current*self.PID_rad_D_coef - 10 * self.vector_obj.path_distance)
+                                                     #  - 10 * sign(self.vector_obj.path_distance))
                #if abs(self.delta_angle) < 5: self.delta_angle = 5 * sign(self.delta_angle)
             elif abs(self.vector_obj.path_distance) > 0.25:
                self.delta_angle = self.normalize_angle(del_waypoint_current*self.PID_rad_D_coef - 5 * sign(self.vector_obj.path_distance))
@@ -365,16 +372,16 @@ class GUI (threading.Thread):
                self.delta_angle = 30 * sign(self.delta_angle)
             #print("   Turn : ", self.delta_angle, ", angle: ", self.angle, ", path angle: ",self.vector_obj.waypoint_angle_deg," , to path: ", self.vector_obj.path_distance)
             self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = speed, self.delta_angle, 1  # one way
-      if abs(del_angle) < 30:  # when moving forward
-         print("     Turn : ", self.delta_angle, ", angle: ", self.angle, ", path angle: ",
-                  self.vector_obj.waypoint_angle_deg, " , to path: ", '{0:.2f}'.format(self.vector_obj.path_distance))
+      if abs(del_angle) < 30:  # when moving forward, print message
+         print("     Turn :", self.delta_angle, ",(angle,path): ", self.angle, ",",
+                  self.vector_obj.waypoint_angle_deg, "),dist path:", '{0:.2f}'.format(self.vector_obj.path_distance))
 
             #print("Distance: ", self.distance, ", Angle to destination: ", del_angle)
             #self.PID_rad_D_coef, self.PID_rad_I_coef = 0.3, 0.1
             #self.PID(del_X, del_Y) # to obtain self.delta_angle
             #self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = speed, self.delta_angle, 1  # one way
 
-   # -------------------------------------------------------------
+   # -------------------------Simulation purpose ------------------------------------
       
    def spin_Robot(self, spangle):
       self.delta_angle = spangle
@@ -389,12 +396,20 @@ class GUI (threading.Thread):
    # ---------------- Spin to target ----------------------------
    
    def spin_Target(self, target_theta):
-      if self.is_Simulation:
+      if self.is_Simulation.get():
+         print("Simulation Spin to target angle: ", target_theta)
          self.spin_Robot(target_theta-self.angle)
       else:
-         self.robot_obj.spin_Angle_Target(theta=target_theta, is_Simulation=False)
-      print("Target angle: ", target_theta)   
-   
+         #if abs(target_theta - self.angle) > 180:  # better to switch direction in this case
+          #  target_theta = self.normalize_angle(360-target_theta)
+         print("Spin to target angle: ", target_theta)
+         self.target_angle, self.angle_check_count = target_theta, 0
+         self.root.after(1000, self.loop_Target_Angle)
+
+   def test_spin_Target(self, target_theta):
+      self.run_Mode = False
+      self.spin_Target(target_theta)
+
    # ---------------- PID ---------------------------------------
       
    def PID(self, dX, dY):
@@ -423,10 +438,11 @@ class GUI (threading.Thread):
       with open('data.json', 'w') as f:
          json.dump(self.Data, f)
 
-   def move_get_GPS_Angle(self):
+   def move_get_GPS_Angle(self):   # manually move forward to get the current angle based on GPS
       print("move_get_GPS_Angle")
       if self.gps_obj.get_GPS():
         # self.X, self.Y = self.gps_obj.get_X_Y(lat=self.gps_obj.lat, lon=self.gps_obj.lon)
+         print("Current GPS location: ", self.gps_obj.lat, self.gps_obj.lon)
          self.prev_X, self.prev_Y = self.X, self.Y
          print("Starting (X,Y):", self.prev_X, self.prev_Y)
          self.robot_obj.mag, self.robot_obj.theta = 30, 0 # self.entrySpeed.get(),0 # move forward to get GPS angle
@@ -440,7 +456,7 @@ class GUI (threading.Thread):
    
    def move_Test(self):
       self.angle = self.entryAngle.get()
-      if self.is_Simulation:
+      if self.is_Simulation.get():
          self.X += 0.01*self.entrySpeed.get()*math.sin(math.radians(self.angle))
          self.Y += 0.01*self.entrySpeed.get()*math.cos(math.radians(self.angle))
          self.show_Current_Location()
@@ -474,7 +490,7 @@ class GUI (threading.Thread):
       datastr += ', Lattitude:  ' + '{0:.7f}'.format(self.gps_obj.lat) + ', Longitute:  ' + '{0:.7f}'.format(self.gps_obj.lon)
       datastr += '\nRTK:  ' + str(self.gps_obj.rtk) + ', type:  ' + self.gps_obj.rtk_type
       #datastr += ', Precision:  ' + str(self.gps_obj.prec) + ', Count:  ' + str(self.gps_count)
-      datastr += '\nDistance:  ' + '{0:.2f}'.format(self.distance) + '\nDestination Angle:  ' + '{0:.0f}'.format(self.dest_theta)
+      datastr += '\nDistance:  ' + '{0:.2f}'.format(self.vector_obj.distance) + '\nDestination Angle:  ' + '{0:.0f}'.format(self.dest_theta)
       datastr += ', Orientation:  ' + str(int(self.angle)) + ", Angle dest-robot:  " + str(int(self.dest_theta - self.angle))
       #print('Datastr: ', datastr)
       self.labelCoord.set(datastr)

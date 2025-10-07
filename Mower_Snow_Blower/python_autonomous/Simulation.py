@@ -11,15 +11,27 @@ print(config)
 lat_ref, lon_ref, Xpix_ref, Ypix_ref  = config["ref_lat"], config["ref_lon"], config["ref_xpix"], config["ref_ypix"]
 img_width, img_height, scaleX, scaleY = config['img_width'], config['img_height'], config['scale_xpix'], config['scale_ypix']
 # gazebo landing:
-WayPoints = [(44.74684019, -93.193508378)]
+WayPoints = [(44.746842488, -93.193503368)]
 
-#WayPoints = [(44.746852, -93.193487)]
-#WayPoints = [(44.746922, -93.193533)] # by pine tree
-#WayPoints = [(44.746922, -93.193533), (44.746852, -93.193487)]
+#WayPoints = [(44.746940, -93.193495)]  # North East Fence
+#WayPoints = [(44.746879, -93.193539)]  # North East Gazebo
+
+#WayPoints = [(44.7468561, -93.1934728)] # gazebo east
+#WayPoints = [(44.746922, -93.193533)] # by maple north
+#WayPoints = [(44.746900, -93.193607)] # by deck
+#WayPoints = [(44.746804, -93.193456)] # maple south
+#WayPoints = [(44.746759, -93.193588)]  # SW gazebo
+#WayPoints = [(44.746823, -93.193653)]  # trampoline
+#WayPoints = [(44.746922, -93.193533), (44.746859, -93.193494)] # mapple north, gazebo east
+#WayPoints = [(44.746922, -93.193533), (44.746900, -93.193607) ] # pine north, deck
+#WayPoints = [(44.746922, -93.193533), (44.746804, -93.193456)]  # pine north, pine south
+#WayPoints = [(44.746759, -93.193588),(44.746804, -93.193456), (44.746922, -93.193533), (44.746900, -93.193607)] # trampoline to deck
+#WayPoints = [(44.746922, -93.193533), (44.746804, -93.193456), (44.746759, -93.193588), (44.746823, -93.193653)] # deck to trampoline
 
 
 gui_obj = GUI(img_width=img_width, img_height=img_height, ref_Xpixel=Xpix_ref, ref_Ypixel=Ypix_ref,
               scale_xpix=scaleX,scale_ypix=scaleY, lat_ref=lat_ref, lon_ref=lon_ref, waypoints=WayPoints)
+#gui_obj.X, gui_obj.Y = -23, 30
 gui_obj.root.mainloop()
 
 #lat_ref, lon_ref = 44.747035800, -93.1937129634583

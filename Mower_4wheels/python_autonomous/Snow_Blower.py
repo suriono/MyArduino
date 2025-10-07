@@ -1,7 +1,7 @@
 import wifi_class, time
 
 class Snow_Blower:
-   wifi_obj =  wifi_class.wifi_class("192.168.0.248", 8000)
+   wifi_obj =  wifi_class.wifi_class("192.168.11.202", 8000)
       
    def turn_On(self):
       self.wifi_obj.send_Message('{"cmd":"ON"}')
