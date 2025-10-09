@@ -18,7 +18,7 @@ WiFiServer server(8000);     // port 8000 for incoming wifi
 WiFiClient wificlient;
 const char* host = "OTA-MOWER_ROBOT";
 
-#define INTERVAL_IMU  100   // interval of reading IMU
+#define INTERVAL_IMU  2   // interval of reading IMU
 MPU6050 mpu;                 // AD0 = LOW !!!!
 int     Yaw;
 #define INTERRUPT_PIN  2    // use pin 2 on Arduino Uno & most boards

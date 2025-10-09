@@ -30,7 +30,7 @@ class IMU_class:
 
 
 # ==================== Testing ====================
-#if __name__ == "__main__":
-#    IMU_obj = IMU_class()
-#    if IMU_obj.get_Yaw():
-#        print("Yaw received: ", IMU_obj.Yaw)
+if __name__ == "__main__":
+    IMU_obj = IMU_class()
+    if IMU_obj.get_Yaw():
+        print("Yaw received: ", IMU_obj.Yaw)

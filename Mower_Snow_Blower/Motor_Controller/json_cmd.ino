@@ -40,8 +40,10 @@ void process_JSON() {
      // Serial.println( myJSON["cmd"]);
      if ( cmdstr == "motorstop" ) {
         motorStop();
+        Yaw_send();
+     } else if ( cmdstr == "getyaw") {
+        Yaw_send(); 
      }
-     Yaw_send(); 
   } else {
      
      if ( myJSON.hasOwnProperty("mag")) {

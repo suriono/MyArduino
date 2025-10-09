@@ -9,7 +9,7 @@
 
 X509List cert(cert_DigiCert_Global_Root_CA);
 
-#define NEOPIXEL_PIN    0  // D3 for NodeMCU
+#define NEOPIXEL_PIN    12  // 0=D3 12=D6for NodeMCU
 #define NCOLUMNS        32 // number of pixel columns
 #define CHAR_WIDTH      6  // font width
 
@@ -18,18 +18,20 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(NCOLUMNS, 8, NEOPIXEL_PIN,
   NEO_MATRIX_ZIGZAG, NEO_GRB + NEO_KHZ800);
 
 String Alert_Message;
+//void Neopixel_Initial();
+//void Neomatrix_scrolltext(String instr, byte R, byte G, byte B);
 
 void setup() {
   Serial.begin(57600);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWD);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+ // WiFi.begin(WIFI_SSID, WIFI_PASSWD);
+//  while (WiFi.status() != WL_CONNECTED) {
+ //   delay(500);
+ //   Serial.print(".");
+ // }
+ // Serial.println("");
+ // Serial.println("WiFi connected");
+ // Serial.println("IP address: ");
+  //Serial.println(WiFi.localIP());
   
   Neopixel_Initial();
   //Alert_Message = get_Weather();
@@ -37,7 +39,8 @@ void setup() {
 }
 
 void loop() {
-  Neomatrix_scrolltext("Hello Uz", 50, 0, 0) {
+ // Neomatrix_scrolltext("Hello Uz", 50, 0, 0);
+  Neomatrix_scroll_picture_random_color(-1 ,  26, 32,50); // (xoffset, row, column, delay)
 
  // Neomatrix_scrolltext(Alert_Message, 255,0,255);
   // put your main code here, to run repeatedly:

@@ -76,11 +76,11 @@ void loop() {
  //     weather_message = get_Weather();
  //     last_time = millis();
  //  }
-    Neomatrix_scroll_picture2(0 ,  26, 32,100); // (xoffset, row, column, delay)
-    Neomatrix_scroll_picture2(24,  26, 32,100); // (xoffset, row, column, delay)
-    Neomatrix_scroll_picture2(8 ,  26, 32,100); // (xoffset, row, column, delay)
-    Neomatrix_scroll_picture2(32,  26, 32,100); // (xoffset, row, column, delay)
-    Neomatrix_scroll_picture2(16 , 26, 32,100); // (xoffset, row, column, delay)
+    Neomatrix_scroll_picture_random_color(0 ,  26, 32,50); // (xoffset, row, column, delay)
+    Neomatrix_scroll_picture_random_color(24,  26, 32,50); // (xoffset, row, column, delay)
+    Neomatrix_scroll_picture_random_color(8 ,  26, 32,50); // (xoffset, row, column, delay)
+    Neomatrix_scroll_picture_random_color(32,  26, 32,50); // (xoffset, row, column, delay)
+    Neomatrix_scroll_picture_random_color(16 , 26, 32,50); // (xoffset, row, column, delay)
   
    //Send_Text("13934 Fallbrook Way");
   //  Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)

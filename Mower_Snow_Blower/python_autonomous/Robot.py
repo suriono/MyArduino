@@ -67,8 +67,8 @@ class Robot:
    def yaw_Offset(self, theta=0, is_Simulation=True):
       if not is_Simulation:
          self.Offset_Yaw = theta - self.Yaw
-         self.send_Command(cmd='{"YawOffset":' + str(theta) + '}<') 
-         
+         self.send_Command(cmd='{"YawOffset":' + str(theta) + '}<')
+
    # ------------------------------------------------------------------------
    
    def send_Command(self, cmd='', timeout=1.0):
@@ -87,12 +87,13 @@ class Robot:
    # ------------------------------------------------------------------------
    
    def get_Yaw(self):  # only to get Yaw, send stop command
-      return self.send_Command(cmd='{"cmd":"motorstop"}')
+      self.send_Command(cmd='{"cmd":"getyaw"}') # motorstop"}')
+      return self.Yaw
       
       
 # ==================== Testing ====================
-if __name__ == "__main__":
-   robot_obj = Robot("192.168.11.200", 8000)
+#if __name__ == "__main__":
+   #robot_obj = Robot("192.168.11.200", 8000)
    #robot_obj.spin_Theta(theta=60, is_Simulation=False)
    
    
@@ -100,7 +101,7 @@ if __name__ == "__main__":
    #robot_obj.move_theta(mag=30, theta=-90, delay=1000, is_Simulation=False)
    
    #Outstr  = '{"mag":20, "theta": 90, "delay": 10}<'
-   cmd = robot_obj.move_theta(mag=20, theta=0, delay=1000, is_Simulation=False)
+   #cmd = robot_obj.move_theta(mag=20, theta=0, delay=1000, is_Simulation=False)
    
    #if robot_obj.send_Command(cmd):
    #   print("Yaw: ", robot_obj.Yaw)
