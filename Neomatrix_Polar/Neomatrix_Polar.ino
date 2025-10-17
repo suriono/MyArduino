@@ -40,8 +40,9 @@ void setup() {
 
 void loop() {
  // Neomatrix_scrolltext("Hello Uz", 50, 0, 0);
-  Neomatrix_scroll_picture_random_color(-1 ,  26, 32,50); // (xoffset, row, column, delay)
-
+  Neomatrix_scroll_picture_random_color(0 ,  26, 32,100); // (xoffset, row, column, delay)
+  
+  Neomatrix_horizontal_scroll_picture_random_color(0 ,  8, 7,100); // (xoffset, row, column, delay)
  // Neomatrix_scrolltext(Alert_Message, 255,0,255);
   // put your main code here, to run repeatedly:
 

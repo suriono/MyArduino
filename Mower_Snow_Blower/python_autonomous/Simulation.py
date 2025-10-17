@@ -10,14 +10,16 @@ print(config)
 
 lat_ref, lon_ref, Xpix_ref, Ypix_ref  = config["ref_lat"], config["ref_lon"], config["ref_xpix"], config["ref_ypix"]
 img_width, img_height, scaleX, scaleY = config['img_width'], config['img_height'], config['scale_xpix'], config['scale_ypix']
-# gazebo landing:
-WayPoints = [(44.746842488, -93.193503368)]
 
-#WayPoints = [(44.746940, -93.193495)]  # North East Fence
-#WayPoints = [(44.746879, -93.193539)]  # North East Gazebo
+# left by garage
+WayPoints = [(44.74703774, -93.193708591)]    # left by garage
+#WayPoints = [(44.747072054, -93.19365584)]     # right by garage
+#WayPoints = [(44.747105882, -93.193756515)]    # end driveway left
+#WayPoints = [(44.747124651, -93.193705424)]     # end driveway right
 
-#WayPoints = [(44.7468561, -93.1934728)] # gazebo east
-#WayPoints = [(44.746922, -93.193533)] # by maple north
+WayPoints = [(44.747105882, -93.193756515), (44.747124651, -93.193705424), (44.747072054, -93.19365584), (44.74703774, -93.193708591)]
+
+
 #WayPoints = [(44.746900, -93.193607)] # by deck
 #WayPoints = [(44.746804, -93.193456)] # maple south
 #WayPoints = [(44.746759, -93.193588)]  # SW gazebo
@@ -47,3 +49,21 @@ gui_obj.root.mainloop()
 #gui_obj.draw_Arrow_Location_Meters(X, Y)
 
 #gui_obj.draw_Arrow()
+
+# gazebo landing:
+#WayPoints = [(44.746841171, -93.193508501)]
+#WayPoints = [(44.746940, -93.193495)]  # North East Fence
+#WayPoints = [(44.746879, -93.193539)]  # North East Gazebo
+
+#WayPoints = [(44.7468561, -93.1934728)] # gazebo east
+#WayPoints = [(44.746922, -93.193533)] # by maple north
+#WayPoints = [(44.746900, -93.193607)] # by deck
+#WayPoints = [(44.746804, -93.193456)] # maple south
+#WayPoints = [(44.746759, -93.193588)]  # SW gazebo
+#WayPoints = [(44.746823, -93.193653)]  # trampoline
+#WayPoints = [(44.746922, -93.193533), (44.746859, -93.193494)] # mapple north, gazebo east
+#WayPoints = [(44.746922, -93.193533), (44.746900, -93.193607) ] # pine north, deck
+#WayPoints = [(44.746922, -93.193533), (44.746804, -93.193456)]  # pine north, pine south
+#WayPoints = [(44.746759, -93.193588),(44.746804, -93.193456), (44.746922, -93.193533), (44.746900, -93.193607)] # trampoline to deck
+#WayPoints = [(44.746922, -93.193533), (44.746804, -93.193456), (44.746759, -93.193588), (44.746823, -93.193653)] # deck to trampoline
+

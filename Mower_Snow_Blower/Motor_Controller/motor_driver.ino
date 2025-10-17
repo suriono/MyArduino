@@ -29,7 +29,7 @@ void motorRun(int pow_mot, int degree, unsigned long delaytime) {
   //int motor1 = round(-(y-x) * norm_f);
   //int motor2 = round(-(y+x) * norm_f);
   int motor2 = round((y-x) * norm_f);
-  int motor1 = round((y+x) * norm_f);
+  int motor1 = round((y+x) * norm_f*RIGHT_MOTOR_COMPENSATION);
 
   #ifdef DEBUGGING
     

@@ -65,9 +65,10 @@ class Robot:
    # -----------------------------------------------------------------------
          
    def yaw_Offset(self, theta=0, is_Simulation=True):
-      if not is_Simulation:
-         self.Offset_Yaw = theta - self.Yaw
-         self.send_Command(cmd='{"YawOffset":' + str(theta) + '}<')
+      #if not is_Simulation:
+#         self.Offset_Yaw = theta - self.Yaw
+      self.Offset_Yaw =  theta
+         #self.send_Command(cmd='{"YawOffset":' + str(theta) + '}<')
 
    # ------------------------------------------------------------------------
    
