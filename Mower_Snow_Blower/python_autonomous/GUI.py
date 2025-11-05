@@ -2,13 +2,13 @@ import cv2, math, json, Robot, time, gps_class, vector_class, threading
 import tkinter as tk
 from tkinter import PhotoImage
 from numpy import sign
-import statistics
 
 class GUI (threading.Thread):
    image_path  = r'C:\Users\surio\Documents\github\MyArduino\Mower_4wheels\python_autonomous\house.png'
    
    # ---- PID ---------------
    PID_rad_D_coef, PID_rad_I_coef, PID_rad_I = 0.2, 0.01, 0.0
+   PID_mag_I = 0
    delta_angle, gps_count, distance, dest_theta, run_Mode, is_new_waypoint = 0.0, 0, 100.0, 0, False, True
    low_power_spin_count, new_waypoint_angle_align_count, target_angle, angle_check_count = 0,0,0,0
    prev_angle, run_GPS, count_yaw_offset_adj, yaw_offset_adj_array = 0, True,0,[]
@@ -107,7 +107,7 @@ class GUI (threading.Thread):
       #self.labelCoord.set("Current (Lattitude ======== Longitude): " + str(self.lat_ref) + ' , ' + str(self.lon_ref))
       self.entryLat.set(44.74713533018441)
       self.entryLon.set(-93.19377913074761)
-      self.entrySpeed.set(20)
+      self.entrySpeed.set(25)
       self.entryAngle.set(170)
       self.entryTarget_angle.set(45)
       self.is_Simulation.set(True)
@@ -168,8 +168,8 @@ class GUI (threading.Thread):
       del_angle = self.normalize_angle(self.target_angle - self.angle)
       min_mag, max_mag = 12,20         # min and max amplitude
 
-      if self.angle_check_count < 5:  # check after settling to check the angle if it overshoots
-         if abs(del_angle) > 5:     # tolerance angle to target
+      if self.angle_check_count < 4:  # check after settling to check the angle if it overshoots
+         if abs(del_angle) > 4:     # tolerance angle to target
             self.run_GPS = False
             self.angle_check_count = 0
             if ( del_angle*self.normalize_angle(self.target_angle-self.prev_angle) < 0): # overshoot
@@ -254,6 +254,7 @@ class GUI (threading.Thread):
    # ============================== Way Points =====================================
 
    def WayPoints(self):
+      self.PID_mag_I = 10
       self.vector_obj.set_Origin() #x_orig=self.X, y_orig=self.Y)  # The 1st origin
       self.vector_obj.get_Destination()
       self.vector_obj.update_Location(self.X, self.Y)
@@ -262,6 +263,7 @@ class GUI (threading.Thread):
       self.spin_Target(self.vector_obj.waypoint_angle_deg)
    
    def next_WayPoint(self):
+      self.PID_mag_I = 10
       self.waypoint_count = (self.waypoint_count + 1) % len(self.waypoints)
       #self.vector_obj.wayPoint_index = self.waypoint_count
 
@@ -313,18 +315,18 @@ class GUI (threading.Thread):
       del_angle = self.normalize_angle( self.rad_to_angle(math.atan2(del_X, del_Y)) - self.angle)
       del_rad   = math.radians(del_angle)
       del_waypoint_current = self.vector_obj.waypoint_angle_deg - self.angle  # delta angle waypoint path and robot
-      min_mag, max_mag = 10,
+      min_mag, max_mag = 12, speed
 
       if self.is_Simulation.get():               # in simulation mode
          if math.cos(del_rad) < 0 :  # more than 90-degree then spin first
             self.spin_Robot_Simulation(sign(math.sin(del_rad)) * 13 )
          else:
-            self.PID_rad_D_coef, self.PID_rad_I_coef = 0.5, 0.1
+            PID_rad_D_coef, PID_rad_I_coef = 0.5, 0.1
             if abs(self.vector_obj.path_distance) > 0.5:
-               self.delta_angle = self.normalize_angle(del_waypoint_current*self.PID_rad_D_coef - 10 * sign(self.vector_obj.path_distance))
+               self.delta_angle = self.normalize_angle(del_waypoint_current*PID_rad_D_coef - 10 * sign(self.vector_obj.path_distance))
                #self.delta_angle = - 15 * sign(self.vector_obj.path_distance)
             elif abs(self.vector_obj.path_distance) > 0.25:
-               self.delta_angle = self.normalize_angle(del_waypoint_current*self.PID_rad_D_coef - 5 * sign(self.vector_obj.path_distance))
+               self.delta_angle = self.normalize_angle(del_waypoint_current*PID_rad_D_coef - 5 * sign(self.vector_obj.path_distance))
                #self.delta_angle = - 25 * sign(self.vector_obj.path_distance)
             else:  # very close to the waypoint path
                self.delta_angle = self.normalize_angle(del_waypoint_current - 2 * sign(self.vector_obj.path_distance))
@@ -338,38 +340,37 @@ class GUI (threading.Thread):
             self.labelCommand.set(cmd)
 
       else:                          # actually moving the robot
+         last_move_dist = (self.X-self.prev_X)*(self.X-self.prev_X) + (self.Y-self.prev_Y)*(self.Y-self.prev_Y)
+
+         if last_move_dist > 0.1 :  # if robot moves, dynamically adjust speed based on movement
+            self.PID_mag_I -= 2        # prevent moving too fast
+            if self.PID_mag_I < min_mag : self.PID_mag_I = min_mag
+         else:
+            self.PID_mag_I += 1        # not moving
+            if self.PID_mag_I > max_mag : self.PID_mag_I = max_mag
 
          if abs(del_angle) > 45:
             print("            > 45 degrees, currently:  ", del_angle)
-            self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = 20, 90 * sign(del_angle), 100  # one way
+            self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = self.PID_mag_I, 90 * sign(del_angle), 100  # one way
          elif abs(del_angle) > 30:
             print("            > 30 degrees, currently:  ", del_angle)
-            self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = 20, 90 * sign(del_angle), 10  # one way
+            self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = self.PID_mag_I, 90 * sign(del_angle), 10  # one way
          else:
             self.low_power_spin_count = 0
             self.is_new_waypoint = False
-            self.PID_rad_D_coef, self.PID_rad_I_coef = 0.3, 0.1
+            PID_rad_D_coef = 0.4
 
-            self.delta_angle = self.normalize_angle(del_waypoint_current * self.PID_rad_D_coef
-                                                    - 20 * self.vector_obj.path_distance)
-            #del_waypoint_current = self.vector_obj.waypoint_angle_deg - self.angle
-            #if abs(self.vector_obj.path_distance) > 0.5:
-            #   self.delta_angle = self.normalize_angle(del_waypoint_current*self.PID_rad_D_coef - 10 * self.vector_obj.path_distance)
-            #elif abs(self.vector_obj.path_distance) > 0.25:
-            #   self.delta_angle = self.normalize_angle(del_waypoint_current*self.PID_rad_D_coef - 5 * sign(self.vector_obj.path_distance))
-            #elif abs(self.vector_obj.path_distance) > 0.15:
-            #   self.delta_angle = self.normalize_angle(del_waypoint_current*self.PID_rad_D_coef - 2 * sign(self.vector_obj.path_distance))
-            #else:  # very close to the waypoint path
-            #   self.delta_angle = self.normalize_angle(del_waypoint_current*self.PID_rad_D_coef*0.8 - 1 * sign(self.vector_obj.path_distance))
+            self.delta_angle = self.normalize_angle(del_waypoint_current * PID_rad_D_coef
+                                                    - 10 * self.vector_obj.path_distance)
 
             if abs(self.delta_angle) > 45:   # to limit the turn to stay on path, so it does not turn too much
                self.delta_angle = 45 * sign(self.delta_angle)
             #print("   Turn : ", self.delta_angle, ", angle: ", self.angle, ", path angle: ",self.vector_obj.waypoint_angle_deg," , to path: ", self.vector_obj.path_distance)
-            self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = speed, self.delta_angle, 1  # one way
+            self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = self.PID_mag_I, self.delta_angle, 1  # one way
       if abs(del_angle) < 30:  # when moving forward, print message
          angle_from_GPS = self.normalize_angle(self.rad_to_angle(math.atan2(self.X - self.prev_X, self.Y - self.prev_Y)))
          self.prev_X, self.prev_Y = self.X, self.Y
-         print("Turn:", self.delta_angle, "To path:", '{0:.2f}'.format(self.vector_obj.path_distance))
+         print("Turn:", self.delta_angle, "To path:", '{0:.2f}'.format(self.vector_obj.path_distance),"Mag:",'{0:.2f}'.format(self.robot_obj.mag),"Move:",'{0:.4f}'.format(last_move_dist))
 
          if (abs(self.delta_angle) < 5):   # small turn to measure self.angle versus GPS orientation
             if self.count_yaw_offset_adj > 0:   # ignore the first one

@@ -12,7 +12,7 @@
 
 SoftwareSerial SerialRobot(D6 , D7);     // RX, TX
 SabertoothSimplified ST(SerialRobot);
-#define RIGHT_MOTOR_COMPENSATION    1.12  // when right and left motor does not go in straight line
+#define RIGHT_MOTOR_COMPENSATION    1.05  // when right and left motor does not go in straight line
 
 JSONVar myJSON;
 WiFiServer server(8000);     // port 8000 for incoming wifi

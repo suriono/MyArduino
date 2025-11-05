@@ -21,7 +21,7 @@ void IMU_begin() {
     Serial.println(F("Testing device connections..."));
     Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
 
-    //delay(5000);
+    delay(2000);
     // wait for ready
     //Serial.println("\nSend any character to begin DMP programming and demo: ");
     //while (Serial.available() && Serial.read()); // empty buffer
@@ -105,9 +105,10 @@ void IMU_Yaw() {
         mpu.dmpGetGravity(&gravity, &q);
         mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
         Yaw = int(ypr[0]* 180/M_PI);
+        //MQTT_publish();
         //IMU_pingpong = !IMU_pingpong;
         //IMU_str ="{\"Yaw\":" + String(YAW) + ",\"IMUping\":" + String(IMU_lasttime) + "}";
-       // Serial.println(Yaw);
+        //Serial.println(Yaw);
   }
   //return -1000;
 }

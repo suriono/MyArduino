@@ -8,6 +8,8 @@ void GPS_refresh()
   unsigned short sentences = 0, failed = 0;
   int Speed_MPH, Speed_increment;
   char coordinate_chain[60];
+
+  matrix.fillScreen(0);
   
  // print_int(gps.satellites(), TinyGPS::GPS_INVALID_SATELLITES, 5);
 //  print_int(gps.hdop(), TinyGPS::GPS_INVALID_HDOP, 5);
@@ -28,7 +30,7 @@ void GPS_refresh()
  // print_int(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0xFFFFFFFF : (unsigned long)TinyGPS::distance_between(flat, flon, LONDON_LAT, LONDON_LON) / 1000, 0xFFFFFFFF, 9);
  // print_float(flat == TinyGPS::GPS_INVALID_F_ANGLE ? TinyGPS::GPS_INVALID_F_ANGLE : TinyGPS::course_to(flat, flon, LONDON_LAT, LONDON_LON), TinyGPS::GPS_INVALID_F_ANGLE, 7, 2);
  // print_str(flat == TinyGPS::GPS_INVALID_F_ANGLE ? "*** " : TinyGPS::cardinal(TinyGPS::course_to(flat, flon, LONDON_LAT, LONDON_LON)), 6);
-  matrix.fillScreen(0);
+  //matrix.fillScreen(0);
   if (speed_mph != TinyGPS::GPS_INVALID_F_SPEED) {
    // Neopixel_Blank();
     //Serial.print("Speed: "); Serial.print(String(speed_mph));

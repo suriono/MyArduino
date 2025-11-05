@@ -5,8 +5,9 @@ Filepath = "picture-resize.png"
 Outfile  = "bitmap.txt"
 
 # =============== Do not modify ===================
-img = cv2.imread(Filepath)
-assert img is not None, "file could not be read, check with os.path.exists()"
+img_raw = cv2.imread(Filepath)
+assert img_raw is not None, "file could not be read, check with os.path.exists()"
+img = cv2.cvtColor(img_raw, cv2.COLOR_BGR2RGB)
 fout = open(Outfile, "w")
 
 count = 0

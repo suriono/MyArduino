@@ -39,11 +39,36 @@ void setup() {
 }
 
 void loop() {
- // Neomatrix_scrolltext("Hello Uz", 50, 0, 0);
-  Neomatrix_scroll_picture_random_color(0 ,  26, 32,100); // (xoffset, row, column, delay)
+  Send_Text("Happy ThanksGiving");
+  Send_Text("What are you thankful for?");
   
-  Neomatrix_horizontal_scroll_picture_random_color(0 ,  8, 7,100); // (xoffset, row, column, delay)
+  Neomatrix_scroll_picture2(0,  35, 32,50); // (xoffset, row, column, delay)
+ // Neomatrix_scrolltext("Hello Uz", 50, 0, 0);
+  //Neomatrix_scroll_picture_random_color(0 ,  26, 32,100); // (xoffset, row, column, delay)
+  
+ // Neomatrix_horizontal_scroll_picture_random_color(0 ,  8, 7,100); // (xoffset, row, column, delay)
  // Neomatrix_scrolltext(Alert_Message, 255,0,255);
   // put your main code here, to run repeatedly:
+}
 
+// ============== Send Text =================
+
+void Send_Text(String inputstr) {
+  int randn = random(0,767);
+  byte red = 200;
+  byte green = 200;
+  byte blue = 0;
+
+  if (randn < 256) {
+      red = 255 - randn;
+      green = randn;
+  } else if (randn < 511) {
+      green = 511 - randn;
+      blue = randn - 256;
+  } else {
+      red = 767 - randn;
+      blue = randn - 512;
+  }
+  
+  Neomatrix_scrolltext(inputstr ,red, green, blue);
 }
