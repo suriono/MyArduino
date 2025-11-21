@@ -1,1 +1,6 @@
-{"angle": 168, "offset_yaw": 168}
+{
+    "offset_yaw": 150,
+    "wayPoints" : [
+        (44.746900, -93.193607)
+    ] 
+}

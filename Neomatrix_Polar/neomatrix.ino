@@ -2,7 +2,7 @@
 void Neopixel_Initial() {
   matrix.begin(); 
   matrix.setTextWrap(true); 
-  matrix.setBrightness(200);  // from 0 to 255
+  matrix.setBrightness(240);  // from 0 to 255
   matrix.setTextColor(matrix.Color(155, 0, 0));
   matrix.fillScreen(0);
   matrix.setCursor(0, 0);
@@ -23,6 +23,7 @@ void Neomatrix_scrolltext(String instr, byte R, byte G, byte B) {
 
     matrix.print(instr);
     matrix.show();
-    delay(60);
+    delay(30);
+    Light();     // changing lights
   }
 }

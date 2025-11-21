@@ -76,22 +76,22 @@ void loop() {
  //     weather_message = get_Weather();
  //     last_time = millis();
  //  }
-    Neomatrix_scroll_picture_random_color(0 ,  26, 32,50); // (xoffset, row, column, delay)
-    Neomatrix_scroll_picture_random_color(24,  26, 32,50); // (xoffset, row, column, delay)
-    Neomatrix_scroll_picture_random_color(8 ,  26, 32,50); // (xoffset, row, column, delay)
-    Neomatrix_scroll_picture_random_color(32,  26, 32,50); // (xoffset, row, column, delay)
-    Neomatrix_scroll_picture_random_color(16 , 26, 32,50); // (xoffset, row, column, delay)
+    //Neomatrix_scroll_picture_random_color(0 ,  26, 32,50); // (xoffset, row, column, delay)
+   // Neomatrix_scroll_picture_random_color(24,  26, 32,50); // (xoffset, row, column, delay)
+  //  Neomatrix_scroll_picture_random_color(8 ,  26, 32,50); // (xoffset, row, column, delay)
+   // Neomatrix_scroll_picture_random_color(32,  26, 32,50); // (xoffset, row, column, delay)
+  //  Neomatrix_scroll_picture_random_color(16 , 26, 32,50); // (xoffset, row, column, delay)
   
-   //Send_Text("13934 Fallbrook Way");
-  //  Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)
+    Send_Text("=== Happy ThanksGiving ===");
+    Neomatrix_scroll_picture2(0,  35, 32,50); // (xoffset, row, column, delay)
 //  Send_Text("O say, can you see");
 //    Neomatrix_scroll_picture2(24, 13, 30, 100); // (xoffset, row, column, delay)
 //  Send_Text("By the dawn's early light");
 //    Neomatrix_scroll_picture2(8, 13, 30, 100); // (xoffset, row, column, delay)
 //  Send_Text("What so proudly we hail");
-//    Neomatrix_scroll_picture2(32, 13, 30, 100); // (xoffset, row, column, delay)
+    Neomatrix_scroll_picture2(32, 35, 32, 50); // (xoffset, row, column, delay)
 //  Send_Text("At the twilight's last gleaming");
-//    Neomatrix_scroll_picture2(16, 13, 30, 100); // (xoffset, row, column, delay)
+    Neomatrix_scroll_picture2(16, 35, 32, 50); // (xoffset, row, column, delay)
 //
 //  Send_Text("Whose broad stripes and bright stars");
 //    Neomatrix_scroll_picture2(0,  13, 30,100); // (xoffset, row, column, delay)

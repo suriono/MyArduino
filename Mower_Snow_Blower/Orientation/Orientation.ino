@@ -12,7 +12,7 @@ WiFiServer server(8000);     // port 8000 for incoming wifi
 WiFiClient wificlient;
 
 // === IMU =============
-#define INTERVAL_IMU  1000   // interval of reading IMU
+#define INTERVAL_IMU  2   // interval of reading IMU
 MPU6050 mpu;                 // AD0 = LOW !!!!
 int     Yaw;
 #define INTERRUPT_PIN  13    // 13=D7, 2 = D4  connect to MPU Interrupt pin
@@ -25,7 +25,8 @@ bool    IMU_Ready = false;     // set true if DMP init was successful
 #define MQTT_PASSWD      ""
 #define MQTT_IP          "192.168.11.234"
 
-#define MQTT_TOPIC "mower/imu/yaw"
+#define MQTT_TOPIC_YAW   "mower/imu/yaw"
+#define MQTT_TOPIC_COUNT "mower/imu/count"
 
 EspMQTTClient mqtt_client( WIFI_SSID, WIFI_PASSWD, MQTT_IP, MQTT_USER, MQTT_PASSWD, "moweranglemqtt",1883); // passwords are hidden for security
 //EspMQTTClient mqttclient( WIFI_SSID, WIFI_PASSWD, MQTT_IP, MQTT_USER, MQTT_PASSWD, "gpsmqtt",1883);
@@ -72,10 +73,10 @@ void loop() {
       }
    }
    
-  if ( (millis() - last_valid_json) > 1000) { // stop when no signal
-      last_valid_json = millis();
-      Serial.println("QMMMMM");
-      MQTT_publish_string("hello");
-  }
+ // if ( (millis() - last_valid_json) > 1000) { // stop when no signal
+    //  last_valid_json = millis();
+    //  Serial.println("QMMMMM");
+    //  MQTT_publish_string("hello");
+  //}
 
 }

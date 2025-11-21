@@ -12,7 +12,7 @@ lat_ref, lon_ref, Xpix_ref, Ypix_ref  = config["ref_lat"], config["ref_lon"], co
 img_width, img_height, scaleX, scaleY = config['img_width'], config['img_height'], config['scale_xpix'], config['scale_ypix']
 
 # left by garage
-WayPoints = [(44.74703774, -93.193708591)]    # left by garage
+#WayPoints = [(44.74703774, -93.193708591)]    # left by garage
 #WayPoints = [(44.747072054, -93.19365584)]     # right by garage
 #WayPoints = [(44.747105882, -93.193756515)]    # end driveway left
 #WayPoints = [(44.747124651, -93.193705424)]     # end driveway right

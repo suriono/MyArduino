@@ -213,7 +213,7 @@ class GUI (threading.Thread):
          if self.run_Mode and self.vector_obj.distance > 0.7:
             self.step_to_Location()
             self.root.after(100, self.loop_Motor_Until_Tolerance)  # reschedule event in 100mS
-         else:
+         elif self.run_Mode:
             print("==== Tolerance reached", self.vector_obj.distance, self.run_Mode)
             self.next_WayPoint()
             if self.waypoint_count > 0:
@@ -367,34 +367,34 @@ class GUI (threading.Thread):
                self.delta_angle = 45 * sign(self.delta_angle)
             #print("   Turn : ", self.delta_angle, ", angle: ", self.angle, ", path angle: ",self.vector_obj.waypoint_angle_deg," , to path: ", self.vector_obj.path_distance)
             self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = self.PID_mag_I, self.delta_angle, 1  # one way
-      if abs(del_angle) < 30:  # when moving forward, print message
-         angle_from_GPS = self.normalize_angle(self.rad_to_angle(math.atan2(self.X - self.prev_X, self.Y - self.prev_Y)))
-         self.prev_X, self.prev_Y = self.X, self.Y
-         print("Turn:", self.delta_angle, "To path:", '{0:.2f}'.format(self.vector_obj.path_distance),"Mag:",'{0:.2f}'.format(self.robot_obj.mag),"Move:",'{0:.4f}'.format(last_move_dist))
+         if abs(del_angle) < 30:  # when moving forward, print message
+            angle_from_GPS = self.normalize_angle(self.rad_to_angle(math.atan2(self.X - self.prev_X, self.Y - self.prev_Y)))
+            self.prev_X, self.prev_Y = self.X, self.Y
+            print("Turn:", self.delta_angle, "To path:", '{0:.2f}'.format(self.vector_obj.path_distance),"Mag:",'{0:.2f}'.format(self.robot_obj.mag),"Move:",'{0:.4f}'.format(last_move_dist))
 
-         if (abs(self.delta_angle) < 5):   # small turn to measure self.angle versus GPS orientation
-            if self.count_yaw_offset_adj > 0:   # ignore the first one
-               self.yaw_offset_adj_array.append(angle_from_GPS-self.angle)
-               #print(" Offset Adj:", angle_from_GPS-self.angle, angle_from_GPS)
-            if self.count_yaw_offset_adj == 4:      # adjust to GPS correction to angle
-               mean_yaw_offset = self.yaw_offset_adj_array[0]+self.yaw_offset_adj_array[1]+self.yaw_offset_adj_array[2]
-               print("    === Offset Adj mean, and new offset:", mean_yaw_offset, self.robot_obj.Offset_Yaw)
-               #self.robot_obj.Offset_Yaw =  self.robot_obj.Offset_Yaw + sign(mean_yaw_offset) # increment yaw offset
-               if mean_yaw_offset > 0:
-                  self.set_Offset_Angle(self.robot_obj.Offset_Yaw + 1)
-               else:
-                  self.set_Offset_Angle(self.robot_obj.Offset_Yaw - 1)
-               #self.set_Offset_Angle(offset_theta=int(robot_obj.yaw_Offset + sign(mean_yaw_offset)))
-               #print("    === Offset Adj mean, and new offset:", mean_yaw_offset, self.robot_obj.Offset_Yaw)
-            self.count_yaw_offset_adj += 1
-         else:
-            self.count_yaw_offset_adj = 0       # reset the count when larger turn
-            self.yaw_offset_adj_array = []
+            if (abs(self.delta_angle) < 5):   # small turn to measure self.angle versus GPS orientation
+               if self.count_yaw_offset_adj > 0:   # ignore the first one
+                  self.yaw_offset_adj_array.append(angle_from_GPS-self.angle)
+                  #print(" Offset Adj:", angle_from_GPS-self.angle, angle_from_GPS)
+               if self.count_yaw_offset_adj == 4:      # adjust to GPS correction to angle
+                  mean_yaw_offset = self.yaw_offset_adj_array[0]+self.yaw_offset_adj_array[1]+self.yaw_offset_adj_array[2]
+                  print("    === Offset Adj mean, and new offset:", mean_yaw_offset, self.robot_obj.Offset_Yaw)
+                  #self.robot_obj.Offset_Yaw =  self.robot_obj.Offset_Yaw + sign(mean_yaw_offset) # increment yaw offset
+                  if mean_yaw_offset > 0:
+                     self.set_Offset_Angle(self.robot_obj.Offset_Yaw + 1)
+                  else:
+                     self.set_Offset_Angle(self.robot_obj.Offset_Yaw - 1)
+                  #self.set_Offset_Angle(offset_theta=int(robot_obj.yaw_Offset + sign(mean_yaw_offset)))
+                  #print("    === Offset Adj mean, and new offset:", mean_yaw_offset, self.robot_obj.Offset_Yaw)
+               self.count_yaw_offset_adj += 1
+            else:
+               self.count_yaw_offset_adj = 0       # reset the count when larger turn
+               self.yaw_offset_adj_array = []
 
-            #print("Distance: ", self.distance, ", Angle to destination: ", del_angle)
-            #self.PID_rad_D_coef, self.PID_rad_I_coef = 0.3, 0.1
-            #self.PID(del_X, del_Y) # to obtain self.delta_angle
-            #self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = speed, self.delta_angle, 1  # one way
+               #print("Distance: ", self.distance, ", Angle to destination: ", del_angle)
+               #self.PID_rad_D_coef, self.PID_rad_I_coef = 0.3, 0.1
+               #self.PID(del_X, del_Y) # to obtain self.delta_angle
+               #self.robot_obj.mag, self.robot_obj.theta, self.robot_obj.delay = speed, self.delta_angle, 1  # one way
 
    # -------------------------Simulation purpose ------------------------------------
       

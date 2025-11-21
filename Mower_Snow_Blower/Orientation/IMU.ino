@@ -105,7 +105,7 @@ void IMU_Yaw() {
         mpu.dmpGetGravity(&gravity, &q);
         mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
         Yaw = int(ypr[0]* 180/M_PI);
-        //MQTT_publish();
+        MQTT_publish();
         //IMU_pingpong = !IMU_pingpong;
         //IMU_str ="{\"Yaw\":" + String(YAW) + ",\"IMUping\":" + String(IMU_lasttime) + "}";
         //Serial.println(Yaw);
