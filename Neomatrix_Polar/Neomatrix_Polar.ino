@@ -1,5 +1,8 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
+//#include <ESP8266mDNS.h>
+//#include <WiFiUdp.h>
+//#include <ArduinoOTA.h>
 #include <ESP8266HTTPClient.h>
 #include <Arduino_JSON.h>
 #include <Adafruit_NeoMatrix.h>
@@ -20,22 +23,34 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(NCOLUMNS, 8, NEOPIXEL_PIN,
   NEO_MATRIX_TOP  + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + 
   NEO_MATRIX_ZIGZAG, NEO_GRB + NEO_KHZ800);
 
+//const char* host = "OTA-POLAR-NEOMATRIX";
+
 String Alert_Message;
-//void Neopixel_Initial();
-//void Neomatrix_scrolltext(String instr, byte R, byte G, byte B);
 
 void setup() {
   Serial.begin(57600);
   pinMode(RPWM_PIN,OUTPUT); pinMode(LPWM_PIN,OUTPUT);
- // WiFi.begin(WIFI_SSID, WIFI_PASSWD);
-//  while (WiFi.status() != WL_CONNECTED) {
- //   delay(500);
- //   Serial.print(".");
- // }
- // Serial.println("");
- // Serial.println("WiFi connected");
- // Serial.println("IP address: ");
-  //Serial.println(WiFi.localIP());
+
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWD);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+ // ArduinoOTA.setHostname(host);
+ // ArduinoOTA.onStart([]() { // switch off all the PWMs during upgrade
+ // });
+ // ArduinoOTA.onEnd([]() { // do a fancy thing with our board led at end
+ // });
+ // ArduinoOTA.onError([](ota_error_t error) {
+ //   (void)error;
+ //   ESP.restart();
+ // });
+ // ArduinoOTA.begin();
   
   Neopixel_Initial();
   analogWrite(LPWM_PIN,0); analogWrite(RPWM_PIN,0);
@@ -44,11 +59,17 @@ void setup() {
 }
 
 void loop() {
-  Send_Text("Happy ThanksGiving");
-  Send_Text("What are you thankful for?");
-  Send_Text("Brought to you by Polar Semiconductor teams");
+  //ArduinoOTA.handle();
   
-  Neomatrix_scroll_picture2(0,  35, 32,50); // (xoffset, row, column, delay)
+  //Send_Text("Mery Christmas + Happy New year & Kwanzaa & Hanukkah", NCOLUMNS);
+  Send_Text("Merry Christmas", 15);
+  Send_Text("Happy New Year", 14);
+  Send_Text("Kwanzaa", 7);
+  Send_Text("Hanukkah",NCOLUMNS);
+  
+  Neomatrix_scroll_picture_down(0,  20, 20,50); // (xoffset, row, column, delay)
+  Neomatrix_scroll_picture_down(12,  20, 20,50); // (xoffset, row, column, delay)
+  Neomatrix_scroll_picture_down(6,  20, 20,50); // (xoffset, row, column, delay)
  // Neomatrix_scrolltext("Hello Uz", 50, 0, 0);
   //Neomatrix_scroll_picture_random_color(0 ,  26, 32,100); // (xoffset, row, column, delay)
   
@@ -72,7 +93,8 @@ void loop() {
 
 // ============== Send Text =================
 
-void Send_Text(String inputstr) {
+void Send_Text(String inputstr, byte end_empty_pixels) {
+ // ArduinoOTA.handle();
   int randn = random(0,767);
   byte red = 200;
   byte green = 200;
@@ -89,5 +111,5 @@ void Send_Text(String inputstr) {
       blue = randn - 512;
   }
   
-  Neomatrix_scrolltext(inputstr ,red, green, blue);
+  Neomatrix_scrolltext(inputstr ,red, green, blue, end_empty_pixels);
 }

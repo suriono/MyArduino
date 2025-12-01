@@ -12,18 +12,22 @@ void Neopixel_Initial() {
 
 // ===================================================
 
-void Neomatrix_scrolltext(String instr, byte R, byte G, byte B) {
+void Neomatrix_scrolltext(String instr, byte R, byte G, byte B, byte end_empty_pixels) {
 
   matrix.setTextColor(matrix.Color(R,G,B));
 
   //Serial.println(instr.length());
-  for (int x=0 ; x < (instr.length()*CHAR_WIDTH+NCOLUMNS); x++) {
+  for (int x=0 ; x < (instr.length()*CHAR_WIDTH+end_empty_pixels); x++) {
     matrix.fillScreen(0);
     matrix.setCursor(-x+NCOLUMNS-1, 0);
 
     matrix.print(instr);
     matrix.show();
-    delay(30);
+    delay(25);
     Light();     // changing lights
+    
+    //if ( (x % 64) == 0 ) {
+  //    ArduinoOTA.handle();
+  //  }
   }
 }
