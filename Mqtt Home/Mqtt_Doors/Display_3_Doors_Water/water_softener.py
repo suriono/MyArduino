@@ -44,6 +44,7 @@ class Water_Monitor:
         water_dict["last_hours"] = self.last_hourly_usages
         client_id = f'python-mqtt-{random.randint(0, 1000)}'
         #(rc, mid) = self.mqtt_client.publish('water/water_softener/gallons_used_today', str(water_dict), qos=1)
+        print(water_dict)
         (rc, mid) = self.mqtt_client.publish('water/water_softener', json.dumps(water_dict), qos=1)
         self.mqtt_client.disconnect()
 
@@ -133,8 +134,7 @@ class Water_Monitor:
 # ==================== End of Water_Monitor class ===================
 
 water_obj = Water_Monitor(interval=1200)
-print("interval:", water_obj.interval)
-water_obj.loop_Monitoring(retention=100000, leak_period=3600)
-#water_obj = Water_Monitor(interval=1)
+water_obj.ecowater_publish()
 #print("interval:", water_obj.interval)
+#water_obj.loop_Monitoring(retention=100000, leak_period=3600)
 #water_obj.loop_Monitoring(retention=12, leak_period=1)

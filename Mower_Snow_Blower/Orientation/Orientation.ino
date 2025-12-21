@@ -1,11 +1,10 @@
 #include "EspMQTTClient.h"
-
-
 #include <Arduino_JSON.h>
 #include <ESP8266mDNS.h>
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 #include <Wire.h>
+#include "password.h"
 //#include <ESP8266WiFi.h>
 
 WiFiServer server(8000);     // port 8000 for incoming wifi
@@ -19,17 +18,11 @@ int     Yaw;
 bool    IMU_Ready = false;     // set true if DMP init was successful
 
 // === MQTT ============
-#define WIFI_SSID        "philip-EXT2"
-#define WIFI_PASSWD      "fern5077266123"
-#define MQTT_USER        "uz"
-#define MQTT_PASSWD      ""
 #define MQTT_IP          "192.168.11.234"
-
 #define MQTT_TOPIC_YAW   "mower/imu/yaw"
 #define MQTT_TOPIC_COUNT "mower/imu/count"
-
 EspMQTTClient mqtt_client( WIFI_SSID, WIFI_PASSWD, MQTT_IP, MQTT_USER, MQTT_PASSWD, "moweranglemqtt",1883); // passwords are hidden for security
-//EspMQTTClient mqttclient( WIFI_SSID, WIFI_PASSWD, MQTT_IP, MQTT_USER, MQTT_PASSWD, "gpsmqtt",1883);
+
 JSONVar myJSON;
 
 // ======================= SETUP =======================================
@@ -67,10 +60,10 @@ void loop() {
       IMU_Yaw();                   // get IMU Yaw
       
    
-      if (incoming_wifi()) {
-         process_JSON();
+//      if (incoming_wifi()) {
+     //    process_JSON();
   //       last_valid_json = millis();
-      }
+   //   `}
    }
    
  // if ( (millis() - last_valid_json) > 1000) { // stop when no signal

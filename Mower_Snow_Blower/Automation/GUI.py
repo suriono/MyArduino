@@ -79,7 +79,7 @@ class GUI_class:
                     self.runMode = 0
                     print("---------- End of waypoints -----------")
 
-        else:                         # ----------------   robot moves
+        else:                         # Not simulation ----------------   robot moves
 
             yaw, self.yaw_count = self.MQTT_obj.yaw, self.MQTT_obj.imu_count
             self.VECTOR_obj.Angle = yaw + self.yaw_offset
