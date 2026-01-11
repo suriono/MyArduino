@@ -82,13 +82,16 @@ class GUI_class:
         else:                         # Not simulation ----------------   robot moves
 
             yaw, self.yaw_count = self.MQTT_obj.yaw, self.MQTT_obj.imu_count
+            lat,lon,gps_prec,gps_count = self.MQTT_obj.lat,self.MQTT_obj.lon,self.MQTT_obj.gps_prec,self.MQTT_obj.gps_count
             self.VECTOR_obj.Angle = yaw + self.yaw_offset
 
             if self.runMode > 0:
                 if self.VECTOR_obj.Distance > 1.0:   # until distance to waypoint tolerance
                     print("     Distance", self.VECTOR_obj.Distance)
                     self.VECTOR_obj.step_to_Location(is_Simulation=False)
-            self.DEBUG_STR.set("IMU: Yaw=" + str(self.VECTOR_obj.Angle ) + ", Count=" + str(self.yaw_count))
+            debug_str  = "GPS:(" + str(lat) + "," + str(lon) + ") Prec(mm):" + str(gps_prec) + "," + str(gps_count) + ")\n"
+            debug_str += "IMU: Yaw=" + str(self.VECTOR_obj.Angle ) + ", Count=" + str(self.yaw_count)
+            self.DEBUG_STR.set(debug_str)
 
         # Current location
         x,y,angle = self.VECTOR_obj.X, self.VECTOR_obj.Y,self.VECTOR_obj.Angle # self.VECTOR_obj.get_X_Y(lat=self.VECTOR_obj.gps_obj.lat_ref, lon=self.VECTOR_obj.gps_obj.lon_ref)

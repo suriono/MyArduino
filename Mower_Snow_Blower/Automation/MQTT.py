@@ -1,11 +1,12 @@
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
+import json
 
 class MQTT_class:
 
     HOST = "192.168.11.234"
     username, password = "uzinator", ""
-    yaw = 0
+    yaw,lat,lon = 0,0.0,0.0
 
     def __init__(self):
         self.mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
@@ -23,6 +24,7 @@ class MQTT_class:
     def mqtt_on_connect(self, client, userdata, flags, mid, rc):
         print("Connected to MQTT Broker, code: ", str(mid))
         self.mqtt_client.subscribe("mower/imu/#",0)
+        self.mqtt_client.subscribe("mower/gps", 0)
 
     def reconnect(self):
         self.mqtt_client.connect(self.HOST, 1883, 60)
@@ -38,10 +40,12 @@ class MQTT_class:
         #print("Received message on MQTT Broker:", msg.topic, msg.payload.decode("utf-8"))
         if topic == "mower/imu/yaw":
             self.yaw = int(msg.payload.decode("utf-8"))
-            #print("  Yaw: ", self.yaw)
         elif topic == "mower/imu/count":
             self.imu_count = val
-          #  print("Unknown topic: ", msg.topic, msg.payload.decode("utf-8"))
+        elif topic == "mower/gps":
+            js = json.loads(val)
+            self.lat,self.lon,self.gps_prec,self.gps_count = js['lat'],js['lon'],js['prec'],js['count']
+           # print("   GPS json:", self.lat, self.lon, self.prec, self.gps_count)
 
 # ==================== Testing ====================
 if __name__ == "__main__":
