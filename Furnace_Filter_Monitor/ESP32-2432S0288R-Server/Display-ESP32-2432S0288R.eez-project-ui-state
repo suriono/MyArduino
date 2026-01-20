@@ -1025,9 +1025,10 @@
       "selection": {
         "0": {
           "1": {},
-          "2": {},
-          "3": {
-            "$selected": true
+          "2": {
+            "0": {
+              "$selected": true
+            }
           }
         }
       },
@@ -1048,9 +1049,11 @@
     "[Display-ESP32-2432S0288R.eez-project]:/userPages/1[flow-state]": {
       "selection": {
         "0": {
-          "1": {
+          "1": {},
+          "12": {
             "$selected": true
-          }
+          },
+          "13": {}
         }
       },
       "transform": {
@@ -1080,8 +1083,8 @@
   "showComponentDescriptions": true,
   "logsPanelFilter": "all",
   "selectedStylePropertyName": "",
-  "lvglPart": "MAIN",
-  "lvglState": "PRESSED",
+  "lvglPart": "INDICATOR",
+  "lvglState": "SCROLLED",
   "lvglExpandedPropertiesGroup": [
     "BACKGROUND"
   ],

@@ -35,7 +35,7 @@ void create_screen_main() {
             objects.main_btn_nextpage = obj;
             lv_obj_set_pos(obj, 220, 190);
             lv_obj_set_size(obj, 100, 50);
-           // lv_obj_add_event_cb(obj, action_go_to_screen2, LV_EVENT_RELEASED, (void *)0);
+            lv_obj_add_event_cb(obj, action_go_to_screen2, LV_EVENT_RELEASED, (void *)0);
             lv_obj_set_style_bg_color(obj, lv_color_hex(0xfff37821), LV_PART_MAIN | LV_STATE_PRESSED);
             {
                 lv_obj_t *parent_obj = obj;
@@ -45,6 +45,21 @@ void create_screen_main() {
                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                     lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
                     lv_label_set_text(obj, "Next Page");
+                }
+            }
+        }
+        {
+            lv_obj_t *obj = lv_obj_create(parent_obj);
+            lv_obj_set_pos(obj, -1, 20);
+            lv_obj_set_size(obj, 321, 143);
+            {
+                lv_obj_t *parent_obj = obj;
+                {
+                    // Chart1
+                    lv_obj_t *obj = lv_chart_create(parent_obj);
+                    objects.chart1 = obj;
+                    lv_obj_set_pos(obj, -14, -3);
+                    lv_obj_set_size(obj, 233, 131);
                 }
             }
         }
@@ -77,7 +92,7 @@ void create_screen_screen2() {
             objects.screen2_btn_mainpage = obj;
             lv_obj_set_pos(obj, 0, 190);
             lv_obj_set_size(obj, 100, 50);
-           // lv_obj_add_event_cb(obj, action_go_to_mainpage, LV_EVENT_RELEASED, (void *)0);
+            lv_obj_add_event_cb(obj, action_go_to_mainpage, LV_EVENT_RELEASED, (void *)0);
             lv_obj_set_style_bg_color(obj, lv_color_hex(0xfff39e21), LV_PART_MAIN | LV_STATE_PRESSED);
             {
                 lv_obj_t *parent_obj = obj;
@@ -158,7 +173,7 @@ void create_screen_screen2() {
             objects.screen2_btn_calibrate = obj;
             lv_obj_set_pos(obj, 220, 70);
             lv_obj_set_size(obj, 100, 50);
-           // lv_obj_add_event_cb(obj, action_calibrate_pressure, LV_EVENT_RELEASED, (void *)0);
+            lv_obj_add_event_cb(obj, action_calibrate_pressure, LV_EVENT_RELEASED, (void *)0);
             lv_obj_set_style_bg_color(obj, lv_color_hex(0xfff36f21), LV_PART_MAIN | LV_STATE_PRESSED);
             {
                 lv_obj_t *parent_obj = obj;
@@ -170,6 +185,22 @@ void create_screen_screen2() {
                     lv_label_set_text(obj, "Calibrate\nPressure");
                 }
             }
+        }
+        {
+            lv_obj_t *obj = lv_label_create(parent_obj);
+            lv_obj_set_pos(obj, 196, 191);
+            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+            lv_label_set_text(obj, "Average #");
+        }
+        {
+            // Screen2_slider_change_average
+            lv_obj_t *obj = lv_slider_create(parent_obj);
+            objects.screen2_slider_change_average = obj;
+            lv_obj_set_pos(obj, 132, 218);
+            lv_obj_set_size(obj, 150, 10);
+            lv_slider_set_range(obj, 1, 10);
+            lv_slider_set_value(obj, 1, LV_ANIM_OFF);
+            lv_obj_add_event_cb(obj, action_change_average, LV_EVENT_VALUE_CHANGED, (void *)0);
         }
     }
     

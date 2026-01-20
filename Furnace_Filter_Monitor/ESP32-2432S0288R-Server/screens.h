@@ -12,6 +12,7 @@ typedef struct _objects_t {
     lv_obj_t *screen2;
     lv_obj_t *main_status;
     lv_obj_t *main_btn_nextpage;
+    lv_obj_t *chart1;
     lv_obj_t *pressure_a;
     lv_obj_t *screen2_btn_mainpage;
     lv_obj_t *pressure_b;
@@ -19,6 +20,7 @@ typedef struct _objects_t {
     lv_obj_t *temperature;
     lv_obj_t *pressure_diff_cal;
     lv_obj_t *screen2_btn_calibrate;
+    lv_obj_t *screen2_slider_change_average;
 } objects_t;
 
 extern objects_t objects;

@@ -11,6 +11,7 @@ extern void action_change_status(lv_event_t * e);
 extern void action_go_to_screen2(lv_event_t * e);
 extern void action_go_to_mainpage(lv_event_t * e);
 extern void action_calibrate_pressure(lv_event_t * e);
+extern void action_change_average(lv_event_t * e);
 
 
 #ifdef __cplusplus

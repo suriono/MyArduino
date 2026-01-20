@@ -31,6 +31,8 @@
 #include <WiFi.h>
 #include <lvgl.h>
 #include "ui.h"
+#include "callbacks.h"
+
 #include <ArduinoJson.h>
 #include <string.h>
 #include "password.h"
@@ -66,10 +68,14 @@ uint16_t touchScreenMinimumX = 200, touchScreenMaximumX = 3700, touchScreenMinim
 #define DRAW_BUF_SIZE (TFT_HOR_RES * TFT_VER_RES / 10 * (LV_COLOR_DEPTH / 8))
 
 int   pressA, pressB, press_Offset;
+float sumPressA, sumPressB;
+int   averageNo=1;
 float TempA , TempB;
-char  Main_Label_Status[30], Screen2_Label_PressureA[6], Screen2_Label_PressureB[6];
+char  Main_Label_Status[30], Screen2_Label_PressureA[7], Screen2_Label_PressureB[7];
 char  Screen2_Label_PressureDiff[4],  Screen2_Label_PressureDiffCal[4];
 char  Screen2_Label_Temperature[20];
+int   pressAarr[10], pressBarr[10];        // array to get average pressures
+#define CHART_READINGS  3                  // nunber of points in the chart
 
 // =================================================================
 
@@ -153,13 +159,21 @@ void setup() {
   ui_init();
 
   // Callbacks ------------- update these -------------------
-  //lv_obj_add_event_cb(objects.main_btn1, action_change_label1, LV_EVENT_RELEASED, objects.label1);
- // lv_obj_add_event_cb(objects.main_btn1            , action_change_status, LV_EVENT_RELEASED, objects.main_status);
-  lv_obj_add_event_cb(objects.main_btn_nextpage    , action_go_to_screen2, LV_EVENT_RELEASED, (void *)0);
-  lv_obj_add_event_cb(objects.screen2_btn_mainpage , action_go_to_mainpage, LV_EVENT_RELEASED, (void *)0);
-  lv_obj_add_event_cb(objects.screen2_btn_calibrate, action_calibrate_pressure, LV_EVENT_RELEASED, (void *)0);
-
+//  lv_obj_add_event_cb(objects.main_btn_nextpage    , action_go_to_screen2, LV_EVENT_RELEASED, (void *)0);
+//  lv_obj_add_event_cb(objects.screen2_btn_mainpage , action_go_to_mainpage, LV_EVENT_RELEASED, (void *)0);
+//  lv_obj_add_event_cb(objects.screen2_btn_calibrate, action_calibrate_pressure, LV_EVENT_RELEASED, (void *)0);
+//  lv_obj_add_event_cb(objects.screen2_slider_change_average, action_change_average, LV_EVENT_VALUE_CHANGED, (void *)0);
   lv_label_set_text(objects.main_status, "Starting the WiFi server ...." );
+  lv_chart_set_point_count(objects.chart1, CHART_READINGS);
+  lv_chart_series_t * chart_series = lv_chart_add_series(objects.chart1,lv_palette_main(LV_PALETTE_GREEN), LV_CHART_AXIS_PRIMARY_Y);
+
+for(int i = 0; i < CHART_READINGS; i++) {
+
+//   chart_series->y_points[i] = i*10;
+
+}
+
+  
   WiFi.softAP(SSID_NAME,PASS);
   Serial.print("AP IP: "); Serial.println(WiFi.softAPIP());
   WiFi.setAutoReconnect(true);
@@ -173,6 +187,7 @@ void setup() {
 
 void loop() {
   static unsigned long last_wifi;
+  static byte aveCount = 0;
   lv_tick_inc(millis() - lastTick);  //Update the tick timer. Tick is new for LVGL 9
   lastTick = millis();
   lv_timer_handler();  //Update the UI
@@ -186,26 +201,36 @@ void loop() {
    // itoa(pressA,tmpstr,10);
    // char *label1 = strcat("Pressure: ", tmpstr );
     //Serial.println(label1);
-    snprintf(Main_Label_Status, sizeof(Main_Label_Status),"Pressure: %d Diff: %d", pressA,pressA-pressB);
-    snprintf(Screen2_Label_Temperature, sizeof(Screen2_Label_Temperature),"%.0f F (%.0f C)", TempA*9/5+32.5, TempA+0.5);
-    snprintf(Screen2_Label_PressureA, sizeof(Screen2_Label_PressureA),"%d", pressA);
-    snprintf(Screen2_Label_PressureB, sizeof(Screen2_Label_PressureB),"%d", pressB);
-    snprintf(Screen2_Label_PressureDiff, sizeof(Screen2_Label_PressureDiff),"%d", pressA-pressB);
-    snprintf(Screen2_Label_PressureDiffCal, sizeof(Screen2_Label_PressureDiffCal),"%d", pressA-pressB+press_Offset);
 
-    lv_label_set_text(objects.main_status, Main_Label_Status );
+    pressAarr[aveCount] = pressA; pressBarr[aveCount] = pressB;
+    sumPressA=0; sumPressB=0;
+    for (byte nn=0 ; nn<averageNo ; nn++) {
+       sumPressA += float(pressAarr[nn]) / float(averageNo);  sumPressB += float(pressBarr[nn]) / float(averageNo);
+    }
+
+    snprintf(Screen2_Label_Temperature, sizeof(Screen2_Label_Temperature),"%.0f F (%.0f C)", TempA*9/5+32.5, TempA+0.5);
+    snprintf(Main_Label_Status, sizeof(Main_Label_Status),"Pressure: %d Diff: %d", sumPressA,sumPressA-sumPressB);
+    snprintf(Screen2_Label_PressureA, sizeof(Screen2_Label_PressureA),"%.1f", sumPressA);
+    snprintf(Screen2_Label_PressureB, sizeof(Screen2_Label_PressureB),"%.2f", sumPressB);
+    snprintf(Screen2_Label_PressureDiff, sizeof(Screen2_Label_PressureDiff),"%.1f", sumPressA-sumPressB);
+    snprintf(Screen2_Label_PressureDiffCal, sizeof(Screen2_Label_PressureDiffCal),"%.1f", sumPressA-sumPressB+press_Offset);
+
     lv_label_set_text(objects.temperature, Screen2_Label_Temperature);
+    lv_label_set_text(objects.main_status, Main_Label_Status );
     lv_label_set_text(objects.pressure_a, Screen2_Label_PressureA);
     lv_label_set_text(objects.pressure_b, Screen2_Label_PressureB);
     lv_label_set_text(objects.pressure_diff, Screen2_Label_PressureDiff);
     lv_label_set_text(objects.pressure_diff_cal, Screen2_Label_PressureDiffCal);
-    
+
+    aveCount = (aveCount + 1) % averageNo;
     last_wifi = millis();
     delay(5);
   } else {  // no incoming data
     if ( (millis()-last_wifi) > 5000) {
         lv_label_set_text(objects.main_status, "No sensor data" );
         last_wifi = millis();  // reset so it does not keep running this
+        lv_label_set_text(objects.temperature, Screen2_Label_Temperature);
+        Serial.println(Screen2_Label_Temperature);
     }
     delay(5);
   }
