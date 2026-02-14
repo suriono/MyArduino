@@ -20,6 +20,7 @@ extern int   press_Offset,averageNo;
 extern float sumPressA, sumPressB;
 extern float TempA , TempB;
 extern char  Screen2_Label_Temperature[20];
+extern bool  isCalibrated;
 
 // ========================= Go To Screen2 =============================
 
@@ -35,6 +36,7 @@ void action_go_to_screen2(lv_event_t *e) {
 
 void action_calibrate_pressure(lv_event_t *e) {
   press_Offset = sumPressB - sumPressA;
+  isCalibrated = true;
 }
 
 // ========================= Calibrate =================================

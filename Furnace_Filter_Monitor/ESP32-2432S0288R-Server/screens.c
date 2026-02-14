@@ -33,8 +33,8 @@ void create_screen_main() {
             // Main_Btn_nextpage
             lv_obj_t *obj = lv_button_create(parent_obj);
             objects.main_btn_nextpage = obj;
-            lv_obj_set_pos(obj, 220, 190);
-            lv_obj_set_size(obj, 100, 50);
+            lv_obj_set_pos(obj, 220, 208);
+            lv_obj_set_size(obj, 100, 32);
             lv_obj_add_event_cb(obj, action_go_to_screen2, LV_EVENT_RELEASED, (void *)0);
             lv_obj_set_style_bg_color(obj, lv_color_hex(0xfff37821), LV_PART_MAIN | LV_STATE_PRESSED);
             {
@@ -51,17 +51,51 @@ void create_screen_main() {
         {
             lv_obj_t *obj = lv_obj_create(parent_obj);
             lv_obj_set_pos(obj, -1, 20);
-            lv_obj_set_size(obj, 321, 143);
+            lv_obj_set_size(obj, 321, 142);
             {
                 lv_obj_t *parent_obj = obj;
                 {
-                    // Chart1
+                    // chart1
                     lv_obj_t *obj = lv_chart_create(parent_obj);
                     objects.chart1 = obj;
-                    lv_obj_set_pos(obj, -14, -3);
-                    lv_obj_set_size(obj, 233, 131);
+                    lv_obj_set_pos(obj, -14, -15);
+                    lv_obj_set_size(obj, 150, 143);
                 }
             }
+        }
+        {
+            lv_obj_t *obj = lv_label_create(parent_obj);
+            objects.obj0 = obj;
+            lv_obj_set_pos(obj, 0, 208);
+            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+            lv_obj_set_style_text_font(obj, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_SCROLLED);
+            lv_obj_set_style_text_color(obj, lv_color_hex(0xffcec62c), LV_PART_MAIN | LV_STATE_SCROLLED);
+            lv_obj_set_style_text_color(obj, lv_color_hex(0xffc138a1), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_label_set_text(obj, "Uz Furnace Filter \nMonitoring System");
+        }
+        {
+            // chart2
+            lv_obj_t *obj = lv_chart_create(parent_obj);
+            objects.chart2 = obj;
+            lv_obj_set_pos(obj, 150, 20);
+            lv_obj_set_size(obj, 170, 142);
+        }
+        {
+            lv_obj_t *obj = lv_label_create(parent_obj);
+            objects.obj1 = obj;
+            lv_obj_set_pos(obj, 30, 163);
+            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+            lv_obj_set_style_text_color(obj, lv_color_hex(0xffc4d552), LV_PART_MAIN | LV_STATE_SCROLLED);
+            lv_obj_set_style_text_color(obj, lv_color_hex(0xffb0c138), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_label_set_text(obj, "HOURLY");
+        }
+        {
+            lv_obj_t *obj = lv_label_create(parent_obj);
+            objects.obj2 = obj;
+            lv_obj_set_pos(obj, 215, 163);
+            lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+            lv_obj_set_style_text_color(obj, lv_color_hex(0xffef295f), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_label_set_text(obj, "DAILY");
         }
     }
     
@@ -198,8 +232,8 @@ void create_screen_screen2() {
             objects.screen2_slider_change_average = obj;
             lv_obj_set_pos(obj, 132, 218);
             lv_obj_set_size(obj, 150, 10);
-            lv_slider_set_range(obj, 1, 10);
-            lv_slider_set_value(obj, 1, LV_ANIM_OFF);
+            lv_slider_set_range(obj, 1, 100);
+            lv_slider_set_value(obj, 100, LV_ANIM_OFF);
             lv_obj_add_event_cb(obj, action_change_average, LV_EVENT_VALUE_CHANGED, (void *)0);
         }
     }

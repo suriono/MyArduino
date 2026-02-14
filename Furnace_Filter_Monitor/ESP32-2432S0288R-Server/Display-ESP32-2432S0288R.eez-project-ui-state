@@ -192,12 +192,23 @@
               "children": [
                 {
                   "type": "tab",
-                  "id": "#2045b31e-181f-448f-9e99-b3ed10507f62",
+                  "id": "#119431b7-4080-4b17-9bfc-bbd9a9b9634a",
                   "name": "Main",
                   "component": "editor",
                   "config": {
                     "objectPath": "[Display-ESP32-2432S0288R.eez-project]:/userPages/0",
                     "permanent": false
+                  },
+                  "icon": "svg:page"
+                },
+                {
+                  "type": "tab",
+                  "id": "#2045b31e-181f-448f-9e99-b3ed10507f62",
+                  "name": "Screen2",
+                  "component": "editor",
+                  "config": {
+                    "objectPath": "[Display-ESP32-2432S0288R.eez-project]:/userPages/1",
+                    "permanent": true
                   },
                   "icon": "svg:page"
                 },
@@ -1050,10 +1061,10 @@
       "selection": {
         "0": {
           "1": {},
-          "12": {
+          "12": {},
+          "13": {
             "$selected": true
-          },
-          "13": {}
+          }
         }
       },
       "transform": {
@@ -1083,10 +1094,11 @@
   "showComponentDescriptions": true,
   "logsPanelFilter": "all",
   "selectedStylePropertyName": "",
-  "lvglPart": "INDICATOR",
-  "lvglState": "SCROLLED",
+  "lvglPart": "MAIN",
+  "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
-    "BACKGROUND"
+    "TEXT",
+    "ARC"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
