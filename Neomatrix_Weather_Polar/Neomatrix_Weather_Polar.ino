@@ -1,25 +1,31 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
-#include <ESP8266mDNS.h>
+//#include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
-#include <ArduinoOTA.h>
+#include <NTPClient.h>
+//#include <ArduinoOTA.h>
 #include <Adafruit_NeoMatrix.h>
 #include <Adafruit_GFX.h>
 #include <Arduino_JSON.h>
+#include <time.h>
 #include "certs.h"
 
 X509List cert(cert_DigiCert_Global_Root_CA);
 String   weather_message;
 
-#define NEOPIXEL_PIN    4  // D2 for NodeMCU
-#define NCOLUMNS        64 // number of pixel columns
+// Define NTP Client to get time
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 3600, -6*3600); 
+
+#define NEOPIXEL_PIN    12  // D2 for NodeMCU
+#define NCOLUMNS        32 // number of pixel columns
 #define CHAR_WIDTH      6  // font width
 
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(NCOLUMNS, 8, NEOPIXEL_PIN,
   NEO_MATRIX_TOP  + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + 
   NEO_MATRIX_ZIGZAG, NEO_GRB + NEO_KHZ800);
 
-const char* host = "OTA-FRONT-NEOMATRIX";
+//const char* host = "OTA-FRONT-NEOMATRIX";
 
 const int ESP_BUILTIN_LED = 2;
 
@@ -35,47 +41,60 @@ void setup() {
   Serial.begin(57600);
 
   Serial.println("Booting");
+  Neopixel_Initial();
   WiFi.mode(WIFI_STA);
 
   wifi_begin(); // contain WiFi.begin("xxx","xxxx"); but hidden for security
 
-  ArduinoOTA.setHostname(host);
-  ArduinoOTA.onStart([]() { // switch off all the PWMs during upgrade
-  });
+  // Timezone offset in seconds (e.g., 3 * 3600 for GMT+3)
+  // Daylight saving offset in seconds (e.g., 0)
+  //configTime(-6 * 3600, 3600,"pool.ntp.org"); // "time.nist.gov");
+  timeClient.begin();
 
-  ArduinoOTA.onEnd([]() { // do a fancy thing with our board led at end
-  });
+ // ArduinoOTA.setHostname(host);
+ // ArduinoOTA.onStart([]() { // switch off all the PWMs during upgrade
+ // });
 
-  ArduinoOTA.onError([](ota_error_t error) {
-    (void)error;
-    ESP.restart();
-  });
+ //ArduinoOTA.onEnd([]() { // do a fancy thing with our board led at end
+ // });
+
+ // ArduinoOTA.onError([](ota_error_t error) {
+ //   (void)error;
+ //   ESP.restart();
+ // });
 
   /* setup the OTA server */
-  ArduinoOTA.begin();
-  Serial.println("Ready");
+ // ArduinoOTA.begin();
+ // Serial.println("Ready");
 
-  Neopixel_Initial();
-  
+  timeClient.update();
+  configTime(-6 * 3600, 3600,"pool.ntp.org"); 
   weather_message = get_Weather();
-  delay(10000);
-  
+ // Send_Text(weather_message);
+  Serial.println(weather_message);
+  //delay(10000);
+  Serial.println("  End of setup, beginning of the loop");
 }
 
 // =============== Loop ======================
 
 void loop() {
    static unsigned long last_time = millis();
-   ArduinoOTA.handle();
+  // ArduinoOTA.handle();
    String update_time;
 
-   // Weahter forecast
+   // Weather forecast
    update_time = "Updated " + String((millis()-last_time)/1000) + " seconds ago from api.weather.gov : ";
    Send_Text(update_time + weather_message);
    if ( (millis()-last_time) >    900000) {     // weather forecast
+      Serial.println("  Another weather update ... please wait ....");
+      timeClient.update();
       weather_message = get_Weather();
+      Serial.println(weather_message);
       last_time = millis();
+      configTime(-6 * 3600, 3600,"pool.ntp.org"); 
    }
+   Send_Text(weather_message);
     //Neomatrix_scroll_picture_random_color(0 ,  26, 32,50); // (xoffset, row, column, delay)
    // Neomatrix_scroll_picture_random_color(24,  26, 32,50); // (xoffset, row, column, delay)
   //  Neomatrix_scroll_picture_random_color(8 ,  26, 32,50); // (xoffset, row, column, delay)
@@ -87,7 +106,7 @@ void loop() {
   //  Neomatrix_scroll_picture_down(35, 20, 20,50); // (xoffset, row, column, delay)
  //   Neomatrix_scroll_picture_down(19, 20, 20,50); // (xoffset, row, column, delay)
   //  Neomatrix_scroll_picture_down(43, 20, 20,50); // (xoffset, row, column, delay)
- //   Neomatrix_scroll_picture_down(27, 20, 20,50); // (xoffset, row, column, delay)
+  //  Neomatrix_scroll_picture_down(27, 20, 20,50); // (xoffset, row, column, delay)
     
 //  Send_Text("O say, can you see");
 //    Neomatrix_scroll_picture2(24, 13, 30, 100); // (xoffset, row, column, delay)
@@ -144,7 +163,7 @@ void loop() {
 // ============== Send Text =================
 
 void Send_Text(String inputstr) {
-  ArduinoOTA.handle();
+//  ArduinoOTA.handle();
   int randn = random(0,767);
   byte red = 200;
   byte green = 200;
@@ -169,7 +188,7 @@ void Send_Text(String inputstr) {
 void Send_Text_two_words_random() {
   bool Toggle_Color;
   byte r1,g1,b1, r2,g2,b2;
-  ArduinoOTA.handle();
+ // ArduinoOTA.handle();
 
   
   r1 = 205  ; r2 = 0;
@@ -211,7 +230,7 @@ void Send_Text_two_words_random() {
 void Send_Text_two_words() {
   bool Toggle_Color;
   byte r1,g1,b1, r2,g2,b2;
-  ArduinoOTA.handle();
+ // ArduinoOTA.handle();
 
   
   r1 = 205  ; r2 = 0;
@@ -231,7 +250,7 @@ void Send_Text_two_words() {
 
 void Send_Text_Random() {
   byte r1,g1,b1, r2,g2,b2;
-  ArduinoOTA.handle();
+ // ArduinoOTA.handle();
   
   for (int x=0 ; x < ((Scroll_Text[0].length()+Scroll_Text[1].length())*CHAR_WIDTH+NCOLUMNS); x++) {
      if ( (x % (CHAR_WIDTH*8)) == 0 ) {
@@ -258,7 +277,7 @@ void Send_Text_Random() {
 
 
 void Send_Text2(String inputstr) {
-  ArduinoOTA.handle();
+ // ArduinoOTA.handle();
 
   Neomatrix_random_color();
   Neomatrix_scrolltext(inputstr ,red_random, green_random, blue_random);
