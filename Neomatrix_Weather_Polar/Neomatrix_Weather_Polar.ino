@@ -8,16 +8,18 @@
 #include <Adafruit_GFX.h>
 #include <Arduino_JSON.h>
 #include <time.h>
+#include "password.h"
 #include "certs.h"
 
 X509List cert(cert_DigiCert_Global_Root_CA);
-String   weather_message;
+
+#define TIMEZONE_ADJUST -5  // adjust to time zone relative to GMT
 
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 3600, -6*3600); 
 
-#define NEOPIXEL_PIN    12  // D2 for NodeMCU
+#define NEOPIXEL_PIN    12  // 4=D2, 12=D6 for NodeMCU
 #define NCOLUMNS        32 // number of pixel columns
 #define CHAR_WIDTH      6  // font width
 
@@ -29,6 +31,7 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(NCOLUMNS, 8, NEOPIXEL_PIN,
 
 const int ESP_BUILTIN_LED = 2;
 
+String   weather_message;
 byte red_random = 0;
 byte green_random = 0;
 byte blue_random = 0;
@@ -44,7 +47,16 @@ void setup() {
   Neopixel_Initial();
   WiFi.mode(WIFI_STA);
 
-  wifi_begin(); // contain WiFi.begin("xxx","xxxx"); but hidden for security
+ 
+  WiFi.begin(WIFI_SSID, WIFI_PASSWD);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
 
   // Timezone offset in seconds (e.g., 3 * 3600 for GMT+3)
   // Daylight saving offset in seconds (e.g., 0)
@@ -68,10 +80,11 @@ void setup() {
  // Serial.println("Ready");
 
   timeClient.update();
-  configTime(-6 * 3600, 3600,"pool.ntp.org"); 
-  weather_message = get_Weather();
- // Send_Text(weather_message);
+  configTime(TIMEZONE_ADJUST * 3600, 3600,"pool.ntp.org"); 
+  weather_message = get_Alert_Weather() + get_Weather();
   Serial.println(weather_message);
+  Send_Text(weather_message);
+  
   //delay(10000);
   Serial.println("  End of setup, beginning of the loop");
 }
@@ -86,13 +99,13 @@ void loop() {
    // Weather forecast
    update_time = "Updated " + String((millis()-last_time)/1000) + " seconds ago from api.weather.gov : ";
    Send_Text(update_time + weather_message);
-   if ( (millis()-last_time) >    900000) {     // weather forecast
+   if ( (millis()-last_time) >    1800000) {     // weather forecast
       Serial.println("  Another weather update ... please wait ....");
       timeClient.update();
-      weather_message = get_Weather();
+      weather_message = get_Alert_Weather() + get_Weather();
       Serial.println(weather_message);
       last_time = millis();
-      configTime(-6 * 3600, 3600,"pool.ntp.org"); 
+      configTime(TIMEZONE_ADJUST * 3600, 3600,"pool.ntp.org"); 
    }
    Send_Text(weather_message);
     //Neomatrix_scroll_picture_random_color(0 ,  26, 32,50); // (xoffset, row, column, delay)
