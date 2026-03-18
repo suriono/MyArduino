@@ -62,7 +62,6 @@ String get_Weather() {
   }
   //client.flush();
 
-   // String url = "api.tomtom.com/routing/1/calculateRoute/44.742127,-93.194999:44.745049,-93.194981/json?key=5oS0hZX2lCeGfmjVWxaAbvRvGKSSlSkB&travelMode=car&sectionType=traffic&sectionType=speedLimit&report=effectiveSettings&vehicleEngineType=combustion";
   String url = "/gridpoints/MPX/109,66/forecast";
  
   Serial.print("Requesting URL: ");
